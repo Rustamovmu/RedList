@@ -2,7 +2,7 @@
   "name": "wildward-api",
   "version": "0.1.0",
   "private": true,
-  "description": "WildAtlas/Wildward R1 backend: NestJS + Prisma + PostgreSQL/PostGIS",
+  "description": "Wildward R1 backend: NestJS + Drizzle ORM + PostgreSQL/PostGIS",
   "engines": {
     "node": ">=22"
   },
@@ -13,6 +13,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint \"{src,test}/**/*.ts\"",
     "db:up": "docker compose up -d db",
+    "db:setup:local": "bash scripts/setup-local-db.sh",
+    "db:check": "node scripts/check-db.cjs",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "ts-node --transpile-only src/cli/migrate.ts",
     "db:seed:regions": "ts-node --transpile-only src/cli/seed-regions.ts",

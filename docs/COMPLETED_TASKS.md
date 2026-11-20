@@ -1,5 +1,42 @@
 # Completed tasks
 
+## 2026-11-21: Docs and config consistency pass (no milestone; M1 not started)
+**Scope:** Fixed the mismatches between the docs and the repo, and moved the agent workflow from Codex to Claude Code (DECISIONS D-008, D-009). No application code changed.
+
+**Changed:**
+- `docs/CODEX_TASKS.md` → `docs/CLAUDE_TASKS.md`, with the instructions rewritten for Claude Code. The M1 prompt no longer mentions `packages/contracts`, which does not exist (D-002). It now names `openapi:export` → `contracts:generate`.
+- New `CLAUDE.md` in both repos. Each imports `AGENTS.md`.
+- New `docs/ARCHITECTURE.md`: runtime diagram, page map, API map and module map, each with a milestone status. It was missing from M0.
+- Every `CODEX_TASKS` reference updated (PLAN, README, this file).
+- `docker-compose.yml`: image `postgis/postgis:16-3.4` (amd64-only) → `imresamu/postgis:16-3.4` (arm64 + amd64), as D-003 already said.
+- `.env.example`: `DATABASE_URL` pointed at a user and database (`wildatlas`) that compose never creates. It is now `wild:wild@localhost:5433/wild`.
+- `test.env.example` → `.env.test.example`, matching the README and `test/setup-env.ts`.
+- `test-db.cjs` → `scripts/check-db.cjs`. New npm scripts `db:check` and `db:setup:local`, documented in the README and AGENTS.md.
+- `package.json` description said Prisma; it now says Drizzle ORM.
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| `docker manifest inspect postgis/postgis:16-3.4` / `imresamu/postgis:16-3.4` | amd64 only / amd64 + arm64 |
+| `grep -rni codex` (both repos, excluding node_modules) | no remaining references outside the decision log |
+| `node -e JSON.parse(package.json)` | valid |
+| backend `npm run typecheck` | pass |
+| backend `npm run lint` | pass |
+
+**Switched local development to Docker** (owner's choice; Postgres.app runs PostgreSQL 18, but the plan pins 16). `.env` `DATABASE_URL` now points at Docker on port 5433; the old Postgres.app URL is kept there as a comment. Results on the owner's Mac (Apple Silicon):
+| Command | Result |
+|---|---|
+| `npm run db:up` | container healthy; `PostgreSQL 16.4 … aarch64`, `PostGIS 3.4` (native arm64, so the image fix works). This closes the M0 "docker compose not verified" gap. |
+| `npm run db:migrate` | migrations applied |
+| `npm run db:seed:regions` | 177 countries, 29 marine areas |
+| `npm run db:check` | connected to PostgreSQL 16.4 |
+| `CREATE DATABASE wild_test` + `.env.test` from `.env.test.example` | done |
+| `npm test` | **16/16 pass** (2 suites) |
+
+**Known gaps:**
+- `RedList-frontend` has an untracked `yarn.lock` next to `package-lock.json`, which conflicts with npm (D-002). Left in place for the owner to delete.
+- The folder-name typo `RedList-backent` is unchanged (owner's call, D-002).
+
 ## 2026-11-21: M0 Foundation
 **Scope:** both projects scaffolded, database schema and integrity rules, region data, health check, web shell, docs. No catalogue features yet.
 
@@ -50,4 +87,4 @@
 - No staff authentication yet (M1).
 - No content yet: the database has regions only.
 
-**Next:** M1, the working species slice (see docs/CODEX_TASKS.md).
+**Next:** M1, the working species slice (see docs/CLAUDE_TASKS.md).

@@ -5,3 +5,7 @@ dist
 coverage
 storage/
 *.tsbuildinfo
+
+# Shared agent skills (~/Developer/skills)
+.claude/skills
+.agents/skills

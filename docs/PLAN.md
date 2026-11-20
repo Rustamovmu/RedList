@@ -1,6 +1,6 @@
 # WildAtlas — product and technical specification (v3)
 
-Working name: **Wildward** (renamed from WildAtlas; check domain and trademark availability before launch). This document is the specification. How the coding agent should work is in `AGENTS.md`. The prompts to run one milestone at a time are in `CODEX_TASKS.md`.
+Working name: **Wildward** (renamed from WildAtlas; check domain and trademark availability before launch). This document is the specification. How the coding agent (Claude Code) should work is in `AGENTS.md`, which `CLAUDE.md` imports. The prompts to run one milestone at a time are in `docs/CLAUDE_TASKS.md`.
 
 ---
 
@@ -65,7 +65,7 @@ RedList-backent/              (API + database + project docs)
   src/cli/                    migrate, seed-regions, export-openapi (later: import, admin, links)
   data/natural-earth/         public-domain boundary data
   test/                       integration tests against PostGIS
-  docs/                       PLAN, DECISIONS, DATABASE, DATA_SOURCES, BACKLOG, COMPLETED_TASKS, CODEX_TASKS
+  docs/                       PLAN, ARCHITECTURE, DECISIONS, DATABASE, DATA_SOURCES, BACKLOG, COMPLETED_TASKS, CLAUDE_TASKS
   docker-compose.yml          local PostGIS
 RedList-frontend/             (Next.js public site + /admin)
   src/app, src/components, src/lib

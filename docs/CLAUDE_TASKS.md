@@ -1,10 +1,22 @@
-# Codex task prompts — run one at a time
+# Claude Code task prompts: run one at a time
 
-M0 (foundation) is **done**: see COMPLETED_TASKS.md. Both repos already contain AGENTS.md. Open the backend and frontend folders together in your Codex workspace. Then paste **one** prompt below per Codex task. Before starting the next one, review its output and check the gate yourself.
+M0 (foundation) is **done**: see COMPLETED_TASKS.md. Both repos contain `AGENTS.md` (the rules) and a `CLAUDE.md` that imports it, so Claude Code loads the rules automatically at the start of every session.
+
+## How to run a milestone
+1. Start a **fresh** Claude Code session in the backend folder with the frontend added. Each milestone should begin with a clean context:
+   ```
+   cd ~/Developer/RedList-backent
+   claude --add-dir ../RedList-frontend
+   ```
+   (Inside an existing session, run `/clear` and then `/add-dir ../RedList-frontend` instead.)
+2. Optional: press Shift+Tab to switch to plan mode, so Claude proposes a plan for the milestone before editing anything.
+3. Paste **one** prompt below. Paste only that one.
+4. When Claude stops, review the diff and check the gate yourself before you start the next milestone.
+5. If a session runs out of context mid-milestone, Claude writes a **CHECKPOINT** entry in COMPLETED_TASKS.md (see AGENTS.md). Start a new session with: `Read docs/COMPLETED_TASKS.md and continue the CHECKPOINT for milestone Mx.`
 
 ---
 
-## M0 — Feasibility and scaffold
+## M0 — Feasibility and scaffold (done, kept for reference)
 ```
 Read AGENTS.md and docs/PLAN.md fully. Do milestone M0 only.
 
@@ -28,7 +40,8 @@ Implement:
 - The admin bootstrap CLI, staff login with sessions, CSRF and rate limiting (PLAN §9).
 - Draft → submit → publish for one species with the publication checklist and optimistic concurrency.
 - Public GET /api/v1/species/:slug, plus a profile page that renders all eight sections from persisted data, with "Unknown" states.
-- Source and media attribution with snapshots, the OpenAPI → packages/contracts generation, and revalidation on publish.
+- Source and media attribution with snapshots, and revalidation on publish.
+- Export the API contract (backend `npm run openapi:export`), then regenerate the frontend types (`npm run contracts:generate` in ../RedList-frontend, which writes src/contracts/api.d.ts). Never write API types by hand.
 
 Use the synthetic fixtures from PLAN §7.
 

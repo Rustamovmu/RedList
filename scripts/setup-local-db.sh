@@ -22,6 +22,6 @@ WHERE NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = :'d') \gexec
 SQL
 
 npm run db:migrate
-node test-db.cjs
+node scripts/check-db.cjs
 psql "$URL" -Atc "SELECT 'PostGIS ' || postgis_version()"
 echo "Database ready."

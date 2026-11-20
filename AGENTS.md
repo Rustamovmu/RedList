@@ -15,12 +15,14 @@ Backend (`RedList-backent/`):
 ```
 npm install
 npm run db:up               # local PostGIS via docker compose (port 5433)
+npm run db:setup:local      # alternative: Postgres.app (port 5432), creates role + DB from .env and migrates
+npm run db:check            # print the user/database DATABASE_URL connects to
 npm run db:migrate          # apply SQL migrations in drizzle/
 npm run db:seed:regions     # Natural Earth countries + oceans (idempotent)
 npm run dev                 # API on :4000, Swagger UI at /api/docs
 npm run db:generate         # after editing src/db/schema.ts: generate a migration
 npm run openapi:export      # write openapi.json for the frontend
-npm run typecheck && npm run lint && npm test && npm run build
+npm run typecheck && npm run lint && npm test && npm run build   # tests need .env.test (copy .env.test.example)
 ```
 Frontend (`RedList-frontend/`):
 ```

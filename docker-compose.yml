@@ -1,7 +1,7 @@
 # Local development database. The port binds to 127.0.0.1 only.
 services:
   db:
-    image: postgis/postgis:16-3.4
+    image: imresamu/postgis:16-3.4   # multi-arch (arm64 + amd64); see DECISIONS D-003
     restart: unless-stopped
     environment:
       POSTGRES_USER: wild

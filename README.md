@@ -5,7 +5,7 @@ The backend for **Wildward**, a wildlife discovery and conservation site: *under
 Stack: NestJS 11 · Drizzle ORM · PostgreSQL 16 + PostGIS 3.4 · Node 22.
 The web app lives in the sibling folder `../RedList-frontend`.
 
-**Status:** M0 foundation is complete. See `docs/COMPLETED_TASKS.md`. Spec: `docs/PLAN.md`. Agent rules: `AGENTS.md`.
+**Status:** M0 foundation is complete. See `docs/COMPLETED_TASKS.md`. Spec: `docs/PLAN.md`. Agent rules: `AGENTS.md` (loaded by Claude Code through `CLAUDE.md`). Milestone prompts: `docs/CLAUDE_TASKS.md`.
 
 ## Run locally (macOS)
 
@@ -15,12 +15,14 @@ You need Node 22+ and **either** Docker Desktop **or** Postgres.app (which bundl
 cp .env.example .env
 npm install
 
-# Database: option A, Docker (port 5433)
+# Database: option A, Docker (port 5433; .env.example is already set up for this)
 npm run db:up
-# Database: option B, Postgres.app (port 5432). Create the user and database, then set DATABASE_URL in .env:
-#   psql -c "CREATE USER wild WITH PASSWORD 'wild' SUPERUSER;" -c "CREATE DATABASE wild OWNER wild;"
-
 npm run db:migrate          # creates the schema and enables PostGIS
+
+# Database: option B, Postgres.app (port 5432). Change the port in DATABASE_URL in .env to 5432, then:
+npm run db:setup:local      # creates the role and database from .env, migrates, checks PostGIS (safe to re-run)
+
+npm run db:check            # optional: prints the user and database you are connected to
 npm run db:seed:regions     # countries and oceans from Natural Earth
 npm run dev                 # http://localhost:4000/api/v1/health/ready
                             # Swagger UI: http://localhost:4000/api/docs
@@ -44,6 +46,8 @@ npm test
 | `npm run typecheck` / `npm run lint` / `npm test` / `npm run build` | checks |
 | `npm run db:generate` | after editing `src/db/schema.ts`: generate a SQL migration, then review it |
 | `npm run db:migrate` | apply migrations |
+| `npm run db:setup:local` | Postgres.app only: create the role and database from `.env`, then migrate |
+| `npm run db:check` | test the `DATABASE_URL` connection |
 | `npm run openapi:export` | write `openapi.json`, then run `npm run contracts:generate` in the frontend |
 
 ## Layout
@@ -53,9 +57,11 @@ src/db/schema.ts        all R1 tables
 drizzle/                SQL migrations (0002_integrity.sql = hand-written rules)
 src/health/             health endpoints
 src/cli/                migrate, seed-regions, export-openapi
+scripts/                setup-local-db.sh (Postgres.app), check-db.cjs (connection test)
 test/integration/       PostGIS integration tests
 data/natural-earth/     public-domain boundaries
-docs/                   PLAN, DECISIONS, DATABASE, DATA_SOURCES, BACKLOG, COMPLETED_TASKS, CODEX_TASKS
+docs/                   PLAN, ARCHITECTURE, DECISIONS, DATABASE, DATA_SOURCES, BACKLOG, COMPLETED_TASKS, CLAUDE_TASKS
+AGENTS.md, CLAUDE.md    rules for the coding agent (CLAUDE.md imports AGENTS.md)
 ```
 
 Natural Earth data: public domain, https://www.naturalearthdata.com/
