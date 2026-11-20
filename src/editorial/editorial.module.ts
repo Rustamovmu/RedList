@@ -7,6 +7,6 @@ import { RevisionContentRepository } from './revision-content.repository';
 @Module({
   controllers: [EditorialController],
   providers: [EditorialService, RevisionContentRepository, RevalidationService],
-  exports: [EditorialService],
+  exports: [EditorialService, RevalidationService],
 })
 export class EditorialModule {}

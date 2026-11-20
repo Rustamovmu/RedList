@@ -56,7 +56,7 @@ export function runChecklist(i: ChecklistInput): ChecklistItem[] {
     {
       key: 'geography-sources',
       ok: i.regionsWithoutSource === 0,
-      message: 'Every geography row has a source',
+      message: 'Every geography row (region or range map) has a source',
     },
   ];
   return items;

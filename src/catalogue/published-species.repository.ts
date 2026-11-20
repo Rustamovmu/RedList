@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { and, asc, eq, inArray, isNull, sql } from 'drizzle-orm';
+import { domainOf } from '../common/url';
 import { Db, InjectDb } from '../db/db.module';
 import * as s from '../db/schema';
 import { CURRENT_EDITORIAL_VERSION, Editorial, parseEditorial } from '../editorial/editorial-schema';
@@ -14,13 +15,6 @@ const rangeValue = (m: { label: string; value?: number; min?: number; max?: numb
   label: m.label, value: m.value ?? null, min: m.min ?? null, max: m.max ?? null, unit: m.unit, context: m.context ?? null,
 });
 
-function domainOf(url: string): string {
-  try {
-    return new URL(url).hostname.replace(/^www\./, '');
-  } catch {
-    return url;
-  }
-}
 
 /**
  * THE public read path for species content (PLAN §6 "Publication"): the revision id is taken only from
@@ -44,7 +38,7 @@ export class PublishedSpeciesRepository {
     const revId = rev.id;
     const withheld = sp.locationSensitivity === 'hide_regions';
 
-    const [names, envs, assessments, estimates, regions, habitats, threats, citations, media, links] = await Promise.all([
+    const [names, envs, assessments, estimates, regions, ranges, habitats, threats, citations, media, links] = await Promise.all([
       this.db.select().from(s.speciesNames).where(eq(s.speciesNames.revisionId, revId)).orderBy(asc(s.speciesNames.language), asc(s.speciesNames.name)),
       this.db.select().from(s.speciesEnvironments).where(eq(s.speciesEnvironments.revisionId, revId)).orderBy(asc(s.speciesEnvironments.environment)),
       this.db
@@ -67,6 +61,17 @@ export class PublishedSpeciesRepository {
             .innerJoin(s.regions, eq(s.regions.id, s.speciesRegions.regionId))
             .where(eq(s.speciesRegions.revisionId, revId))
             .orderBy(asc(s.regions.name)),
+      // Range metadata only: shapes are served by GET /map, through GeoRepository. Never for hidden species.
+      withheld
+        ? Promise.resolve([])
+        : this.db
+            .select({
+              seasonality: s.speciesRanges.seasonality, presence: s.speciesRanges.presence, datasetVersion: s.speciesRanges.datasetVersion,
+              generalizationNote: s.speciesRanges.generalizationNote, sourceId: s.speciesRanges.sourceId,
+            })
+            .from(s.speciesRanges)
+            .where(eq(s.speciesRanges.revisionId, revId))
+            .orderBy(asc(s.speciesRanges.seasonality)),
       this.db
         .select({ h: s.speciesHabitats, code: s.habitats.code, name: s.habitats.name })
         .from(s.speciesHabitats)
@@ -108,6 +113,7 @@ export class PublishedSpeciesRepository {
       ...assessments.map((x) => x.a.sourceId),
       ...estimates.map((x) => x.p.sourceId),
       ...regions.map((x) => x.r.sourceId),
+      ...ranges.map((x) => x.sourceId),
       ...habitats.map((x) => x.h.sourceId),
       ...threats.map((x) => x.t.sourceId),
       ...citations.map((x) => x.sourceId),
@@ -155,6 +161,8 @@ export class PublishedSpeciesRepository {
       geography: {
         environments: envs.map((e) => e.environment),
         locationWithheld: withheld,
+        locationGeneralized: sp.locationSensitivity === 'generalize_country',
+        ranges,
         regions: regions.map(({ r, slug: rs, name, type }) => ({
           region: { slug: rs, name, type }, presence: r.presence, origin: r.origin, seasonality: r.seasonality, sourceId: r.sourceId,
         })),

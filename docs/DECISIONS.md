@@ -117,3 +117,51 @@ White text on each IUCN badge colour measures 4.9:1 to 21:1, so all pass WCAG AA
 - Tests use the installed Google Chrome (`channel: 'chrome'`), so no browser download is needed.
 - Projects: `desktop` (1280×800) and `mobile-360` (360×740).
 **Consequences:** The suite needs Docker PostGIS on :5433 and Chrome installed. CI (backlog) will need `npx playwright install chromium` and a `channel` override. `next start` prints a harmless warning about `output: standalone`.
+
+## D-016 Map API, basemap and body size (2026-11-21, M3)
+**Context:** PLAN §9 lists `GET /map?bbox&group&category` with "bbox validated, antimeridian-aware, result & vertex caps" but leaves the shape open. D-004 says the basemap is Natural Earth served by our API.
+**Decision:**
+- **bbox** is `west,south,east,north` in plain decimal degrees: lon in [-180, 180], lat in [-90, 90], south < north, west ≠ east. Anything else gets 400 `BAD_BBOX`. **west > east means the box crosses the antimeridian.** It is split into `[west,180]` and `[-180,east]`, so no query wraps the wrong way. With no bbox, the whole world is used.
+- **Layers:** a species with a published range is placed by its range (`layer: "range"`). Otherwise it is placed by the regions it is recorded in (`layer: "country"`, returned as region slugs to shade). A range is never derived from regions.
+- **Caps:** at most 200 species and 20,000 range vertices per response. Ranges are clipped to the viewport and simplified (tolerance = viewport width / 2000), and output uses 4 decimals. A cap sets `truncated: true`, and the UI says "zoom in".
+- **`GET /map/basemap`** is an extra public endpoint: every region with 3-decimal geometry and `Cache-Control: public, max-age=86400`. It is about 570 kB uncompressed. Compression is for Nginx in M5.
+- **`GET /map?species=<slug>`** drives the small profile map.
+- **JSON body limit is 2 MB** (`useBodyParser`), because range polygons travel in draft saves (Express's default is 100 kB). Each range is capped at 50,000 vertices and each revision at 20 ranges.
+- **MapLibre worker:** MapLibre GL 6 finds its worker with `new URL(…, import.meta.url)`, which the Next.js production bundler does not emit ("Worker failed to load"). `scripts/copy-maplibre-worker.mjs` (run by `predev` and `prebuild`) copies the worker to `public/vendor/maplibre-gl-worker-<version>.mjs`, and `setWorkerUrl` points at it.
+**Consequences:**
+- The production standalone build must ship `public/` (M5 deployment).
+- CSP (M5) must allow `worker-src 'self' blob:`, because MapLibre wraps the worker URL in a blob.
+
+## D-017 Location-sensitive geometry (2026-11-21, M3)
+**Context:** PLAN §5.6: public geometry for sensitive species is generalized *before storage*, and only approved public geometry is stored in R1.
+**Decision:** `GeoRepository.insertRanges` is the only writer of `species_ranges`.
+- **`hide_regions`:** range polygons are refused (422 `SENSITIVE_RANGE`). The species never appears on the map or on region pages, and is not matched by place (D-014).
+- **`generalize_country`:** the stored shape is the union of the whole countries the input covers. If it covers no country, the seas and oceans are used instead. A region counts when its overlap is more than 0.1% of the input's area, so shared borders do not pull in neighbours and re-saving a copied draft gives the same shape. `generalization_note` is set to a fixed text. The precise input exists only inside that SQL statement: it is never stored, logged or echoed in errors.
+- **All ranges:** the input must pass `ST_IsValid` (else 422 `INVALID_GEOMETRY`, without the PostGIS message, which can contain coordinates). It is then split at ±180 (`ST_WrapX`). Migration 0003 makes "inside ±180/±90" a CHECK.
+- "Approved" means published through the revision workflow: ranges are revision content, and drafts never reach `/map` (tested).
+**Consequences:**
+- Changing a species' sensitivity later does not rewrite old ranges. There is no endpoint for it yet; if one is added, it must regenerate or drop ranges.
+- Fixture `fictus-generalis` carries a deliberately precise test polygon whose coordinates are checked against every public endpoint.
+
+## D-018 Support directory rules (2026-11-21, M3)
+**Decision:**
+- Admins manage organizations and links (PLAN §7). Editors can read the directory and attach links to drafts.
+- New records start `pending`. **Any edit sends the record back to `pending`**, so changed text or URLs are reviewed before they show again.
+- `disable` takes effect at once, is audited, and creates no revision (PLAN §6). Re-enabling means approving again.
+- Public output shows only approved links of approved organizations: the profile, `GET /support`, and the species listed per link (published only).
+- Every change revalidates `support` and `species:<slug>` for the published species that show the link.
+- URLs must be https and are never fetched in M3 (the link checker is M4).
+- The review criteria on `/support` are a **draft written by the coding agent**. The owner must confirm them before launch, because they are published policy.
+
+## D-019 Spatial SQL moved out of the seed CLI (2026-11-21, M3)
+**Context:** `src/cli/seed-regions.ts` held raw spatial SQL, against the AGENTS rule that spatial SQL lives only in `GeoRepository` and migrations.
+**Decision:** the upsert moved to `upsertRegion()` in `src/geography/geo.repository.ts`. The seed calls it, and its behaviour is unchanged (still idempotent).
+
+## D-020 Marine Regions not imported (2026-11-21, M3)
+**Context:** the M3 prompt imports Marine Regions only "if its licence is approved in DATA_SOURCES". There was no row. For this session the owner required that nothing cost money or risk breaking the law.
+**Decision:** use Natural Earth only (public domain, already bundled: 29 ocean and sea areas). Marine Regions has a `pending` row in DATA_SOURCES and nothing is downloaded. Importing it later needs the owner to review its terms.
+
+## D-021 The e2e web build clears its data cache (2026-11-21, M3)
+**Context:** Next.js keeps its fetch cache in `.next-e2e/cache/fetch-cache` across rebuilds. After the profile DTO gained fields, the e2e web server served profile JSON cached by the M2 run, and pages crashed. Revalidation could not help: the fixtures are published before the web server starts.
+**Decision:** the Playwright web command deletes `.next-e2e/cache/fetch-cache` before `npm run build`.
+**Consequences:** the same risk exists in production when the API contract changes. The M5 deployment runbook must clear the Next.js data cache, or revalidate `catalogue`, on deploy.

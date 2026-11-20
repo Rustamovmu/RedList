@@ -5,8 +5,11 @@
  *
  * Coverage required by PLAN §7: unknown population, a regional assessment, a wild/captive split, breeding
  * pairs, multiple estimates, a marine species, a sensitive generalized species, and estimates in different units
- * (Fictus occultus counts all individuals, the others mature individuals) so compare shows "not directly comparable". (An antimeridian *range*
- * polygon needs the M3 GeoRepository; Fiji presence below exercises the antimeridian region instead.)
+ * (Fictus occultus counts all individuals, the others mature individuals) so compare shows "not directly comparable".
+ * M3: an antimeridian range polygon (Fictus marinus, near Fiji), a country-generalized species (Fictus generalis,
+ * whose deliberately precise test polygon must never be published), and a synthetic support organization whose
+ * links point at example.org, a domain reserved for documentation (RFC 2606).
+ * All polygons are invented shapes, not real ranges.
  */
 import type { Editorial } from '../editorial/editorial-schema';
 import type { AssessmentInput, EstimateInput } from '../editorial/dto';
@@ -24,6 +27,25 @@ export const FIXTURE_THREATS = [
   { code: 'fx-collection', name: 'Collection (synthetic fixture)' },
 ];
 
+/** SYNTHETIC support directory: example.org is reserved for documentation, so these links can never reach a real organization. */
+export const FIXTURE_ORGANIZATION = {
+  slug: 'example-conservation-trust-fixture',
+  name: 'Example Conservation Trust (fixture)',
+  website: 'https://example.org',
+  description: 'SYNTHETIC fixture organization for development. It does not exist and has never been reviewed.',
+};
+export const FIXTURE_LINKS = {
+  volunteer: { url: 'https://example.org/fictus-captivus/volunteer', actionType: 'volunteer' as const, description: 'SYNTHETIC fixture link: an example volunteering page. Not real.', status: 'approved' as const },
+  oldAppeal: { url: 'https://example.org/fictus-captivus/old-appeal', actionType: 'donate' as const, description: 'SYNTHETIC fixture link: a disabled appeal that must never be shown.', status: 'disabled' as const },
+};
+export type FixtureLinkKey = keyof typeof FIXTURE_LINKS;
+
+/** The precise test polygon of Fictus generalis. Its coordinates must never appear in any public response. */
+export const PRECISE_TEST_POLYGON = {
+  type: 'Polygon' as const,
+  coordinates: [[[39.123456, 8.654321], [39.223456, 8.654321], [39.223456, 8.754321], [39.123456, 8.754321], [39.123456, 8.654321]]],
+};
+
 type Assessment = Omit<AssessmentInput, 'sourceId' | 'regionId'> & { region?: string };
 type Estimate = Omit<EstimateInput, 'sourceId' | 'regionId'> & { region?: string };
 
@@ -33,7 +55,7 @@ export type FixtureSpecies = {
   commonName: string;
   /** Synthetic synonyms, to exercise synonym search. */
   synonyms?: string[];
-  displayGroup: 'mammal' | 'bird' | 'reptile' | 'amphibian' | 'fish';
+  displayGroup: 'mammal' | 'bird' | 'reptile' | 'amphibian' | 'fish' | 'insect';
   sensitivity?: 'none' | 'generalize_country' | 'hide_regions';
   environments: Array<'terrestrial' | 'freshwater' | 'marine' | 'brackish'>;
   editorial: Editorial;
@@ -42,6 +64,9 @@ export type FixtureSpecies = {
   regions: Array<{ slug: string; origin?: 'native' | 'introduced'; seasonality?: 'resident' | 'breeding' | 'non_breeding' }>;
   habitats: string[];
   threats: string[];
+  /** Synthetic range polygons (GeoJSON). Longitudes past 180 cross the antimeridian. */
+  ranges?: Array<{ seasonality?: 'resident' | 'breeding' | 'non_breeding'; geometry: { type: 'Polygon' | 'MultiPolygon'; coordinates: unknown[] } }>;
+  supportLinks?: FixtureLinkKey[];
 };
 
 const NOTE = 'Synthetic fixture text for development. Not a real species.';
@@ -106,6 +131,7 @@ export const FIXTURE_SPECIES: FixtureSpecies[] = [
     regions: [{ slug: 'madagascar' }],
     habitats: ['fx-forest'],
     threats: ['fx-collection'],
+    supportLinks: ['volunteer', 'oldAppeal'],
   },
   {
     slug: 'fictus-marinus',
@@ -122,6 +148,26 @@ export const FIXTURE_SPECIES: FixtureSpecies[] = [
     regions: [{ slug: 'fiji' }, { slug: 'south-pacific-ocean' }, { slug: 'coral-sea' }],
     habitats: ['fx-open-ocean'],
     threats: ['fx-bycatch'],
+    // An invented box across the antimeridian, written as 176…184 and split at ±180 when saved.
+    ranges: [{ geometry: { type: 'Polygon', coordinates: [[[176, -20], [184, -20], [184, -15], [176, -15], [176, -20]]] } }],
+  },
+  {
+    slug: 'fictus-generalis',
+    scientificName: 'Fictus generalis',
+    commonName: 'Generalized example beetle (fixture)',
+    displayGroup: 'insect',
+    sensitivity: 'generalize_country',
+    environments: ['terrestrial'],
+    editorial: {
+      overview: `${NOTE} A location-sensitive beetle whose range is published only at whole-country level.`,
+      population: { unknown: true, note: 'No estimate exists in the (synthetic) source.' },
+    },
+    assessments: [{ scope: 'global', category: 'NT', trend: 'unknown', assessedOn: '2022-02-01' }],
+    estimates: [],
+    regions: [{ slug: 'ethiopia' }],
+    habitats: [],
+    threats: [],
+    ranges: [{ geometry: PRECISE_TEST_POLYGON }],
   },
   {
     slug: 'fictus-occultus',

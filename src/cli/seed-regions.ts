@@ -5,6 +5,7 @@
  *   npm run db:seed:regions
  *
  * Geometry is validated (ST_MakeValid), polygons are extracted and stored as MultiPolygon in 4326.
+ * The spatial SQL lives in GeoRepository (upsertRegion), like all spatial SQL (AGENTS.md).
  * Natural Earth already splits shapes at the antimeridian.
  */
 import { config } from 'dotenv';
@@ -12,6 +13,7 @@ config({ quiet: true });
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { Pool } from 'pg';
+import { upsertRegion } from '../geography/geo.repository';
 
 type Feature = { properties: Record<string, unknown>; geometry: unknown };
 
@@ -49,14 +51,6 @@ export async function seedRegions(pool: Pool): Promise<{ countries: number; mari
       src.rows[0]?.id ??
       (await client.query<{ id: string }>(`SELECT id FROM sources WHERE title LIKE 'Natural Earth 1:110m%' LIMIT 1`)).rows[0].id;
 
-    const upsert = `
-      INSERT INTO regions (slug, name, type, iso_a2, geom, source_id)
-      VALUES ($1, $2, $3::region_type, $4,
-              ST_Multi(ST_CollectionExtract(ST_MakeValid(ST_SetSRID(ST_GeomFromGeoJSON($5), 4326)), 3)), $6)
-      ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name, type = EXCLUDED.type, iso_a2 = EXCLUDED.iso_a2,
-        geom = EXCLUDED.geom, source_id = EXCLUDED.source_id
-      WHERE regions.geom IS DISTINCT FROM EXCLUDED.geom OR regions.name IS DISTINCT FROM EXCLUDED.name`;
-
     const countries = JSON.parse(readFileSync(path.join(DATA, 'ne_110m_admin_0_countries.geojson'), 'utf8')) as { features: Feature[] };
     const seenIso = new Set<string>();
     let c = 0;
@@ -65,7 +59,7 @@ export async function seedRegions(pool: Pool): Promise<{ countries: number; mari
       let code = iso2(f.properties);
       if (code && seenIso.has(code)) code = null; // keep iso_a2 unique (a few NE units share a code)
       if (code) seenIso.add(code);
-      await client.query(upsert, [slugify(name), name, 'country', code, JSON.stringify(f.geometry), sourceId]);
+      await upsertRegion(client, { slug: slugify(name), name, type: 'country', isoA2: code, geometry: f.geometry, sourceId });
       c++;
     }
 
@@ -75,8 +69,8 @@ export async function seedRegions(pool: Pool): Promise<{ countries: number; mari
       const raw = String(f.properties.name ?? f.properties.NAME);
       const name = raw === raw.toUpperCase() ? raw.toLowerCase().replace(/\b\w/g, (ch) => ch.toUpperCase()) : raw;
       const cls = String(f.properties.featurecla);
-      const type = cls === 'ocean' ? 'ocean' : cls === 'sea' ? 'sea' : 'other';
-      await client.query(upsert, [slugify(name), name, type, null, JSON.stringify(f.geometry), sourceId]);
+      const type = cls === 'ocean' ? 'ocean' : cls === 'sea' ? 'sea' : ('other' as const);
+      await upsertRegion(client, { slug: slugify(name), name, type, isoA2: null, geometry: f.geometry, sourceId });
       m++;
     }
     await client.query('COMMIT');

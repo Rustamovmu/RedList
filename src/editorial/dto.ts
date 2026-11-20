@@ -16,9 +16,11 @@ import {
   MaxLength,
   Min,
   MinLength,
+  registerDecorator,
   ValidateNested,
 } from 'class-validator';
 import * as s from '../db/schema';
+import { geometryProblem, MAX_RANGE_VERTICES } from '../geography/geo-schema';
 import { editorialOpenApiSchema } from './editorial-schema';
 
 /** Citation section keys. Must match the CHECK constraint revision_citations_section in drizzle/0002_integrity.sql. */
@@ -126,6 +128,50 @@ export class SupportLinkInput {
   @ApiPropertyOptional({ nullable: true, type: String }) @IsOptional() @IsString() @MaxLength(300) contextNote?: string | null;
 }
 
+/** Validates GeoJSON range geometry with the zod schema in geography/geo-schema.ts. */
+function IsRangeGeometry(): PropertyDecorator {
+  return (target, key) =>
+    registerDecorator({
+      name: 'isRangeGeometry',
+      target: target.constructor,
+      propertyName: String(key),
+      validator: {
+        validate: (v: unknown) => geometryProblem(v) === null,
+        defaultMessage: (a) => `${a?.property ?? 'geometry'}: ${geometryProblem(a?.value) ?? 'invalid geometry'}`,
+      },
+    });
+}
+
+export class RangeInput {
+  @ApiProperty({ format: 'uuid' }) @IsUUID() sourceId!: string;
+  @ApiProperty({ enum: s.seasonality.enumValues }) @IsIn(s.seasonality.enumValues) seasonality!: Enum<typeof s.seasonality>;
+  @ApiProperty({ enum: s.presence.enumValues }) @IsIn(s.presence.enumValues) presence!: Enum<typeof s.presence>;
+  @ApiPropertyOptional({ nullable: true, type: String, description: 'Version of the source dataset, if any' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  datasetVersion?: string | null;
+  @ApiPropertyOptional({ nullable: true, type: String, description: 'How the shape was simplified. Set automatically for location-sensitive species.' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(300)
+  generalizationNote?: string | null;
+  @ApiProperty({
+    type: 'object',
+    description:
+      `GeoJSON Polygon or MultiPolygon, WGS84 [lon, lat], at most ${MAX_RANGE_VERTICES} vertices. Longitudes may run to ±540 to cross the ` +
+      'antimeridian in one shape; it is split at ±180 on save. For "generalize_country" species the shape is replaced by the whole ' +
+      'countries (or seas) it covers; "hide_regions" species cannot have ranges.',
+    properties: {
+      type: { type: 'string', enum: ['Polygon', 'MultiPolygon'] },
+      coordinates: { type: 'array', items: {} },
+    },
+    required: ['type', 'coordinates'],
+  })
+  @IsRangeGeometry()
+  geometry!: { type: 'Polygon' | 'MultiPolygon'; coordinates: unknown[] };
+}
+
 const nested = <T>(cls: new () => T, max: number) => [IsArray(), ArrayMaxSize(max), ValidateNested({ each: true }), Type(() => cls)];
 function Nested<T>(cls: new () => T, max: number): PropertyDecorator {
   return (target, key) => nested(cls, max).forEach((d) => d(target, key));
@@ -143,6 +189,9 @@ export class RevisionContentDto {
   @ApiProperty({ type: [AssessmentInput] }) @Nested(AssessmentInput, 50) assessments!: AssessmentInput[];
   @ApiProperty({ type: [EstimateInput] }) @Nested(EstimateInput, 100) populationEstimates!: EstimateInput[];
   @ApiProperty({ type: [RegionPresenceInput] }) @Nested(RegionPresenceInput, 500) regions!: RegionPresenceInput[];
+  @ApiProperty({ type: [RangeInput], description: 'Published range maps (approved through the revision workflow)' })
+  @Nested(RangeInput, 20)
+  ranges!: RangeInput[];
   @ApiProperty({ type: [HabitatInput] }) @Nested(HabitatInput, 100) habitats!: HabitatInput[];
   @ApiProperty({ type: [ThreatInput] }) @Nested(ThreatInput, 100) threats!: ThreatInput[];
   @ApiProperty({ type: [CitationInput] }) @Nested(CitationInput, 200) citations!: CitationInput[];

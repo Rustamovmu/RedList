@@ -51,11 +51,12 @@ afterAll(async () => {
 describe('GET /species', () => {
   it('lists only published species, sorted by name by default, with page metadata', async () => {
     const res = await http().get('/api/v1/species').expect(200);
-    expect(res.body).toMatchObject({ page: 1, pageSize: 24, total: 5, totalPages: 1 });
+    expect(res.body).toMatchObject({ page: 1, pageSize: 24, total: 6, totalPages: 1 });
     expect(res.body.items.map((i: { slug: string }) => i.slug)).toEqual([
       'fictus-captivus', // Captive example lizard
       'fictus-exemplaris', // Example beast
       'fictus-marinus', // Example reef fish
+      'fictus-generalis', // Generalized example beetle
       'fictus-occultus', // Hidden example frog
       'fictus-regionalis', // Regional example bird
     ]);
@@ -74,7 +75,7 @@ describe('GET /species', () => {
     expect(await slugs('?q=fictus%20capt')).toEqual(['fictus-captivus']);
     expect(await slugs('?q=Occultus')).toEqual(['fictus-occultus']);
     expect(await slugs('?q=antiq')).toEqual(['fictus-regionalis']); // synonym "Fictus antiquus"
-    expect(await slugs('?q=%26%7C!:*')).toHaveLength(5); // punctuation only: no tsquery injection, no filter
+    expect(await slugs('?q=%26%7C!:*')).toHaveLength(6); // punctuation only: no tsquery injection, no filter
   });
 
   it('filters by group and environment; values within a filter are OR, filters are AND', async () => {
@@ -100,14 +101,14 @@ describe('GET /species', () => {
   });
 
   it('sorts by status severity (DD and unassessed last) and by most recently reviewed', async () => {
-    expect(await slugs('?sort=status')).toEqual(['fictus-captivus', 'fictus-exemplaris', 'fictus-regionalis', 'fictus-marinus', 'fictus-occultus']);
+    expect(await slugs('?sort=status')).toEqual(['fictus-captivus', 'fictus-exemplaris', 'fictus-generalis', 'fictus-regionalis', 'fictus-marinus', 'fictus-occultus']);
     expect((await slugs('?sort=reviewed'))[0]).toBe('fictus-occultus'); // the last fixture published
   });
 
   it('pages results', async () => {
     const p2 = (await http().get('/api/v1/species?pageSize=2&page=2').expect(200)).body;
-    expect(p2).toMatchObject({ page: 2, pageSize: 2, total: 5, totalPages: 3 });
-    expect(p2.items.map((i: { slug: string }) => i.slug)).toEqual(['fictus-marinus', 'fictus-occultus']);
+    expect(p2).toMatchObject({ page: 2, pageSize: 2, total: 6, totalPages: 3 });
+    expect(p2.items.map((i: { slug: string }) => i.slug)).toEqual(['fictus-marinus', 'fictus-generalis']);
     expect((await http().get('/api/v1/species?pageSize=2&page=9').expect(200)).body.items).toEqual([]);
   });
 
@@ -130,7 +131,7 @@ describe('GET /species', () => {
 describe('GET /filters', () => {
   it('counts published species per option and hides sensitive locations', async () => {
     const f = (await http().get('/api/v1/filters').expect(200)).body;
-    expect(f.total).toBe(5);
+    expect(f.total).toBe(6);
     expect(f.threatened).toBe(2);
     expect(f.groups.find((g: { value: string }) => g.value === 'bird').count).toBe(1);
     expect(f.groups.find((g: { value: string }) => g.value === 'coral').count).toBe(0); // the draft does not count

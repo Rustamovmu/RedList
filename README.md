@@ -5,7 +5,7 @@ The backend for **Wildward**, a wildlife discovery and conservation site: *under
 Stack: NestJS 11 · Drizzle ORM · PostgreSQL 16 + PostGIS 3.4 · Node 22.
 The web app lives in the sibling folder `../RedList-frontend`.
 
-**Status:** M0 foundation, M1 (species slice: staff login, draft → submit → publish, public profile) and M2 (Explore, filters, compare, home) are complete. See `docs/COMPLETED_TASKS.md`. Spec: `docs/PLAN.md`. Agent rules: `AGENTS.md` (loaded by Claude Code through `CLAUDE.md`). Milestone prompts: `docs/CLAUDE_TASKS.md`.
+**Status:** M0 foundation, M1 (species slice: staff login, draft → submit → publish, public profile) M2 (Explore, filters, compare, home) and M3 (map, region pages, range maps, support directory) are complete. See `docs/COMPLETED_TASKS.md`. Spec: `docs/PLAN.md`. Agent rules: `AGENTS.md` (loaded by Claude Code through `CLAUDE.md`). Milestone prompts: `docs/CLAUDE_TASKS.md`.
 
 ## Run locally (macOS)
 
@@ -61,11 +61,13 @@ src/health/             health endpoints
 src/identity/           staff sessions, CSRF/Origin guard, roles, login throttle
 src/editorial/          revisions, editorial zod schema, checklist, publish transaction
 src/catalogue/          public reads (PublishedSpeciesRepository is the only path)
+src/geography/          map, regions, basemap; GeoRepository is the only home of spatial SQL
+src/support-directory/  organizations and support links (public directory + admin)
 src/fixtures/           SYNTHETIC dev fixtures
 src/cli/                migrate, seed-regions, seed-fixtures, admin-create, export-openapi
 scripts/                setup-local-db.sh (Postgres.app), check-db.cjs (connection test)
-test/integration/       PostGIS integration tests (auth, publication, integrity, health)
-test/unit/              editorial schema, checklist, licences, throttle
+test/integration/       PostGIS integration tests (auth, publication, catalogue, geography, support, integrity, health)
+test/unit/              editorial schema, checklist, licences, throttle, compare, bbox
 data/natural-earth/     public-domain boundaries
 docs/                   PLAN, ARCHITECTURE, DECISIONS, DATABASE, DATA_SOURCES, BACKLOG, COMPLETED_TASKS, CLAUDE_TASKS
 AGENTS.md, CLAUDE.md    rules for the coding agent (CLAUDE.md imports AGENTS.md)

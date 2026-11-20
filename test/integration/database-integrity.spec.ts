@@ -133,6 +133,15 @@ describe('regions and geometry', () => {
       '23514',
     );
   });
+
+  it('rejects a range stored past ±180 (antimeridian-safe storage, migration 0003)', async () => {
+    const f = await fixture(pool, 'geom-wrap');
+    const unsplit = 'MULTIPOLYGON(((176 -20, 184 -20, 184 -15, 176 -15, 176 -20)))';
+    await expectPgError(
+      pool.query(`INSERT INTO species_ranges (revision_id, source_id, geom) VALUES ($1, $2, ST_GeomFromText($3, 4326))`, [f.revision, f.source, unsplit]),
+      '23514',
+    );
+  });
 });
 
 describe('formats', () => {

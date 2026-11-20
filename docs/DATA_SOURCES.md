@@ -10,11 +10,14 @@ Nothing in this file means a permission was granted unless the status says **app
 | Population estimates | IUCN assessments, peer-reviewed literature, national surveys | per source | Manual editorial | Facts with citation | Store the summary plus citation | Cite each estimate | per source |
 | Taxon identifiers, names | GBIF Backbone Taxonomy | GBIF taxonKey | Public API | Checklist datasets mostly CC0/CC BY ([GBIF terms](https://www.gbif.org/terms)) | Must be checked per dataset | Cite GBIF and the dataset | **pending** |
 | Occurrence data | GBIF | — | Public API | Per dataset (CC0, CC BY, CC BY-NC) | Not used in R1. Sightings are never population figures or ranges. | — | not used |
+| Ocean and sea boundaries (detailed) | Marine Regions | MRGID | Download | Not yet reviewed: find the current terms on [marineregions.org](https://www.marineregions.org/) | Unknown until reviewed | Required if used | **pending**. Not imported (DECISIONS D-020). R1 uses the 29 Natural Earth ocean and sea areas. |
 | Species range polygons | IUCN spatial data | — | Download on request | Non-commercial terms. Redistribution restricted. | Unknown | Required | **pending**. Without it, show country-level presence only, labelled as such. |
 | Photographs | Wikimedia Commons, iNaturalist | file URL | Manual, per file | Per file. Allow-list: CC0, PDM, CC BY, CC BY-SA | Yes for allow-listed files | Creator, licence, link, modifications | per file |
 | Diet, climate, biology | Literature and handbooks | DOI/URL | Manual editorial synthesis | Facts with citation, no copied text | Store our own wording | Cite | per source |
 
 ## Unavailable or unconfigured integrations
 - IUCN API token: not configured.
-- IUCN range maps: not requested.
+- IUCN range maps: not requested. The only range polygons in the database are SYNTHETIC development fixtures (`fictus-marinus`, `fictus-generalis`).
+- Marine Regions: not downloaded (pending licence review, D-020).
+- Map: MapLibre GL JS 6.19.0 (BSD-3-Clause), bundled. No tile provider, API key or font server.
 - Map tiles: none needed in R1 (see DECISIONS D-004).

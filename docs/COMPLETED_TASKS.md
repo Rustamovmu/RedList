@@ -1,5 +1,102 @@
 # Completed tasks
 
+## 2026-11-21: M3 Geography and support
+**Scope:** `GeoRepository`, map API and basemap, region pages, range maps as revision content (antimeridian split, vertex caps), generalization for sensitive species, the support directory (public page and admin), and the profile map and help section. Decisions: D-016 to D-021.
+
+**Owner constraint this session:** nothing may cost money or risk breaking the law.
+- Boundaries come from Natural Earth only (public domain). Marine Regions is not imported; it has a pending row in DATA_SOURCES (D-020).
+- MapLibre GL JS 6.19.0 (BSD-3-Clause). No tile provider, key or font server.
+- Every new fixture is SYNTHETIC. Support links point to `example.org`, which is reserved for documentation.
+
+**Backend:**
+- `src/geography/`:
+  - `GeoRepository` is now the only home of spatial SQL; the seed CLI's upsert moved there (D-019)
+  - `GET /map?bbox&group&category&species`:
+    - bbox is validated, and `west > east` crosses the antimeridian
+    - a species is placed by its published range, or else by country-level presence
+    - at most 200 species and 20,000 vertices, with `truncated` when a cap is hit
+  - `GET /map/basemap`: Natural Earth, cached for one day
+  - `GET /regions/:slug`: region, facets, and species with how they occur there; filters for group, status, origin and season
+- **Ranges are revision content** (`RevisionContentDto.ranges`):
+  - input is validated with zod and then `ST_IsValid` (422 `INVALID_GEOMETRY`, never echoing coordinates)
+  - split at ±180 with `ST_WrapX`
+  - at most 50,000 vertices per range and 20 ranges per revision
+  - `hide_regions` species are refused (422 `SENSITIVE_RANGE`)
+  - `generalize_country` species store the union of the whole countries covered, and the precise input is never stored (D-017)
+- Migration `0003_geometry_bounds.sql`: stored geometry must lie inside ±180/±90.
+- Profile DTO: `geography.ranges` (metadata only) and `geography.locationGeneralized`.
+- `src/support-directory/`:
+  - public `GET /support`
+  - admin-only organization and link create, edit, approve and disable
+  - any edit goes back to pending; disable is immediate, audited and creates no revision
+  - revalidation of `support` and the affected `species:<slug>` tags (D-018)
+- JSON body limit raised to 2 MB for range polygons (D-016).
+- Fixtures:
+  - an antimeridian range for *Fictus marinus* (closes the M1 gap)
+  - new *Fictus generalis* (`generalize_country`, insect, Ethiopia) with a deliberately precise test polygon
+  - an "Example Conservation Trust (fixture)" with one approved and one disabled link on *Fictus captivus*
+  - catalogue test counts and orders updated for 6 species
+- `openapi.json` re-exported; frontend contracts regenerated.
+
+**Frontend:**
+- `/map`:
+  - the server renders the list first, then MapLibre loads in the browser
+  - the list and the "N species in this catalogue match this view" status follow the viewport, and the bbox is kept in the URL (`replaceState`)
+  - group and status filters
+  - legend labelled "Country-level presence" (solid fill) and "Published range map" (hatched, dashed outline), and each result says which applies
+  - if the basemap or WebGL fails, a notice appears and the list still works
+  - "Near me": the browser's position is matched to a country inside the browser only, then opens `/regions/<country>`
+- `/regions/[slug]`: filters, occurrence labels ("Present · Native · Breeding season"), "View on the map", empty state, 404.
+- `/support`: reviewed organizations and links (destination domain, `rel="noopener noreferrer"`), the species each link appears on, the review criteria (**a draft for the owner to confirm**), and the "not a certification / not a donation" disclaimer. It renders per request.
+- Profile:
+  - small map with the matching legend
+  - "Range maps" list with citations
+  - generalized-location notice
+  - region names link to region pages
+  - help section links to `/support`
+- `/admin/support`: organization and link editor with Approve and Disable; editors get read-only. A staff nav was added.
+- Home page "Explore by country, sea or ocean" now links to region pages.
+- MapLibre's worker is copied to `public/vendor/` by `predev` and `prebuild` (fix for "Worker failed to load" in production builds, D-016).
+- The Playwright web command clears `.next-e2e/cache/fetch-cache` first (D-021).
+
+**Commands run, with results** (macOS arm64, Docker PostGIS 16.4 / 3.4, Node 24.19, Chrome stable):
+| Command | Result |
+|---|---|
+| backend `npx drizzle-kit generate --custom` → `0003_geometry_bounds.sql`, then `npm run db:migrate` (dev DB) | migration created and applied |
+| backend `npm run typecheck` / `lint` / `build` | pass / pass / pass |
+| backend `npm test` | **148/148 pass**, 10 suites. New: geography (32), support (8), bbox unit (17), and 1 integrity test (unsplit range rejected). Earlier suites pass with updated fixture counts. |
+| backend `npm run openapi:export`; frontend `npm run contracts:generate` | written |
+| frontend `npm install maplibre-gl@6.19.0 --save-exact` | 0 vulnerabilities reported |
+| frontend `npm run typecheck` / `lint` / `build` | pass / pass / pass |
+| frontend `npm run test:e2e` | **22/22 pass** (11 tests × desktop 1280 and mobile 360) |
+
+**Gate evidence:**
+- bbox validation: malformed boxes get 400 `BAD_BBOX` (3 values, NaN, exponent, lat 91, lon ±181, south ≥ north, west = east).
+- Antimeridian:
+  - `170,-25,-170,-10` returns *F. marinus* with both halves inside ±180
+  - each side alone also finds it, and `0,-25,10,-10` does not
+  - the stored range has 2 parts with xmin -180 and xmax 180
+  - Fiji's region bbox comes back as `west > east`
+- Sensitive geometry:
+  - the stored *F. generalis* shape `ST_Equals` Ethiopia
+  - its precise coordinates appear in none of 12 public responses (list, search, profile, filters, compare, map ×4, basemap, region, support)
+  - copying it into a new draft does not grow the shape
+  - `hide_regions` ranges are refused, and *F. occultus* never appears on `/map` or `/regions/peru`
+- Playwright with `**/api/v1/map/basemap**` aborted: the notice is shown, the list shows 5 species, the Fish filter narrows it to 1, the layer labels are present, and there is no overflow at 360px.
+- Screenshots of `/map` (1280 and 360), the antimeridian view and the *F. marinus* profile were checked by eye. The map renders country shading, the hatched generalized range and the split Fiji range.
+
+**Known gaps:**
+- The `/support` review criteria are a draft by the coding agent: **owner to confirm before launch** (D-018).
+- The basemap is 1:110m: small islands and countries are missing (Near me tells the user), and the response is about 570 kB uncompressed (compression via Nginx in M5).
+- Ranges split at ±180 show a thin seam on the map. The profile map frames its range a little off-centre.
+- CSP for MapLibre (`worker-src 'self' blob:`) and shipping `public/` with the standalone build are M5 (D-016). The Next.js data cache must be cleared on deploy after API contract changes (D-021).
+- No real range polygons: IUCN spatial data is pending, so only synthetic fixtures have ranges. Marine Regions is pending (D-020).
+- There is no endpoint to change a species' sensitivity. If one is added, it must regenerate or drop its ranges (D-017).
+- Nav and footer links to `/about`, `/methodology`, `/sources`, `/privacy` and `/terms` still 404 (unassigned). The form-based draft editor is still JSON (D-011).
+- Query plans measured on 6 rows only (DATABASE.md).
+
+**Next:** M4, Content operations and real catalogue (docs/CLAUDE_TASKS.md).
+
 ## 2026-11-21: M2 Discover and compare
 **Scope:** public list API with search, filters, sort and paging; filter counts; compare; related species; Explore, home and compare pages; first Playwright suite. Decisions: D-014, D-015.
 

@@ -126,6 +126,180 @@
         ]
       }
     },
+    "/api/v1/map": {
+      "get": {
+        "operationId": "GeographyController_map",
+        "parameters": [
+          {
+            "name": "bbox",
+            "required": false,
+            "in": "query",
+            "description": "Viewport \"west,south,east,north\" in degrees. west > east crosses the antimeridian. Default: the whole world.",
+            "schema": {
+              "example": "170,-25,-170,-10",
+              "type": "string"
+            }
+          },
+          {
+            "name": "group",
+            "required": false,
+            "in": "query",
+            "description": "Animal group(s), comma-separated",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "description": "IUCN category of the headline assessment, comma-separated",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "species",
+            "required": false,
+            "in": "query",
+            "description": "Only this published species (used by the profile map)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MapDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD_BBOX: bbox is not four numbers in range with south < north and west ≠ east"
+          }
+        },
+        "tags": [
+          "geography"
+        ]
+      }
+    },
+    "/api/v1/map/basemap": {
+      "get": {
+        "operationId": "GeographyController_basemap",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BasemapDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "geography"
+        ]
+      }
+    },
+    "/api/v1/regions/{slug}": {
+      "get": {
+        "operationId": "GeographyController_region",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "group",
+            "required": false,
+            "in": "query",
+            "description": "Animal group(s), comma-separated",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "description": "Headline IUCN category, comma-separated",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "origin",
+            "required": false,
+            "in": "query",
+            "description": "Origin in this region (native, introduced, …), comma-separated",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "seasonality",
+            "required": false,
+            "in": "query",
+            "description": "Seasonality in this region (resident, breeding, …), comma-separated",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 48,
+              "default": 24,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegionPageDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No region with this slug"
+          }
+        },
+        "tags": [
+          "geography"
+        ]
+      }
+    },
     "/api/v1/staff/species": {
       "get": {
         "operationId": "EditorialController_listSpecies",
@@ -931,6 +1105,440 @@
           "catalogue"
         ]
       }
+    },
+    "/api/v1/support": {
+      "get": {
+        "operationId": "SupportController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportDirectoryDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "support"
+        ]
+      }
+    },
+    "/api/v1/staff/organizations": {
+      "get": {
+        "operationId": "StaffSupportController_organizations",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StaffOrganizationDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-support"
+        ]
+      },
+      "post": {
+        "operationId": "StaffSupportController_createOrganization",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrganizationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffOrganizationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-support"
+        ]
+      }
+    },
+    "/api/v1/staff/organizations/{id}": {
+      "put": {
+        "operationId": "StaffSupportController_updateOrganization",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOrganizationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Edits send the organization back to pending review",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffOrganizationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-support"
+        ]
+      }
+    },
+    "/api/v1/staff/organizations/{id}/approve": {
+      "post": {
+        "operationId": "StaffSupportController_approveOrganization",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffOrganizationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-support"
+        ]
+      }
+    },
+    "/api/v1/staff/organizations/{id}/disable": {
+      "post": {
+        "operationId": "StaffSupportController_disableOrganization",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Hides the organization and all its links at once",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffOrganizationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-support"
+        ]
+      }
+    },
+    "/api/v1/staff/support-links": {
+      "post": {
+        "operationId": "StaffSupportController_createLink",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSupportLinkDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffSupportLinkDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-support"
+        ]
+      }
+    },
+    "/api/v1/staff/support-links/{id}": {
+      "put": {
+        "operationId": "StaffSupportController_updateLink",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSupportLinkDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Edits send the link back to pending review",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffSupportLinkDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-support"
+        ]
+      }
+    },
+    "/api/v1/staff/support-links/{id}/approve": {
+      "post": {
+        "operationId": "StaffSupportController_approveLink",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffSupportLinkDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-support"
+        ]
+      }
+    },
+    "/api/v1/staff/support-links/{id}/disable": {
+      "post": {
+        "operationId": "StaffSupportController_disableLink",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Hides the link everywhere at once; audited; no new species revision",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffSupportLinkDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-support"
+        ]
+      }
     }
   },
   "info": {
@@ -1048,6 +1656,741 @@
         },
         "required": [
           "ok"
+        ]
+      },
+      "CardStatusDto": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": [
+              "EX",
+              "EW",
+              "CR",
+              "EN",
+              "VU",
+              "NT",
+              "LC",
+              "DD",
+              "NE"
+            ]
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "global",
+              "regional"
+            ]
+          },
+          "assessedOn": {
+            "type": "string",
+            "nullable": true
+          },
+          "trend": {
+            "type": "string",
+            "enum": [
+              "increasing",
+              "decreasing",
+              "stable",
+              "unknown"
+            ]
+          }
+        },
+        "required": [
+          "category",
+          "scope",
+          "assessedOn",
+          "trend"
+        ]
+      },
+      "CardImageDto": {
+        "type": "object",
+        "properties": {
+          "storageKey": {
+            "type": "string"
+          },
+          "altText": {
+            "type": "string"
+          },
+          "credit": {
+            "type": "string"
+          },
+          "license": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "storageKey",
+          "altText",
+          "credit",
+          "license"
+        ]
+      },
+      "MapSpeciesDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "scientificName": {
+            "type": "string"
+          },
+          "commonName": {
+            "type": "string",
+            "nullable": true
+          },
+          "displayGroup": {
+            "type": "string",
+            "enum": [
+              "mammal",
+              "bird",
+              "reptile",
+              "amphibian",
+              "fish",
+              "insect",
+              "arachnid",
+              "mollusc",
+              "crustacean",
+              "coral",
+              "other_invertebrate"
+            ]
+          },
+          "status": {
+            "nullable": true,
+            "description": "Headline assessment: global if there is one, else regional; most recent first",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CardStatusDto"
+              }
+            ]
+          },
+          "notAssessed": {
+            "type": "boolean"
+          },
+          "environments": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "terrestrial",
+                "freshwater",
+                "marine",
+                "brackish",
+                "subterranean",
+                "aerial"
+              ]
+            }
+          },
+          "regionCount": {
+            "type": "number",
+            "nullable": true,
+            "description": "Number of countries, seas and oceans; null when locations are withheld"
+          },
+          "locationWithheld": {
+            "type": "boolean"
+          },
+          "image": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CardImageDto"
+              }
+            ]
+          },
+          "layer": {
+            "type": "string",
+            "enum": [
+              "range",
+              "country"
+            ],
+            "description": "range: a published range map is shown. country: only country/sea-level presence is known, so whole regions are shaded."
+          }
+        },
+        "required": [
+          "slug",
+          "scientificName",
+          "commonName",
+          "displayGroup",
+          "status",
+          "notAssessed",
+          "environments",
+          "regionCount",
+          "locationWithheld",
+          "image",
+          "layer"
+        ]
+      },
+      "CountryPresenceDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "description": "Region slug; its shape is in GET /map/basemap"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "country",
+              "ocean",
+              "sea",
+              "other"
+            ]
+          },
+          "speciesCount": {
+            "type": "number"
+          },
+          "species": {
+            "description": "Slugs of the species shaded here",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "slug",
+          "name",
+          "type",
+          "speciesCount",
+          "species"
+        ]
+      },
+      "MultiPolygonDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "MultiPolygon"
+            ]
+          },
+          "coordinates": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "description": "WGS84 [longitude, latitude]; never crosses ±180 (shapes are split there)"
+          }
+        },
+        "required": [
+          "type",
+          "coordinates"
+        ]
+      },
+      "MapRangeDto": {
+        "type": "object",
+        "properties": {
+          "speciesSlug": {
+            "type": "string"
+          },
+          "seasonality": {
+            "type": "string",
+            "enum": [
+              "resident",
+              "breeding",
+              "non_breeding",
+              "passage",
+              "seasonal_uncertain"
+            ]
+          },
+          "presence": {
+            "type": "string",
+            "enum": [
+              "extant",
+              "probably_extant",
+              "possibly_extant",
+              "possibly_extinct",
+              "extinct",
+              "presence_uncertain"
+            ]
+          },
+          "generalized": {
+            "type": "boolean",
+            "description": "True when the shape was generalized to whole countries or seas to protect the species"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "sourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "geometry": {
+            "description": "Clipped to the viewport and simplified for display",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MultiPolygonDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "speciesSlug",
+          "seasonality",
+          "presence",
+          "generalized",
+          "note",
+          "sourceId",
+          "geometry"
+        ]
+      },
+      "MapLimitsDto": {
+        "type": "object",
+        "properties": {
+          "maxSpecies": {
+            "type": "number"
+          },
+          "maxVertices": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "maxSpecies",
+          "maxVertices"
+        ]
+      },
+      "MapDto": {
+        "type": "object",
+        "properties": {
+          "bbox": {
+            "description": "[west, south, east, north] as interpreted",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "species": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MapSpeciesDto"
+            }
+          },
+          "countryPresence": {
+            "description": "Layer \"Country-level presence\"",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CountryPresenceDto"
+            }
+          },
+          "ranges": {
+            "description": "Layer \"Published range map\"",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MapRangeDto"
+            }
+          },
+          "truncated": {
+            "type": "boolean",
+            "description": "True when a species or vertex cap cut the result short; zoom in to see everything"
+          },
+          "limits": {
+            "$ref": "#/components/schemas/MapLimitsDto"
+          }
+        },
+        "required": [
+          "bbox",
+          "species",
+          "countryPresence",
+          "ranges",
+          "truncated",
+          "limits"
+        ]
+      },
+      "BasemapPropertiesDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "country",
+              "ocean",
+              "sea",
+              "other"
+            ]
+          }
+        },
+        "required": [
+          "slug",
+          "name",
+          "kind"
+        ]
+      },
+      "BasemapFeatureDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "Feature"
+            ]
+          },
+          "properties": {
+            "$ref": "#/components/schemas/BasemapPropertiesDto"
+          },
+          "geometry": {
+            "$ref": "#/components/schemas/MultiPolygonDto"
+          }
+        },
+        "required": [
+          "type",
+          "properties",
+          "geometry"
+        ]
+      },
+      "BasemapDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "FeatureCollection"
+            ]
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BasemapFeatureDto"
+            }
+          },
+          "attribution": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "features",
+          "attribution"
+        ]
+      },
+      "RegionSourceDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "license": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "title",
+          "url",
+          "license"
+        ]
+      },
+      "RegionDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "country",
+              "ocean",
+              "sea",
+              "other"
+            ]
+          },
+          "isoA2": {
+            "type": "string",
+            "nullable": true
+          },
+          "bbox": {
+            "nullable": true,
+            "description": "[west, south, east, north]; west > east crosses the antimeridian",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "source": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RegionSourceDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "slug",
+          "name",
+          "type",
+          "isoA2",
+          "bbox",
+          "source"
+        ]
+      },
+      "FacetDto": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "value",
+          "count"
+        ]
+      },
+      "RegionFacetsDto": {
+        "type": "object",
+        "properties": {
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FacetDto"
+            }
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FacetDto"
+            }
+          },
+          "origins": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FacetDto"
+            }
+          },
+          "seasonalities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FacetDto"
+            }
+          }
+        },
+        "required": [
+          "groups",
+          "categories",
+          "origins",
+          "seasonalities"
+        ]
+      },
+      "SpeciesCardDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "scientificName": {
+            "type": "string"
+          },
+          "commonName": {
+            "type": "string",
+            "nullable": true
+          },
+          "displayGroup": {
+            "type": "string",
+            "enum": [
+              "mammal",
+              "bird",
+              "reptile",
+              "amphibian",
+              "fish",
+              "insect",
+              "arachnid",
+              "mollusc",
+              "crustacean",
+              "coral",
+              "other_invertebrate"
+            ]
+          },
+          "status": {
+            "nullable": true,
+            "description": "Headline assessment: global if there is one, else regional; most recent first",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CardStatusDto"
+              }
+            ]
+          },
+          "notAssessed": {
+            "type": "boolean"
+          },
+          "environments": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "terrestrial",
+                "freshwater",
+                "marine",
+                "brackish",
+                "subterranean",
+                "aerial"
+              ]
+            }
+          },
+          "regionCount": {
+            "type": "number",
+            "nullable": true,
+            "description": "Number of countries, seas and oceans; null when locations are withheld"
+          },
+          "locationWithheld": {
+            "type": "boolean"
+          },
+          "image": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CardImageDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "slug",
+          "scientificName",
+          "commonName",
+          "displayGroup",
+          "status",
+          "notAssessed",
+          "environments",
+          "regionCount",
+          "locationWithheld",
+          "image"
+        ]
+      },
+      "OccurrenceDto": {
+        "type": "object",
+        "properties": {
+          "presence": {
+            "type": "string",
+            "enum": [
+              "extant",
+              "probably_extant",
+              "possibly_extant",
+              "possibly_extinct",
+              "extinct",
+              "presence_uncertain"
+            ]
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "native",
+              "reintroduced",
+              "introduced",
+              "vagrant",
+              "origin_uncertain"
+            ]
+          },
+          "seasonality": {
+            "type": "string",
+            "enum": [
+              "resident",
+              "breeding",
+              "non_breeding",
+              "passage",
+              "seasonal_uncertain"
+            ]
+          }
+        },
+        "required": [
+          "presence",
+          "origin",
+          "seasonality"
+        ]
+      },
+      "RegionSpeciesDto": {
+        "type": "object",
+        "properties": {
+          "card": {
+            "$ref": "#/components/schemas/SpeciesCardDto"
+          },
+          "occurrences": {
+            "description": "How the species occurs in this region, as the source records it",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OccurrenceDto"
+            }
+          }
+        },
+        "required": [
+          "card",
+          "occurrences"
+        ]
+      },
+      "RegionPageDto": {
+        "type": "object",
+        "properties": {
+          "region": {
+            "$ref": "#/components/schemas/RegionDto"
+          },
+          "facets": {
+            "description": "Counts of published species in this region",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RegionFacetsDto"
+              }
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RegionSpeciesDto"
+            }
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          },
+          "totalPages": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "region",
+          "facets",
+          "items",
+          "page",
+          "pageSize",
+          "total",
+          "totalPages"
         ]
       },
       "IdentifierDto": {
@@ -1463,6 +2806,72 @@
           "sourceId"
         ]
       },
+      "RangeInput": {
+        "type": "object",
+        "properties": {
+          "sourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "seasonality": {
+            "type": "string",
+            "enum": [
+              "resident",
+              "breeding",
+              "non_breeding",
+              "passage",
+              "seasonal_uncertain"
+            ]
+          },
+          "presence": {
+            "type": "string",
+            "enum": [
+              "extant",
+              "probably_extant",
+              "possibly_extant",
+              "possibly_extinct",
+              "extinct",
+              "presence_uncertain"
+            ]
+          },
+          "datasetVersion": {
+            "type": "string",
+            "nullable": true,
+            "description": "Version of the source dataset, if any"
+          },
+          "generalizationNote": {
+            "type": "string",
+            "nullable": true,
+            "description": "How the shape was simplified. Set automatically for location-sensitive species."
+          },
+          "geometry": {
+            "type": "object",
+            "description": "GeoJSON Polygon or MultiPolygon, WGS84 [lon, lat], at most 50000 vertices. Longitudes may run to ±540 to cross the antimeridian in one shape; it is split at ±180 on save. For \"generalize_country\" species the shape is replaced by the whole countries (or seas) it covers; \"hide_regions\" species cannot have ranges.",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "Polygon",
+                  "MultiPolygon"
+                ]
+              },
+              "coordinates": {
+                "type": "array",
+                "items": {}
+              }
+            },
+            "required": [
+              "type",
+              "coordinates"
+            ]
+          }
+        },
+        "required": [
+          "sourceId",
+          "seasonality",
+          "presence"
+        ]
+      },
       "HabitatInput": {
         "type": "object",
         "properties": {
@@ -1861,6 +3270,13 @@
               "$ref": "#/components/schemas/RegionPresenceInput"
             }
           },
+          "ranges": {
+            "description": "Published range maps (approved through the revision workflow)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RangeInput"
+            }
+          },
           "habitats": {
             "type": "array",
             "items": {
@@ -1900,6 +3316,7 @@
           "assessments",
           "populationEstimates",
           "regions",
+          "ranges",
           "habitats",
           "threats",
           "citations",
@@ -2294,6 +3711,13 @@
               "$ref": "#/components/schemas/RegionPresenceInput"
             }
           },
+          "ranges": {
+            "description": "Published range maps (approved through the revision workflow)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RangeInput"
+            }
+          },
           "habitats": {
             "type": "array",
             "items": {
@@ -2337,6 +3761,7 @@
           "assessments",
           "populationEstimates",
           "regions",
+          "ranges",
           "habitats",
           "threats",
           "citations",
@@ -2598,161 +4023,6 @@
           "threats",
           "media",
           "supportLinks"
-        ]
-      },
-      "CardStatusDto": {
-        "type": "object",
-        "properties": {
-          "category": {
-            "type": "string",
-            "enum": [
-              "EX",
-              "EW",
-              "CR",
-              "EN",
-              "VU",
-              "NT",
-              "LC",
-              "DD",
-              "NE"
-            ]
-          },
-          "scope": {
-            "type": "string",
-            "enum": [
-              "global",
-              "regional"
-            ]
-          },
-          "assessedOn": {
-            "type": "string",
-            "nullable": true
-          },
-          "trend": {
-            "type": "string",
-            "enum": [
-              "increasing",
-              "decreasing",
-              "stable",
-              "unknown"
-            ]
-          }
-        },
-        "required": [
-          "category",
-          "scope",
-          "assessedOn",
-          "trend"
-        ]
-      },
-      "CardImageDto": {
-        "type": "object",
-        "properties": {
-          "storageKey": {
-            "type": "string"
-          },
-          "altText": {
-            "type": "string"
-          },
-          "credit": {
-            "type": "string"
-          },
-          "license": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "storageKey",
-          "altText",
-          "credit",
-          "license"
-        ]
-      },
-      "SpeciesCardDto": {
-        "type": "object",
-        "properties": {
-          "slug": {
-            "type": "string"
-          },
-          "scientificName": {
-            "type": "string"
-          },
-          "commonName": {
-            "type": "string",
-            "nullable": true
-          },
-          "displayGroup": {
-            "type": "string",
-            "enum": [
-              "mammal",
-              "bird",
-              "reptile",
-              "amphibian",
-              "fish",
-              "insect",
-              "arachnid",
-              "mollusc",
-              "crustacean",
-              "coral",
-              "other_invertebrate"
-            ]
-          },
-          "status": {
-            "nullable": true,
-            "description": "Headline assessment: global if there is one, else regional; most recent first",
-            "type": "object",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/CardStatusDto"
-              }
-            ]
-          },
-          "notAssessed": {
-            "type": "boolean"
-          },
-          "environments": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "enum": [
-                "terrestrial",
-                "freshwater",
-                "marine",
-                "brackish",
-                "subterranean",
-                "aerial"
-              ]
-            }
-          },
-          "regionCount": {
-            "type": "number",
-            "nullable": true,
-            "description": "Number of countries, seas and oceans; null when locations are withheld"
-          },
-          "locationWithheld": {
-            "type": "boolean"
-          },
-          "image": {
-            "nullable": true,
-            "type": "object",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/CardImageDto"
-              }
-            ]
-          }
-        },
-        "required": [
-          "slug",
-          "scientificName",
-          "commonName",
-          "displayGroup",
-          "status",
-          "notAssessed",
-          "environments",
-          "regionCount",
-          "locationWithheld",
-          "image"
         ]
       },
       "SpeciesListDto": {
@@ -3126,6 +4396,51 @@
           "sourceId"
         ]
       },
+      "RangeMetaDto": {
+        "type": "object",
+        "properties": {
+          "seasonality": {
+            "type": "string",
+            "enum": [
+              "resident",
+              "breeding",
+              "non_breeding",
+              "passage",
+              "seasonal_uncertain"
+            ]
+          },
+          "presence": {
+            "type": "string",
+            "enum": [
+              "extant",
+              "probably_extant",
+              "possibly_extant",
+              "possibly_extinct",
+              "extinct",
+              "presence_uncertain"
+            ]
+          },
+          "datasetVersion": {
+            "type": "string",
+            "nullable": true
+          },
+          "generalizationNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "sourceId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "seasonality",
+          "presence",
+          "datasetVersion",
+          "generalizationNote",
+          "sourceId"
+        ]
+      },
       "HabitatDto": {
         "type": "object",
         "properties": {
@@ -3238,10 +4553,21 @@
             "type": "boolean",
             "description": "True when the species is location-sensitive and its regions are withheld"
           },
+          "locationGeneralized": {
+            "type": "boolean",
+            "description": "True when locations are shown only at whole-country (or sea) level to protect the species"
+          },
           "regions": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/PresenceDto"
+            }
+          },
+          "ranges": {
+            "description": "Published range maps. Empty when only country-level presence is known.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RangeMetaDto"
             }
           },
           "habitats": {
@@ -3257,7 +4583,9 @@
         "required": [
           "environments",
           "locationWithheld",
+          "locationGeneralized",
           "regions",
+          "ranges",
           "habitats",
           "climate"
         ]
@@ -3697,21 +5025,6 @@
           "related"
         ]
       },
-      "FacetDto": {
-        "type": "object",
-        "properties": {
-          "value": {
-            "type": "string"
-          },
-          "count": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "value",
-          "count"
-        ]
-      },
       "RegionFacetDto": {
         "type": "object",
         "properties": {
@@ -3869,6 +5182,331 @@
         "required": [
           "species",
           "population"
+        ]
+      },
+      "SupportSpeciesRefDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "scientificName": {
+            "type": "string"
+          },
+          "commonName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "slug",
+          "scientificName",
+          "commonName"
+        ]
+      },
+      "DirectoryLinkDto": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "domain": {
+            "type": "string",
+            "description": "Destination domain, shown next to the link"
+          },
+          "actionType": {
+            "type": "string",
+            "enum": [
+              "donate",
+              "volunteer",
+              "adopt",
+              "learn",
+              "advocate",
+              "other"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "species": {
+            "description": "Published species whose profile shows this link",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SupportSpeciesRefDto"
+            }
+          }
+        },
+        "required": [
+          "url",
+          "domain",
+          "actionType",
+          "description",
+          "species"
+        ]
+      },
+      "DirectoryOrganizationDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string"
+          },
+          "websiteDomain": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "reviewedAt": {
+            "type": "string",
+            "nullable": true,
+            "description": "When site staff last reviewed this organization. A review is not a certification of effectiveness."
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DirectoryLinkDto"
+            }
+          }
+        },
+        "required": [
+          "slug",
+          "name",
+          "website",
+          "websiteDomain",
+          "description",
+          "reviewedAt",
+          "links"
+        ]
+      },
+      "SupportDirectoryDto": {
+        "type": "object",
+        "properties": {
+          "organizations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DirectoryOrganizationDto"
+            }
+          }
+        },
+        "required": [
+          "organizations"
+        ]
+      },
+      "StaffSupportLinkDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organizationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "url": {
+            "type": "string"
+          },
+          "actionType": {
+            "type": "string",
+            "enum": [
+              "donate",
+              "volunteer",
+              "adopt",
+              "learn",
+              "advocate",
+              "other"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "editorialStatus": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved",
+              "disabled"
+            ]
+          },
+          "lastCheckedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastStatus": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "organizationId",
+          "url",
+          "actionType",
+          "description",
+          "editorialStatus",
+          "lastCheckedAt",
+          "lastStatus"
+        ]
+      },
+      "StaffOrganizationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "reviewStatus": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved",
+              "disabled"
+            ]
+          },
+          "reviewedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StaffSupportLinkDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "website",
+          "description",
+          "reviewStatus",
+          "reviewedAt",
+          "links"
+        ]
+      },
+      "CreateOrganizationDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string",
+            "example": "https://example.org"
+          },
+          "description": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string",
+            "example": "example-trust"
+          }
+        },
+        "required": [
+          "name",
+          "website",
+          "description",
+          "slug"
+        ]
+      },
+      "UpdateOrganizationDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string",
+            "example": "https://example.org"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "website",
+          "description"
+        ]
+      },
+      "CreateSupportLinkDto": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "example": "https://example.org/act"
+          },
+          "actionType": {
+            "type": "string",
+            "enum": [
+              "donate",
+              "volunteer",
+              "adopt",
+              "learn",
+              "advocate",
+              "other"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "organizationId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "url",
+          "actionType",
+          "description",
+          "organizationId"
+        ]
+      },
+      "UpdateSupportLinkDto": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "example": "https://example.org/act"
+          },
+          "actionType": {
+            "type": "string",
+            "enum": [
+              "donate",
+              "volunteer",
+              "adopt",
+              "learn",
+              "advocate",
+              "other"
+            ]
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "url",
+          "actionType",
+          "description"
         ]
       }
     }

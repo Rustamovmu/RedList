@@ -23,7 +23,7 @@ const HEADLINE = sql`
     LIMIT 1
   ) ha ON true`;
 
-const COMMON_NAME = sql`
+export const COMMON_NAME = sql`
   LEFT JOIN LATERAL (
     SELECT n.name FROM species_names n
     WHERE n.revision_id = p.revision_id AND n.name_type = 'common'
@@ -43,6 +43,9 @@ export type ListFilters = {
   environment?: string[];
   category?: string[];
   region?: string[];
+  /** Only with `region`: how the species occurs there. */
+  regionOrigin?: string[];
+  regionSeasonality?: string[];
   habitat?: string[];
   trend?: string[];
   slugs?: string[];
@@ -73,9 +76,11 @@ export function whereClause(f: ListFilters): SQL {
   if (f.trend?.length) conds.push(sql`ha.trend::text = ANY(${sql.param(f.trend)}::text[])`);
   if (f.region?.length) {
     // A location-sensitive species must never be findable by place: that would reveal where it lives.
+    const origin = f.regionOrigin?.length ? sql` AND sr.origin::text = ANY(${sql.param(f.regionOrigin)}::text[])` : sql``;
+    const season = f.regionSeasonality?.length ? sql` AND sr.seasonality::text = ANY(${sql.param(f.regionSeasonality)}::text[])` : sql``;
     conds.push(sql`p.location_sensitivity <> 'hide_regions' AND EXISTS (
       SELECT 1 FROM species_regions sr JOIN regions rg ON rg.id = sr.region_id
-      WHERE sr.revision_id = p.revision_id AND rg.slug = ANY(${sql.param(f.region)}::text[]))`);
+      WHERE sr.revision_id = p.revision_id AND rg.slug = ANY(${sql.param(f.region)}::text[])${origin}${season})`);
   }
   if (f.habitat?.length) {
     conds.push(sql`EXISTS (SELECT 1 FROM species_habitats sh JOIN habitats h ON h.id = sh.habitat_id

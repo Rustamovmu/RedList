@@ -7,7 +7,7 @@ export const SORTS = ['name', 'status', 'reviewed'] as const;
 export const MAX_PAGE_SIZE = 48;
 
 /** Query params arrive as "a,b,c" (or repeated). Normalize to a trimmed, de-duplicated list. */
-const csv = ({ value }: { value: unknown }) => {
+export const csv = ({ value }: { value: unknown }) => {
   const parts = (Array.isArray(value) ? value : [value]).flatMap((v) => (typeof v === 'string' ? v.split(',') : []));
   const list = [...new Set(parts.map((p) => p.trim()).filter(Boolean))];
   return list.length ? list : undefined;

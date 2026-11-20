@@ -26,11 +26,11 @@ flowchart LR
 |---|---|---|
 | `/` | Home: hero, search, browse by group and environment, threatened species, places, "in this catalogue" stats | **done** (M2). No hero photo until licensed media exists (M4) |
 | `/species` | Explore: search, filters, sort and page held in the URL; mobile filter drawer, chips, reset, empty and error states | **done** (M2) |
-| `/species/[slug]` | Profile: the eight questions, from "What is it?" to "How do we know?" | **done** (M1, M2): eight sections, Add to compare, related species. Still to come: photos (M4), map (M3), support links admin (M3) |
+| `/species/[slug]` | Profile: the eight questions, from "What is it?" to "How do we know?" | **done** (M1–M3): eight sections, Add to compare, related species, map with range list and region links, support links. Still to come: photos (M4) |
 | `/compare?species=a,b,c` | Compare up to 3, with no scores and no mixed units; table on desktop, stacked on mobile | **done** (M2) |
-| `/map` | Map plus synced list, legend, labelled layer types; still works when tiles fail | M3 |
-| `/regions/[slug]` | Country, sea or ocean page with region-aware filters | M3 |
-| `/support` | Directory of reviewed support links, plus the published review criteria | M3 |
+| `/map` | Map plus synced list, legend, labelled layer types; still works when tiles fail; "Near me" (in-browser only) | **done** (M3) |
+| `/regions/[slug]` | Country, sea or ocean page with region-aware filters | **done** (M3) |
+| `/support` | Directory of reviewed support links, plus the published review criteria | **done** (M3). Criteria text needs owner review (D-018) |
 | `/about`, `/methodology`, `/sources`, `/privacy`, `/terms` | Static information pages. Real operator details are needed before launch. | unassigned (needed by M5 release) |
 | `/sitemap.xml`, `/robots.txt` | SEO, published content only | M5 |
 | not-found, error | Fallback pages | **done** |
@@ -44,7 +44,7 @@ Navigation: Explore · Map · Compare · About. The support directory is linked 
 | Login, sessions, CSRF | **done** (M1) |
 | Species list, new species, identifiers, drafts, submit, publish, request changes, checklist | **done** (M1) |
 | Form-based draft editor with source picker, live preview and diff (PLAN §7); M1 edits content as validated JSON (DECISIONS D-011) | open, unassigned (R1) |
-| Organizations and support links | M3 |
+| Organizations and support links (`/admin/support`) | **done** (M3) |
 | Media upload and review queue, rollback | M4 |
 | Staff invites (one-time link, no email), staff management | M4 (moved from M1; a solo admin works without it) |
 
@@ -63,11 +63,11 @@ Navigation: Explore · Map · Compare · About. The support directory is linked 
 | `GET /species` (q, filters, sort, page, pageSize ≤ 48) | **done** (M2) |
 | `GET /filters` | **done** (M2) |
 | `GET /compare?species=a,b,c` (max 3, 400 otherwise) | **done** (M2) |
-| `GET /regions/:slug` | M3 |
-| `GET /map?bbox&group&category` (antimeridian-aware, capped) | M3 |
-| `GET /support` | M3 |
+| `GET /regions/:slug` | **done** (M3) |
+| `GET /map?bbox&group&category&species` (antimeridian-aware, capped), `GET /map/basemap` | **done** (M3, D-016) |
+| `GET /support` | **done** (M3) |
 | Staff: `auth/login`, `auth/logout`, `auth/me`; `species` (list, create, get, identifiers, drafts); `revisions/:id` (get, save, submit, publish, request-changes); `sources` (list, create); `reference` | **done** (M1) |
-| Staff: organizations, support links | M3 |
+| Staff: organizations, support links (list, create, edit, approve, disable) | **done** (M3) |
 | Staff: media upload and review, rollback, staff management | M4 |
 
 Swagger UI: `/api/docs` (non-production only).
@@ -83,6 +83,6 @@ Swagger UI: `/api/docs` (non-production only).
 | `identity` | staff sessions, CSRF + Origin guard, roles, login throttle | **done** (M1) |
 | `editorial` | revisions, editorial zod schema, checklist, publish transaction, audit, revalidation, sources | **done** (M1) |
 | `catalogue` | `PublishedSpeciesRepository` plus the `PUBLISHED` SQL fragment in `catalogue-sql.ts` (the only public read path): profile, list, filters, related, compare | **done** (M1, M2) |
-| `geography` | regions, map, `GeoRepository` (the only home of spatial SQL) | M3 |
-| `support-directory` | organizations, support links | M3 |
+| `geography` | regions, map, basemap, `GeoRepository` (the only home of spatial SQL) | **done** (M3) |
+| `support-directory` | organizations, support links, public directory | **done** (M3) |
 | `media` | uploads, `StorageAdapter`, variants, review | M4 |

@@ -31,6 +31,7 @@ const content = (overview: string) => ({
   assessments: [{ sourceId, scope: 'global', category: 'VU', trend: 'unknown', assessedOn: '2020-01-01' }],
   populationEstimates: [],
   regions: [],
+  ranges: [],
   habitats: [],
   threats: [],
   citations: [{ sectionKey: 'overview', sourceId }],

@@ -3,6 +3,7 @@ import { asc, eq, inArray } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { DbOrTx, Tx } from '../db/db.module';
 import * as s from '../db/schema';
+import { GeoRepository, Sensitivity } from '../geography/geo.repository';
 import { RevisionContentDto, SECTION_KEYS } from './dto';
 
 const big = (v: string | null | undefined) => (v === null || v === undefined ? null : BigInt(v));
@@ -10,7 +11,7 @@ const str = (v: bigint | null) => (v === null ? null : v.toString());
 
 /** Child tables of a revision, in an order that is safe for delete (dependents first). */
 const CHILD_TABLES = [
-  s.populationEstimates, s.assessments, s.speciesNames, s.speciesEnvironments, s.speciesRegions,
+  s.populationEstimates, s.assessments, s.speciesNames, s.speciesEnvironments, s.speciesRegions, s.speciesRanges,
   s.speciesHabitats, s.speciesThreats, s.revisionCitations, s.revisionMedia, s.revisionSupportLinks,
 ] as const;
 
@@ -21,6 +22,8 @@ const CHILD_TABLES = [
  */
 @Injectable()
 export class RevisionContentRepository {
+  constructor(private readonly geo: GeoRepository) {}
+
   async load(db: DbOrTx, revisionId: string): Promise<RevisionContentDto> {
     const [rev] = await db
       .select({ displayGroup: s.speciesRevisions.displayGroup, editorial: s.speciesRevisions.editorial })
@@ -40,6 +43,7 @@ export class RevisionContentRepository {
     const citations = await db.select().from(s.revisionCitations).where(by(s.revisionCitations)).orderBy(asc(s.revisionCitations.sectionKey), asc(s.revisionCitations.id));
     const media = await db.select().from(s.revisionMedia).where(by(s.revisionMedia)).orderBy(asc(s.revisionMedia.position));
     const links = await db.select().from(s.revisionSupportLinks).where(by(s.revisionSupportLinks)).orderBy(asc(s.revisionSupportLinks.id));
+    const ranges = await this.geo.loadRanges(db, revisionId);
     const assessmentIndex = new Map(assessments.map((a, i) => [a.id, i]));
 
     return {
@@ -58,6 +62,7 @@ export class RevisionContentRepository {
         referenceStart: p.referenceStart, referenceEnd: p.referenceEnd, method: p.method, uncertaintyNote: p.uncertaintyNote,
       })),
       regions: regions.map((r) => ({ regionId: r.regionId, presence: r.presence, origin: r.origin, seasonality: r.seasonality, sourceId: r.sourceId })),
+      ranges: ranges.map((r) => ({ ...r, geometry: r.geometry as RevisionContentDto['ranges'][number]['geometry'] })),
       habitats: habitats.map((h) => ({ habitatId: h.habitatId, suitability: h.suitability, seasonality: h.seasonality, sourceId: h.sourceId })),
       threats: threats.map((t) => ({ threatId: t.threatId, severity: t.severity, timing: t.timing, sourceId: t.sourceId })),
       citations: citations.map((c) => ({
@@ -74,8 +79,9 @@ export class RevisionContentRepository {
    * Replaces all child rows of a draft revision with `content` (editorial and displayGroup are set by the caller).
    * Media credit and licence are snapshotted from media_assets at this moment, so a later edit to the asset
    * never changes what an already-published revision credits.
+   * Ranges go through GeoRepository (validation, antimeridian split, generalization for sensitive species).
    */
-  async replaceChildren(tx: Tx, revisionId: string, c: RevisionContentDto): Promise<void> {
+  async replaceChildren(tx: Tx, revisionId: string, c: RevisionContentDto, sensitivity: Sensitivity): Promise<void> {
     for (const t of CHILD_TABLES) await tx.delete(t).where(eq(t.revisionId, revisionId));
 
     if (c.names.length) await tx.insert(s.speciesNames).values(c.names.map((n) => ({ revisionId, ...n })));
@@ -110,6 +116,7 @@ export class RevisionContentRepository {
       );
     }
     if (c.regions.length) await tx.insert(s.speciesRegions).values(c.regions.map((r) => ({ revisionId, ...r })));
+    await this.geo.insertRanges(tx, revisionId, sensitivity, c.ranges ?? []);
     if (c.habitats.length) {
       await tx.insert(s.speciesHabitats).values(
         c.habitats.map((h) => ({ revisionId, habitatId: h.habitatId, suitability: h.suitability ?? null, seasonality: h.seasonality ?? null, sourceId: h.sourceId })),

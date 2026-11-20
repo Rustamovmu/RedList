@@ -16,7 +16,7 @@ import { RevisionContentRepository } from './revision-content.repository';
 const iso = (d: Date | null) => (d ? d.toISOString() : null);
 
 const EMPTY_CONTENT = (displayGroup: RevisionContentDto['displayGroup']): RevisionContentDto => ({
-  displayGroup, editorial: {}, names: [], environments: [], assessments: [], populationEstimates: [], regions: [],
+  displayGroup, editorial: {}, names: [], environments: [], assessments: [], populationEstimates: [], regions: [], ranges: [],
   habitats: [], threats: [], citations: [], media: [], supportLinks: [],
 });
 
@@ -164,7 +164,7 @@ export class EditorialService {
       assessmentCount: c.assessments.length,
       estimateCount: c.populationEstimates.length,
       citationSections: c.citations.map((x) => x.sectionKey),
-      regionsWithoutSource: c.regions.filter((r) => !r.sourceId).length,
+      regionsWithoutSource: [...c.regions, ...(c.ranges ?? [])].filter((r) => !r.sourceId).length,
       media,
     });
   }
@@ -194,7 +194,7 @@ export class EditorialService {
           authorId: staff.id, baseRevisionId: sp.publishedRevisionId, schemaVersion: CURRENT_EDITORIAL_VERSION,
         })
         .returning({ id: s.speciesRevisions.id });
-      await this.content.replaceChildren(tx, rev.id, content);
+      await this.content.replaceChildren(tx, rev.id, content, sp.locationSensitivity);
       await audit(tx, {
         actorId: staff.id, action: 'revision.create', entityType: 'species_revision', entityId: rev.id,
         summary: `Draft v${(v ?? 0) + 1} of ${sp.slug}${sp.publishedRevisionId ? ' copied from the published revision' : ''}`,
@@ -223,7 +223,8 @@ export class EditorialService {
         .update(s.speciesRevisions)
         .set({ editorial, displayGroup: content.displayGroup, schemaVersion: CURRENT_EDITORIAL_VERSION, updatedAt: new Date() })
         .where(eq(s.speciesRevisions.id, id));
-      await this.content.replaceChildren(tx, id, { ...content, editorial });
+      const [sp] = await tx.select({ sensitivity: s.species.locationSensitivity }).from(s.species).where(eq(s.species.id, rev.speciesId));
+      await this.content.replaceChildren(tx, id, { ...content, editorial }, sp.sensitivity);
       await audit(tx, { actorId: staff.id, action: 'revision.save', entityType: 'species_revision', entityId: id, summary: `Saved draft v${rev.version}` });
     });
     return this.getRevision(id);

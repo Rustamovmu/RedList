@@ -15,8 +15,9 @@ import { AppModule } from '../app.module';
 import { DB, Db } from '../db/db.module';
 import * as s from '../db/schema';
 import { EditorialService } from '../editorial/editorial.service';
-import { FIXTURE_HABITATS, FIXTURE_SOURCE_TITLE, FIXTURE_SPECIES, FIXTURE_THREATS } from '../fixtures/dev-fixtures';
+import { FIXTURE_HABITATS, FIXTURE_LINKS, FIXTURE_ORGANIZATION, FIXTURE_SOURCE_TITLE, FIXTURE_SPECIES, FIXTURE_THREATS, FixtureLinkKey } from '../fixtures/dev-fixtures';
 import type { StaffPrincipal } from '../identity/session.service';
+import { SupportDirectoryService } from '../support-directory/support-directory.service';
 
 const FIXTURE_ADMIN_EMAIL = 'fixtures@example.invalid';
 
@@ -43,6 +44,25 @@ export async function seedFixtures(app: INestApplicationContext): Promise<{ crea
   const missing = slugs.filter((x) => !regionIds.has(x));
   if (missing.length) throw new Error(`Regions missing (${missing.join(', ')}). Run npm run db:seed:regions first.`);
   const regionId = (slug?: string) => (slug ? regionIds.get(slug)! : null);
+
+  // Synthetic support directory, reviewed through the real admin workflow (one approved link, one disabled).
+  const directory = app.get(SupportDirectoryService);
+  const linkIds = new Map<FixtureLinkKey, string>();
+  let [org] = await db.select().from(s.organizations).where(eq(s.organizations.slug, FIXTURE_ORGANIZATION.slug));
+  if (!org) {
+    const createdOrg = await directory.createOrganization(staff, FIXTURE_ORGANIZATION);
+    await directory.setOrganizationStatus(staff, createdOrg.id, 'approved');
+    for (const l of Object.values(FIXTURE_LINKS)) {
+      const link = await directory.createLink(staff, { organizationId: createdOrg.id, url: l.url, actionType: l.actionType, description: l.description });
+      if (l.status === 'disabled') await directory.setLinkStatus(staff, link.id, 'approved');
+      await directory.setLinkStatus(staff, link.id, l.status);
+    }
+    [org] = await db.select().from(s.organizations).where(eq(s.organizations.slug, FIXTURE_ORGANIZATION.slug));
+  }
+  for (const l of await db.select().from(s.supportLinks).where(eq(s.supportLinks.organizationId, org.id))) {
+    const key = (Object.keys(FIXTURE_LINKS) as FixtureLinkKey[]).find((k) => FIXTURE_LINKS[k].url === l.url);
+    if (key) linkIds.set(key, l.id);
+  }
 
   const created: string[] = [];
   const skipped: string[] = [];
@@ -78,9 +98,10 @@ export async function seedFixtures(app: INestApplicationContext): Promise<{ crea
       })),
       habitats: f.habitats.map((code) => ({ habitatId: habitatIds.get(code)!, sourceId: source.id })),
       threats: f.threats.map((code) => ({ threatId: threatIds.get(code)!, sourceId: source.id })),
+      ranges: (f.ranges ?? []).map((r) => ({ sourceId: source.id, seasonality: r.seasonality ?? 'resident', presence: 'extant', geometry: r.geometry })),
       citations,
       media: [],
-      supportLinks: [],
+      supportLinks: (f.supportLinks ?? []).map((k) => ({ supportLinkId: linkIds.get(k)!, contextNote: null })),
     });
     await editorial.submit(staff, saved.id);
     await editorial.publish(staff, saved.id);

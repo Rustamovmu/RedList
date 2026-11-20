@@ -142,10 +142,23 @@ export class ClimateDto {
   @ApiProperty({ type: [RangeValueDto] }) ranges!: RangeValueDto[];
 }
 
+/** A published range map, without its shape (the shape comes from GET /map?species=<slug>). */
+export class RangeMetaDto {
+  @ApiProperty({ enum: s.seasonality.enumValues }) seasonality!: Enum<typeof s.seasonality>;
+  @ApiProperty({ enum: s.presence.enumValues }) presence!: Enum<typeof s.presence>;
+  @ApiProperty(N) datasetVersion!: string | null;
+  @ApiProperty(N) generalizationNote!: string | null;
+  @ApiProperty({ format: 'uuid' }) sourceId!: string;
+}
+
 export class GeographySectionDto {
   @ApiProperty({ enum: s.environment.enumValues, isArray: true }) environments!: Array<Enum<typeof s.environment>>;
   @ApiProperty({ description: 'True when the species is location-sensitive and its regions are withheld' }) locationWithheld!: boolean;
+  @ApiProperty({ description: 'True when locations are shown only at whole-country (or sea) level to protect the species' })
+  locationGeneralized!: boolean;
   @ApiProperty({ type: [PresenceDto] }) regions!: PresenceDto[];
+  @ApiProperty({ type: [RangeMetaDto], description: 'Published range maps. Empty when only country-level presence is known.' })
+  ranges!: RangeMetaDto[];
   @ApiProperty({ type: [HabitatDto] }) habitats!: HabitatDto[];
   @ApiProperty({ type: ClimateDto }) climate!: ClimateDto;
 }

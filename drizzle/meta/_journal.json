@@ -22,6 +22,13 @@
       "when": 1795189509561,
       "tag": "0002_integrity",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795201959793,
+      "tag": "0003_geometry_bounds",
+      "breakpoints": true
     }
   ]
 }
