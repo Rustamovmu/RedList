@@ -29,6 +29,20 @@
       "when": 1795201959793,
       "tag": "0003_geometry_bounds",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795204094498,
+      "tag": "0004_media_import",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795204104882,
+      "tag": "0005_media_rules",
+      "breakpoints": true
     }
   ]
 }

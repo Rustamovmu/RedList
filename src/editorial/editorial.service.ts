@@ -7,7 +7,7 @@ import type { StaffPrincipal } from '../identity/session.service';
 import { checklistPasses, runChecklist } from './checklist';
 import {
   AddIdentifierDto, ChecklistItemDto, CreateSourceDto, CreateSpeciesDto, ReferenceListsDto, RevisionContentDto,
-  RevisionDetailDto, SaveDraftDto, SourceDto, StaffSpeciesDto,
+  RevisionDetailDto, RollbackDto, SaveDraftDto, SourceDto, SourceUpdateResultDto, StaffSpeciesDto, UpdateSourceDto,
 } from './dto';
 import { CURRENT_EDITORIAL_VERSION, EditorialSchemaError, parseEditorial } from './editorial-schema';
 import { RevalidationService } from './revalidation.service';
@@ -51,26 +51,25 @@ export class EditorialService {
     return this.withDetails(rows);
   }
 
-  async getSpecies(id: string): Promise<StaffSpeciesDto> {
-    const rows = await this.db.select().from(s.species).where(eq(s.species.id, id));
+  async getSpecies(id: string, db: DbOrTx = this.db): Promise<StaffSpeciesDto> {
+    const rows = await db.select().from(s.species).where(eq(s.species.id, id));
     if (!rows.length) throw new NotFoundException('Species not found');
-    return (await this.withDetails(rows))[0];
+    return (await this.withDetails(rows, db))[0];
   }
 
-  private async withDetails(rows: Array<typeof s.species.$inferSelect>): Promise<StaffSpeciesDto[]> {
+  private async withDetails(rows: Array<typeof s.species.$inferSelect>, db: DbOrTx = this.db): Promise<StaffSpeciesDto[]> {
     if (!rows.length) return [];
     const ids = rows.map((r) => r.id);
-    const [idents, revs] = await Promise.all([
-      this.db.select().from(s.speciesIdentifiers).where(inArray(s.speciesIdentifiers.speciesId, ids)),
-      this.db
+    // Sequential: `db` may be a transaction client.
+    const idents = await db.select().from(s.speciesIdentifiers).where(inArray(s.speciesIdentifiers.speciesId, ids));
+    const revs = await db
         .select({
           id: s.speciesRevisions.id, speciesId: s.speciesRevisions.speciesId, version: s.speciesRevisions.version,
           state: s.speciesRevisions.state, updatedAt: s.speciesRevisions.updatedAt, publishedAt: s.speciesRevisions.publishedAt,
         })
         .from(s.speciesRevisions)
         .where(inArray(s.speciesRevisions.speciesId, ids))
-        .orderBy(asc(s.speciesRevisions.version)),
-    ]);
+        .orderBy(asc(s.speciesRevisions.version));
     return rows.map((r) => ({
       id: r.id, slug: r.slug, acceptedScientificName: r.acceptedScientificName, rank: r.rank,
       locationSensitivity: r.locationSensitivity, publishedRevisionId: r.publishedRevisionId,
@@ -86,8 +85,12 @@ export class EditorialService {
     }));
   }
 
-  async createSpecies(staff: StaffPrincipal, dto: CreateSpeciesDto): Promise<RevisionDetailDto> {
-    const revisionId = await this.db.transaction(async (tx) => {
+  /**
+   * The write methods below take an optional outer transaction (`db`), so the import CLI can apply a whole
+   * file in one transaction. Inside one, `db.transaction` becomes a savepoint.
+   */
+  async createSpecies(staff: StaffPrincipal, dto: CreateSpeciesDto, db: DbOrTx = this.db): Promise<RevisionDetailDto> {
+    const revisionId = await db.transaction(async (tx) => {
       const [sp] = await tx
         .insert(s.species)
         .values({
@@ -102,11 +105,11 @@ export class EditorialService {
       await audit(tx, { actorId: staff.id, action: 'species.create', entityType: 'species', entityId: sp.id, summary: `Created ${dto.slug} with draft v1` });
       return rev.id;
     });
-    return this.getRevision(revisionId);
+    return this.getRevision(revisionId, db);
   }
 
-  async addIdentifier(staff: StaffPrincipal, speciesId: string, dto: AddIdentifierDto): Promise<StaffSpeciesDto> {
-    await this.db.transaction(async (tx) => {
+  async addIdentifier(staff: StaffPrincipal, speciesId: string, dto: AddIdentifierDto, db: DbOrTx = this.db): Promise<StaffSpeciesDto> {
+    await db.transaction(async (tx) => {
       const [sp] = await tx.select({ id: s.species.id }).from(s.species).where(eq(s.species.id, speciesId));
       if (!sp) throw new NotFoundException('Species not found');
       const [row] = await tx
@@ -118,7 +121,7 @@ export class EditorialService {
         summary: `Added identifier ${dto.provider}:${dto.externalId} (${row.id})`,
       });
     });
-    return this.getSpecies(speciesId);
+    return this.getSpecies(speciesId, db);
   }
 
   // ---------- revisions ----------
@@ -170,8 +173,8 @@ export class EditorialService {
   }
 
   /** Copies the published aggregate (or, if nothing is published, the latest revision's group) into a new draft. */
-  async createDraft(staff: StaffPrincipal, speciesId: string): Promise<RevisionDetailDto> {
-    const id = await this.db.transaction(async (tx) => {
+  async createDraft(staff: StaffPrincipal, speciesId: string, db: DbOrTx = this.db): Promise<RevisionDetailDto> {
+    const id = await db.transaction(async (tx) => {
       const [sp] = await tx.select().from(s.species).where(eq(s.species.id, speciesId)).for('update');
       if (!sp) throw new NotFoundException('Species not found');
       const [{ v }] = await tx.select({ v: max(s.speciesRevisions.version) }).from(s.speciesRevisions).where(eq(s.speciesRevisions.speciesId, speciesId));
@@ -201,7 +204,7 @@ export class EditorialService {
       });
       return rev.id;
     });
-    return this.getRevision(id);
+    return this.getRevision(id, db);
   }
 
   private async lockRevision(tx: Tx, id: string) {
@@ -210,10 +213,10 @@ export class EditorialService {
     return rev;
   }
 
-  async saveDraft(staff: StaffPrincipal, id: string, dto: SaveDraftDto): Promise<RevisionDetailDto> {
+  async saveDraft(staff: StaffPrincipal, id: string, dto: SaveDraftDto, db: DbOrTx = this.db): Promise<RevisionDetailDto> {
     const editorial = validateEditorial(dto.editorial);
     const { expectedUpdatedAt, ...content } = dto;
-    await this.db.transaction(async (tx) => {
+    await db.transaction(async (tx) => {
       const rev = await this.lockRevision(tx, id);
       if (rev.state !== 'draft') throw new ConflictException({ code: 'NOT_DRAFT', message: `Revision is ${rev.state}; only drafts can be edited` });
       if (rev.updatedAt.getTime() !== new Date(expectedUpdatedAt).getTime()) {
@@ -227,7 +230,7 @@ export class EditorialService {
       await this.content.replaceChildren(tx, id, { ...content, editorial }, sp.sensitivity);
       await audit(tx, { actorId: staff.id, action: 'revision.save', entityType: 'species_revision', entityId: id, summary: `Saved draft v${rev.version}` });
     });
-    return this.getRevision(id);
+    return this.getRevision(id, db);
   }
 
   async submit(staff: StaffPrincipal, id: string): Promise<RevisionDetailDto> {
@@ -289,6 +292,44 @@ export class EditorialService {
     return this.getRevision(id);
   }
 
+  /**
+   * Rollback (PLAN §6): move the published pointer back to an earlier *published* revision of the same species.
+   * One transaction with the species row locked, like publish. `expectedPublishedRevisionId` is the optimistic
+   * check: if someone published or rolled back in the meantime, this fails with 409. Audited; revalidates after commit.
+   * Drafts that were based on the replaced revision can no longer be published (PUBLISH_CONFLICT), by design.
+   */
+  async rollback(staff: StaffPrincipal, speciesId: string, dto: RollbackDto): Promise<StaffSpeciesDto> {
+    const slug = await this.db.transaction(async (tx) => {
+      const [sp] = await tx.select().from(s.species).where(eq(s.species.id, speciesId)).for('update');
+      if (!sp) throw new NotFoundException('Species not found');
+      if (sp.publishedRevisionId !== dto.expectedPublishedRevisionId) {
+        throw new ConflictException({ code: 'ROLLBACK_CONFLICT', message: 'The live version changed since you loaded this page. Reload and try again.' });
+      }
+      if (dto.targetRevisionId === sp.publishedRevisionId) {
+        throw new UnprocessableEntityException({ code: 'ALREADY_LIVE', message: 'That version is already live' });
+      }
+      const [target] = await tx
+        .select({ id: s.speciesRevisions.id, version: s.speciesRevisions.version, state: s.speciesRevisions.state })
+        .from(s.speciesRevisions)
+        .where(and(eq(s.speciesRevisions.id, dto.targetRevisionId), eq(s.speciesRevisions.speciesId, speciesId)));
+      if (!target || target.state !== 'published') {
+        throw new UnprocessableEntityException({ code: 'NOT_PUBLISHED', message: 'Only an earlier published version of this species can be restored' });
+      }
+      const [current] = await tx
+        .select({ version: s.speciesRevisions.version })
+        .from(s.speciesRevisions)
+        .where(eq(s.speciesRevisions.id, sp.publishedRevisionId as string));
+      await tx.update(s.species).set({ publishedRevisionId: target.id }).where(eq(s.species.id, speciesId));
+      await audit(tx, {
+        actorId: staff.id, action: 'species.rollback', entityType: 'species', entityId: speciesId,
+        summary: `Rolled back ${sp.slug} from v${current?.version ?? '?'} (${sp.publishedRevisionId}) to v${target.version} (${target.id}). Reason: ${dto.reason}`,
+      });
+      return sp.slug;
+    });
+    await this.revalidation.revalidate([`species:${slug}`, 'catalogue']);
+    return this.getSpecies(speciesId);
+  }
+
   async requestChanges(staff: StaffPrincipal, id: string, notes: string): Promise<RevisionDetailDto> {
     await this.db.transaction(async (tx) => {
       const rev = await this.lockRevision(tx, id);
@@ -331,6 +372,35 @@ export class EditorialService {
     });
   }
 
+  /**
+   * Edits a source (PLAN §6 "sources"). If any submitted or published revision cites it, the old row is left
+   * untouched and a NEW source row is created: published citations keep pointing at what was actually cited,
+   * and new drafts can pick the corrected source. An uncited source (only drafts) is corrected in place.
+   */
+  async updateSource(staff: StaffPrincipal, id: string, dto: UpdateSourceDto): Promise<SourceUpdateResultDto> {
+    return this.db.transaction(async (tx) => {
+      const [old] = await tx.select().from(s.sources).where(eq(s.sources.id, id)).for('update');
+      if (!old) throw new NotFoundException('Source not found');
+      const values = {
+        title: dto.title, publisher: dto.publisher ?? null, authors: dto.authors ?? null, url: dto.url ?? null, doi: dto.doi ?? null,
+        publishedOn: dto.publishedOn ?? null, accessedOn: dto.accessedOn ?? null, license: dto.license ?? null,
+        permittedUseNote: dto.permittedUseNote ?? null,
+      };
+      const cited = await sourceIsCitedOutsideDrafts(tx, id);
+      if (cited) {
+        const [row] = await tx.insert(s.sources).values(values).returning();
+        await audit(tx, {
+          actorId: staff.id, action: 'source.supersede', entityType: 'source', entityId: row.id,
+          summary: `New source row for a correction of ${id}, which is cited by a submitted or published revision and stays unchanged`,
+        });
+        return { source: toSourceDto(row), createdNewRow: true };
+      }
+      const [row] = await tx.update(s.sources).set(values).where(eq(s.sources.id, id)).returning();
+      await audit(tx, { actorId: staff.id, action: 'source.edit', entityType: 'source', entityId: id, summary: 'Edited source (cited by drafts only)' });
+      return { source: toSourceDto(row), createdNewRow: false };
+    });
+  }
+
   async referenceLists(): Promise<ReferenceListsDto> {
     const [regions, habitats, threats, media, links] = await Promise.all([
       this.db.select({ id: s.regions.id, slug: s.regions.slug, name: s.regions.name, type: s.regions.type }).from(s.regions).orderBy(asc(s.regions.name)),
@@ -348,6 +418,23 @@ export class EditorialService {
     ]);
     return { regions, habitats, threats, media, supportLinks: links };
   }
+}
+
+/** Every place a source can be cited from revision content, plus region boundaries (which are public). */
+async function sourceIsCitedOutsideDrafts(db: DbOrTx, sourceId: string): Promise<boolean> {
+  const res = await db.execute<{ cited: boolean }>(sql`
+    SELECT EXISTS (
+      SELECT 1 FROM species_revisions r
+      WHERE r.state <> 'draft' AND r.id IN (
+        SELECT revision_id FROM revision_citations WHERE source_id = ${sourceId}
+        UNION ALL SELECT revision_id FROM assessments WHERE source_id = ${sourceId}
+        UNION ALL SELECT revision_id FROM population_estimates WHERE source_id = ${sourceId}
+        UNION ALL SELECT revision_id FROM species_regions WHERE source_id = ${sourceId}
+        UNION ALL SELECT revision_id FROM species_ranges WHERE source_id = ${sourceId}
+        UNION ALL SELECT revision_id FROM species_habitats WHERE source_id = ${sourceId}
+        UNION ALL SELECT revision_id FROM species_threats WHERE source_id = ${sourceId})
+    ) OR EXISTS (SELECT 1 FROM regions WHERE source_id = ${sourceId}) AS cited`);
+  return res.rows[0]?.cited === true;
 }
 
 function toSourceDto(r: typeof s.sources.$inferSelect): SourceDto {

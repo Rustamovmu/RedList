@@ -169,6 +169,16 @@ export const mediaAssets = pgTable('media_assets', {
   sourceUrl: text('source_url'),
   reviewState: mediaReviewState('review_state').notNull().default('pending'),
   createdAt: tsz('created_at').notNull().defaultNow(),
+  // M4: content hash of the original upload (dedupe + import idempotency), generated WebP widths,
+  // what we changed (CC BY-SA asks for it), and who uploaded and reviewed it.
+  sha256: text('sha256').unique(),
+  variants: integer('variants').array().notNull().default(sql`'{}'::integer[]`),
+  licenseUrl: text('license_url'),
+  modifications: text('modifications'),
+  uploadedBy: uuid('uploaded_by').references(() => staffUsers.id, { onDelete: 'restrict' }),
+  reviewedBy: uuid('reviewed_by').references(() => staffUsers.id, { onDelete: 'restrict' }),
+  reviewedAt: tsz('reviewed_at'),
+  reviewNote: text('review_note'),
 });
 
 export const organizations = pgTable('organizations', {
@@ -403,4 +413,23 @@ export const revisionSupportLinks = pgTable(
     contextNote: text('context_note'),
   },
   (t) => [uniqueIndex('revision_support_links_uq').on(t.revisionId, t.supportLinkId)],
+);
+
+// ---------- import bookkeeping (M4) ----------
+/**
+ * What the import CLI last wrote for each species section, as a hash of the normalized value.
+ * If the current draft or published value no longer matches it, a person edited that section,
+ * and the importer leaves it alone unless --reconcile is given (PLAN §8).
+ */
+export const importRecords = pgTable(
+  'import_records',
+  {
+    id: id(),
+    speciesId: uuid('species_id').notNull().references(() => species.id, { onDelete: 'restrict' }),
+    sectionKey: text('section_key').notNull(),
+    importedHash: text('imported_hash').notNull(),
+    fileName: text('file_name').notNull(),
+    importedAt: tsz('imported_at').notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex('import_records_uq').on(t.speciesId, t.sectionKey)],
 );

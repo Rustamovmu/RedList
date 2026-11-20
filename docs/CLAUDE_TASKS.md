@@ -1,6 +1,6 @@
 # Claude Code task prompts: run one at a time
 
-M0–M3 are **done**: see COMPLETED_TASKS.md. Both repos contain `AGENTS.md` (the rules) and a `CLAUDE.md` that imports it, so Claude Code loads the rules automatically at the start of every session.
+M0–M4 are **done** (M4 with a 3-species pilot; the full real catalogue is still open): see COMPLETED_TASKS.md. Both repos contain `AGENTS.md` (the rules) and a `CLAUDE.md` that imports it, so Claude Code loads the rules automatically at the start of every session.
 
 ## How to run a milestone
 1. Start a **fresh** Claude Code session in the backend folder with the frontend added. Each milestone should begin with a clean context:

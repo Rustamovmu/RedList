@@ -3,8 +3,8 @@ import { ApiCookieAuth, ApiCreatedResponse, ApiHeader, ApiOkResponse, ApiQuery, 
 import type { StaffPrincipal } from '../identity/session.service';
 import { CurrentStaff, Roles, StaffGuard } from '../identity/staff.guard';
 import {
-  AddIdentifierDto, CreateSourceDto, CreateSpeciesDto, ReferenceListsDto, RequestChangesDto, RevisionDetailDto, SaveDraftDto,
-  SourceDto, StaffSpeciesDto,
+  AddIdentifierDto, CreateSourceDto, CreateSpeciesDto, ReferenceListsDto, RequestChangesDto, RevisionDetailDto, RollbackDto, SaveDraftDto,
+  SourceDto, SourceUpdateResultDto, StaffSpeciesDto, UpdateSourceDto,
 } from './dto';
 import { EditorialService } from './editorial.service';
 
@@ -50,6 +50,14 @@ export class EditorialController {
   @ApiCreatedResponse({ type: RevisionDetailDto, description: 'A new draft copied from the published revision' })
   createDraft(@CurrentStaff() staff: StaffPrincipal, @Param('id', uuid) id: string): Promise<RevisionDetailDto> {
     return this.editorial.createDraft(staff, id);
+  }
+
+  @Post('species/:id/rollback')
+  @HttpCode(200)
+  @Roles('admin')
+  @ApiOkResponse({ type: StaffSpeciesDto, description: 'The species with its published pointer moved to the restored revision' })
+  rollback(@CurrentStaff() staff: StaffPrincipal, @Param('id', uuid) id: string, @Body() dto: RollbackDto): Promise<StaffSpeciesDto> {
+    return this.editorial.rollback(staff, id, dto);
   }
 
   @Get('revisions/:id')
@@ -98,6 +106,12 @@ export class EditorialController {
   @ApiCreatedResponse({ type: SourceDto })
   createSource(@CurrentStaff() staff: StaffPrincipal, @Body() dto: CreateSourceDto): Promise<SourceDto> {
     return this.editorial.createSource(staff, dto);
+  }
+
+  @Put('sources/:id')
+  @ApiOkResponse({ type: SourceUpdateResultDto, description: 'A source cited by a submitted or published revision is never changed: a new row is created instead' })
+  updateSource(@CurrentStaff() staff: StaffPrincipal, @Param('id', uuid) id: string, @Body() dto: UpdateSourceDto): Promise<SourceUpdateResultDto> {
+    return this.editorial.updateSource(staff, id, dto);
   }
 
   @Get('reference')

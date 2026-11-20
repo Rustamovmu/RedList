@@ -21,7 +21,10 @@ npm run db:migrate          # apply SQL migrations in drizzle/
 npm run db:seed:regions     # Natural Earth countries + oceans (idempotent)
 npm run db:seed:fixtures    # SYNTHETIC dev species, published through the real workflow (never in production)
 npm run admin:create        # first admin from ADMIN_EMAIL / ADMIN_NAME / ADMIN_PASSWORD
-npm run e2e:prepare         # wipe + reload the wild_e2e database (used by the frontend's test:e2e)
+npm run e2e:prepare         # wipe + reload the wild_e2e database and storage/media-e2e (used by the frontend's test:e2e)
+npm run import -- <file.json> --dry-run | --apply [--reconcile]   # content into DRAFTS only; report in import-reports/
+npm run links:check         # record HTTP status of every support link (never disables one)
+npm run validate:catalogue  # PLAN §11 quality report over published content; exit 1 on any failure
 npm run dev                 # API on :4000, Swagger UI at /api/docs
 npm run db:generate         # after editing src/db/schema.ts: generate a migration
 npm run openapi:export      # write openapi.json for the frontend

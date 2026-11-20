@@ -215,8 +215,8 @@ describe('attribution', () => {
     const v1 = await publishedSpecies('fictus-photo', 'Photo test');
     const media = (
       await pool.query(
-        `INSERT INTO media_assets (storage_key, mime, width, height, bytes, creator, credit, license, review_state)
-         VALUES ('test/photo.webp', 'image/webp', 800, 600, 1000, 'Test Creator', 'Photo: Test Creator', 'CC BY 4.0', 'approved') RETURNING id`,
+        `INSERT INTO media_assets (storage_key, mime, width, height, bytes, creator, credit, license, review_state, reviewed_at)
+         VALUES ('test/photo.webp', 'image/webp', 800, 600, 1000, 'Test Creator', 'Photo: Test Creator', 'CC BY 4.0', 'approved', now()) RETURNING id`,
       )
     ).rows[0].id;
     const draft = await newDraft(editor, v1.speciesId);
@@ -224,19 +224,21 @@ describe('attribution', () => {
     await submit(editor, saved.id).expect(200);
     await publish(admin, saved.id).expect(200);
 
-    await pool.query(`UPDATE media_assets SET credit = 'Changed credit', license = 'CC BY-NC 4.0' WHERE id = $1`, [media]);
+    await pool.query(`UPDATE media_assets SET credit = 'Changed credit', license = 'CC BY-SA 4.0' WHERE id = $1`, [media]);
     const res = await pub('fictus-photo').expect(200);
     expect(res.body.media[0]).toMatchObject({ credit: 'Photo: Test Creator', license: 'CC BY 4.0', altText: 'A synthetic test image' });
   });
 
   it('blocks publishing an image whose licence is not on the allow-list', async () => {
     const v1 = await publishedSpecies('fictus-nc', 'NC test');
+    // Since M4 the database refuses an *approved* NC image (0005_media_rules.sql), so it can only be pending.
     const media = (
       await pool.query(
         `INSERT INTO media_assets (storage_key, mime, width, height, bytes, creator, credit, license, review_state)
-         VALUES ('test/nc.webp', 'image/webp', 800, 600, 1000, 'X', 'Photo: X', 'CC BY-NC 4.0', 'approved') RETURNING id`,
+         VALUES ('test/nc.webp', 'image/webp', 800, 600, 1000, 'X', 'Photo: X', 'CC BY-NC 4.0', 'pending') RETURNING id`,
       )
     ).rows[0].id;
+    await expect(pool.query(`UPDATE media_assets SET review_state = 'approved', reviewed_at = now() WHERE id = $1`, [media])).rejects.toMatchObject({ code: '23514' });
     const draft = await newDraft(editor, v1.speciesId);
     const saved = await save(editor, draft, { ...content('NC test'), media: [{ mediaId: media, position: 0, role: 'primary', altText: 'x' }] });
     const res = await submit(editor, saved.id).expect(422);

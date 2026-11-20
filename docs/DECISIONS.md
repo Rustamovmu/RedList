@@ -165,3 +165,94 @@ White text on each IUCN badge colour measures 4.9:1 to 21:1, so all pass WCAG AA
 **Context:** Next.js keeps its fetch cache in `.next-e2e/cache/fetch-cache` across rebuilds. After the profile DTO gained fields, the e2e web server served profile JSON cached by the M2 run, and pages crashed. Revalidation could not help: the fixtures are published before the web server starts.
 **Decision:** the Playwright web command deletes `.next-e2e/cache/fetch-cache` before `npm run build`.
 **Consequences:** the same risk exists in production when the API contract changes. The M5 deployment runbook must clear the Next.js data cache, or revalidate `catalogue`, on deploy.
+
+## D-022 Media storage, processing and serving (2026-11-21, M4)
+**Context:** PLAN §3 asks for a `StorageAdapter` (local disk in development, S3-compatible in production), re-encoding with metadata stripped, responsive WebP variants and `next/image` with a custom loader. PLAN §9 sets upload rules.
+**Decision:**
+- **Storage:** `StorageAdapter` with `LocalDiskStorage` under `MEDIA_DIR` (default `./storage/media`, git-ignored). The S3-compatible adapter is part of the M5 deployment work, because no bucket exists yet and nothing in R1 needs one before deployment. Keys are `<sha256 of the original>/<width>.webp`; `assertKey` rejects anything else, so no request can reach a path outside the folder.
+- **Processing** (`sharp` 0.35, Apache-2.0):
+  - limit `MEDIA_MAX_BYTES` (15 MB) and 40 megapixels
+  - magic-byte check for JPEG, PNG or WebP, and the decoder must agree with it (no SVG, HTML or polyglots)
+  - auto-rotate
+  - WebP at 320, 640, 960, 1280 and 1920 px below the image's own width, plus the own width (capped at 1920)
+  - **The original is not kept.** Re-encoding writes no EXIF, XMP or GPS. `modifications` records what we changed (CC BY-SA asks for it).
+- **Review:** upload → `pending` → `approved` / `rejected`. Admins only, audited.
+  - Editing credit or licence sends an image back to `pending`; published revisions keep their snapshots (D-012).
+  - Migration `0005_media_rules.sql`: an approved image must have a creator, a credit and an allow-listed licence (the same regex as `licences.ts`).
+- **Public serving:** `GET /api/v1/media/<key>/<width>.webp` gives the nearest generated width at least as wide.
+  - An image is served if it is approved, or if a currently published revision uses it (it was approved when that revision was published).
+  - **Rejected images are never served, and they drop out of profiles and cards at once** (a read-time filter, like disabled support links in D-018). Rejection is the takedown path.
+  - `Cache-Control: public, max-age=86400`, not `immutable`, so a takedown also expires from browser caches within a day.
+- **Staff preview:** `GET /staff/media/:id/preview/<width>.webp` (session required, `no-store`) shows any state, for review.
+- **Frontend:** `next/image` with `loaderFile` `src/lib/image-loader.ts`, which only ever builds same-origin `/api/v1/media/…` URLs. There is no Next.js image optimizer and no remote image host.
+**Consequences:**
+- Back up `MEDIA_DIR` with the database (M5). Losing it loses the images: there are no originals to regenerate from.
+- A failed import can leave content-addressed files with no row. They are harmless and reused if the same image comes back.
+- A dry run writes no files.
+
+## D-023 Import CLI format and reconcile rules (2026-11-21, M4)
+**Context:** PLAN §8 specifies the import CLI: JSON/CSV, zod, match on stable provider IDs, drafts only, one transaction per file, a Markdown report, idempotent, and `--reconcile` for manual edits.
+**Decision:**
+- **JSON only in R1** (format `wildward-import` v1, `src/import/import-schema.ts`). Species content is nested (assessments, estimates, citations), so CSV would need several linked files. CSV is in the BACKLOG.
+- **References** are by file-local `key` (sources, media) or stable code (region slug, habitat and threat code), never by database id.
+- **Not imported:**
+  - range maps (no licensed source yet)
+  - support links (they go through the admin review, D-018)
+  - species identity edits: name, rank and sensitivity changes are reported, not applied
+- **Matching:**
+  - species by any `(provider, externalId)`, then by slug; a conflict between the two aborts the file
+  - sources by every field; a changed source becomes a new row (sources are never edited in place)
+  - images by the sha256 of the downloaded bytes
+- **Targets:** writes into the newest open draft, or creates a draft from the published revision. A species whose latest revision is `submitted` is skipped with a note. Nothing is ever submitted or published.
+- **Idempotency:** content is compared per section in normalized form:
+  - sections: display group, names, environments, status + population together (estimates point at assessments), regions, habitats, threats, citations, media, and each top-level editorial key
+  - editorial JSON is normalized through the same zod schema the save uses, so trimming never looks like a change
+  - an unchanged section writes nothing, so a re-run produces zero changes and no new draft, also after publication
+- **Manual edits:** `import_records` keeps the hash of what the importer last wrote per species and section.
+  - If the current value differs from that hash, a person edited it, and the section is skipped unless `--reconcile` is given.
+  - A non-empty section the importer never wrote counts as a manual edit.
+  - Every skip and every overwrite is listed in the report.
+- **Downloads:** through `safeFetch` (D-026), before the transaction opens, one at a time, at least 1.5 s apart, honouring `Retry-After` on 429/503 for up to 3 minutes.
+- Reports go to `import-reports/` (git-ignored). Each apply with changes writes one `import.apply` audit event, and the individual drafts, sources and images are audited as usual.
+
+## D-024 Rollback (2026-11-21, M4)
+**Context:** PLAN §6: rollback moves the pointer back to an earlier *published* revision.
+**Decision:** `POST /staff/species/:id/rollback {targetRevisionId, expectedPublishedRevisionId, reason}`, admin only.
+- One transaction with the species row locked `FOR UPDATE`, like publish.
+- 409 `ROLLBACK_CONFLICT` if the live revision changed since the admin loaded the page. 422 `NOT_PUBLISHED` for drafts, other species' revisions and anything never published. 422 `ALREADY_LIVE`.
+- The audit event `species.rollback` records from and to (version and id) and the reason. Revalidation of `species:<slug>` and `catalogue` follows the commit.
+- No schema change was needed: old published revisions keep `state = 'published'`, and the pointer trigger only requires that. Rolling forward again is just another rollback.
+- Drafts based on the replaced revision fail to publish with `PUBLISH_CONFLICT` (D-012), so no one silently overwrites a restored version.
+
+## D-025 Editing a source (2026-11-21, M4)
+**Decision:** `PUT /staff/sources/:id`.
+- If any submitted or published revision cites the source, the old row is left unchanged and a **new** row is created. The response says `createdNewRow: true` with the new id, and new drafts pick it.
+- A source cited only by drafts (or not at all) is corrected in place.
+- Region boundaries count as citing (`regions.source_id`).
+- Both paths are audited.
+**Consequence:** published citations always point at what was actually cited (PLAN §6, tested in `content-ops.spec.ts`).
+
+## D-026 SSRF-safe fetcher (2026-11-21, M4)
+**Context:** PLAN §9: staff-entered URLs are fetched only through an SSRF-safe fetcher. M4 adds two fetchers of outside URLs: import image downloads and the link checker.
+**Decision:** `src/common/safe-fetch.ts`:
+- https only, port 443, no credentials in the URL
+- the host is resolved and **every** address must be public: blocked are loopback, RFC 1918, CGNAT, link-local (incl. 169.254.169.254), multicast, reserved, documentation, ULA, NAT64 and IPv4-mapped or -compatible IPv6
+- the connection is pinned to the checked address, against DNS rebinding
+- redirects are followed by hand, at most 3, re-checked at every hop
+- size and time limits; error codes never echo the URL or the remote message
+- User-Agent `WildwardBot/0.1 (catalogue link and media checker)`, plus `FETCH_CONTACT` if the operator sets one
+**Consequence:** Wikimedia rate-limits unidentified bots (HTTP 429, `Retry-After: 120`, seen 2026-11-21). For larger imports the owner should set `FETCH_CONTACT` to a project URL or role address. The agent does not add contact details itself.
+
+## D-027 IUCN pages are not read by the agent; the pilot cites Wikidata (2026-11-21, M4)
+**Context:**
+- The owner approved reading public IUCN assessment pages one at a time, to summarize status and population with a citation.
+- When tried, `www.iucnredlist.org` returned **403**. Its `robots.txt` explicitly disallows `ClaudeBot`, `anthropic-ai` and `Claude-Web`, and sets `Content-Signal: ai-train=no`.
+- Working around that would break the owner's rule that nothing risks breaking the law.
+**Decision (owner's choice when asked):**
+- The coding agent reads nothing from IUCN.
+- For the real-catalogue pilot, the IUCN category is taken from **Wikidata** (structured data CC0, read through its API). It is cited as a second-hand source whose statement references *The IUCN Red List of Threatened Species 2022.2*. That is stated in the source's note.
+- Population is **Unknown** wherever no estimate was checked. Trend is `unknown`, because Wikidata does not state it.
+- **Image licences** were checked twice: the Commons licence metadata, and the file's own embedded copyright fields. A file whose EXIF said "Alle Rechte vorbehalten" (all rights reserved), against its CC BY-SA declaration on Commons, was not used.
+**Consequences:**
+- Pilot profiles carry an honest but second-hand status. Before launch, a person should check each status against the IUCN assessment by hand and replace the citation.
+- IUCN terms remain `pending` in DATA_SOURCES.

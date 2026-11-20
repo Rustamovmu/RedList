@@ -1,5 +1,116 @@
 # Completed tasks
 
+## 2026-11-21: M4 Content operations (tooling and a 3-species real pilot)
+**Scope:** media upload and review, import CLI, rollback, source editing, `links:check`, `validate:catalogue`, photos on public pages, and a real-catalogue pilot. Decisions D-022 to D-027.
+
+**Owner decisions this session:**
+- Build the tooling now and prove it with a 2–3 species real pilot; the 20–30 profile catalogue is the next session.
+- IUCN pages could be summarized by hand. In practice the agent could not read them (below), so the owner chose Wikidata as a cited, second-hand source for the status.
+- The standing rule still holds: nothing that costs money or risks the law.
+
+**Backend:**
+- **Migrations:**
+  - `0004_media_import.sql` (generated): media sha256, variants, licence URL, modifications, uploader and reviewer; table `import_records`
+  - `0005_media_rules.sql` (hand-written): an approved image must have a creator, a credit and an allow-listed licence
+- **`src/media/`:**
+  - `StorageAdapter` with local disk (`MEDIA_DIR`)
+  - `sharp` pipeline: magic bytes, decoder agreement, pixel cap, auto-rotate, WebP variants, metadata stripped, original not kept
+  - staff routes: upload (multipart), list, get, preview, edit, approve and reject (admin)
+  - public `GET /media/:key/:width.webp`
+  - rejected images disappear from profiles and cards at once (D-022)
+- **Rollback:** `POST /staff/species/:id/rollback` (admin, optimistic check, audited, revalidates; D-024).
+- **Source editing:** `PUT /staff/sources/:id`; a source cited by a non-draft revision becomes a new row (D-025).
+- **`src/common/safe-fetch.ts`:** SSRF-safe fetcher (D-026), used by the import downloads and the link checker. Optional `FETCH_CONTACT` for the User-Agent.
+- **`npm run import`** (`src/import/`): zod-validated JSON, drafts only, one transaction per file, Markdown report, idempotent per section, manual edits protected unless `--reconcile` (D-023). The `EditorialService` write methods now accept an outer transaction.
+- **`npm run links:check`:** records status, retries HEAD with GET, never disables a link, one audit event per run.
+- **`npm run validate:catalogue`** (`src/quality/`) checks:
+  - no drafts reachable
+  - the checklist re-run on every live revision
+  - numeric claims cited
+  - images approved, allow-listed and present on disk
+  - compare units
+  - no fixtures in production
+- **Fixtures:** a generated CC0 test pattern (not a photograph) is uploaded and approved through the real media workflow and attached to *Fictus captivus*. `e2e:prepare` wipes its own `storage/media-e2e`.
+- `openapi.json` re-exported; frontend contracts regenerated.
+
+**Frontend:**
+- `next/image` with a custom loader that only builds same-origin `/api/v1/media/…` URLs (no optimizer, no remote hosts).
+- `Photo` component with credit, a licence deed link and a source link. Used on the profile hero, the cards (with a credit line) and the home hero (first threatened species with an approved photo).
+- `/admin/media`:
+  - upload form with an allow-list licence picker
+  - review queue filtered by state, with staff previews
+  - Approve / Reject (admins), and edit credit or licence (sends it back to review)
+- `/admin/species/[id]`: "Make this version live again" (admin, asks for a reason). A "Media" link in the staff nav.
+- `staff-api.ts`: multipart upload with the CSRF header, plus media, rollback and source-edit methods.
+
+**Real-catalogue pilot** (`catalogue/pilot.json`, 3 species):
+| Species | Status (cited) | Population | Environment | Photo (checked on Commons, 2026-11-21) |
+|---|---|---|---|---|
+| Snow leopard, *Panthera uncia* (GBIF accepts *Uncia uncia*; both names shown) | VU, via Wikidata Q30197 → IUCN Red List 2022.2 | Unknown | **not set**: no checked source | Bernard Landgraf, CC BY-SA 3.0, own work; EXIF artist matches |
+| Axolotl, *Ambystoma mexicanum* | CR, via Wikidata Q22718 → IUCN 2022.2 | Unknown | freshwater (WoRMS via GBIF) | Monika Korzeniec, CC BY-SA 3.0, own work. "Axolotl Wild Type.jpg" was **rejected**: its EXIF says "Alle Rechte vorbehalten" against its CC BY-SA declaration |
+| Hawksbill sea turtle, *Eretmochelys imbricata* | CR, via Wikidata Q203538 → IUCN 2022.2 | Unknown | marine (WoRMS via GBIF) | Diego Delso, CC BY-SA 4.0, own work; EXIF says CC-BY-SA |
+
+- **Facts and their sources:** the classification comes from the GBIF Backbone Taxonomy (CC BY 4.0, DOI 10.15468/39omei, read from the GBIF API). The overviews are our own short sentences, built only from those cited facts.
+- **Not verified, so left empty or Unknown:**
+  - population for all three
+  - trend for all three (Wikidata gives none)
+  - assessment dates
+  - countries and regions for all three
+  - habitats and threats (IUCN classification licence pending)
+  - diet and climate
+  - the snow leopard's environment
+- **Second-hand:** every status is cited via Wikidata, not IUCN. The IUCN taxon IDs (22732, 1095, 8005) also come from Wikidata.
+- **Where it stands:**
+  - In the dev database the pilot exists as **three drafts, not published**, each passing the publication checklist.
+  - It was imported from a text-only copy because Wikimedia answered HTTP 429 to image downloads (see below).
+  - Publishing is left to the owner: the agent would otherwise be recorded as an independent reviewer of its own work.
+
+**Why IUCN was not read:** `www.iucnredlist.org` returned 403, and its `robots.txt` disallows `ClaudeBot`, `anthropic-ai` and `Claude-Web`. The agent did not try to get around it (D-027).
+
+**Commands run, with results** (macOS arm64, Docker PostGIS 16.4 / 3.4, Node 24.19, Chrome stable):
+| Command | Result |
+|---|---|
+| backend `npm install sharp --save-exact` (0.35.5) and `-D @types/multer` | installed; sharp loads (libvips 8.18.7) |
+| backend `npm run db:generate` → `0004_media_import.sql` (renamed, SQL reviewed); `drizzle-kit generate --custom` → `0005_media_rules.sql`; `npm run db:migrate` (dev) | applied |
+| backend `npm run typecheck` / `lint` / `build` | pass / pass / pass |
+| backend `npm test` | **231/231 pass**, 14 suites. New: content-ops (14), import (12), quality (4), safe-fetch unit (53). Two older attribution tests changed, because the database now refuses an *approved* NC image. |
+| backend `npm run openapi:export`; frontend `npm run contracts:generate` | written |
+| frontend `npm run typecheck` / `lint` | pass / pass |
+| frontend `npm run test:e2e` (includes `npm run build`) | **28/28 pass** (14 tests × desktop and 360px). New `content.spec.ts`: 3 tests, outbound network blocked. |
+| `npm run import -- catalogue/pilot.json --dry-run` | **failed**: HTTP 429 from upload.wikimedia.org (`Retry-After: 120`), also after waiting and retrying |
+| `npm run import -- <scratch text-only copy of pilot.json>` `--dry-run` → `--apply` → `--apply` | 38 changes (nothing written) → 38 changes → **0 changes** |
+| pilot draft checklists (one-off script, deleted) | 3/3 PASS |
+| `npm run validate:catalogue` (dev) | **PASS**: 6 published species; drafts 6, checklist 6, numeric claims 14, images 0, compare pairs 15 |
+| `npm run links:check` (dev) | ran; the dev database has no support links (fixture links are only in fresh databases). Logic covered by `quality.spec.ts`. |
+
+**Gate evidence:**
+- **Re-importing produces no changes:**
+  - `import.spec.ts`: a second run changes nothing, including after review and publication; the same rows and `updated_at`, no new audit events
+  - a section edited by hand is skipped and reported; `--reconcile` overwrites it and lists it
+  - against real data: the pilot re-apply made 0 changes
+- **Rollback works and is audited:** `content-ops.spec.ts`:
+  - v2 → v1 on the profile and in the catalogue
+  - one `species.rollback` audit event with from, to and the reason
+  - revalidation of `species:<slug>` and `catalogue`
+  - editors get 403 and requests without CSRF 403; drafts, other species and stale views are refused; a draft started before the rollback cannot be published over it
+- **Credits and licences survive edits:** after editing the image (licence → CC BY-SA, credit changed) and the source (a new edition), the published profile still shows the original credit, licence and source. The edited source became a new row. A new draft snapshots the new credit and cannot be published until the image is reviewed again.
+- **Profiles render with outbound network blocked:**
+  - backend: profile, list, search, filters, compare, map ×2, basemap, region, support and an image are served with `fetch`, `https.request`/`get` and DNS lookups all throwing, and none of them was called
+  - Playwright: on every fixture profile, the home page and Explore, every request that left `localhost:3110` was aborted, nothing tried to leave, photos loaded from `/api/v1/media/…`, credits were visible, and there was no overflow at 360px
+- **Uploads:** SVG, HTML renamed `.jpg`, fake JPEG bytes, files over 15 MB, and NC, ND and all-rights-reserved licences are all refused. EXIF and GPS are gone from the variants (checked with sharp). Pending images give 404 publicly, approved 200, rejected 404 and gone from profiles and cards.
+- **`validate:catalogue` passes** (dev and test). It fails as designed when a live image goes back to pending or a variant file is missing.
+
+**Known gaps:**
+- **Pilot photos are not imported.** Wikimedia rate-limits unidentified bots. To finish, set `FETCH_CONTACT` in `.env` to a project URL or role address (not a personal one), then run `npm run import -- catalogue/pilot.json --dry-run`, then `--apply`. That adds the three photos to the pilot drafts. Then approve them in `/admin/media`, review each draft and publish it.
+- **Pilot content is thin and second-hand:** no population, trend, countries, habitats, threats, diet or climate; status via Wikidata. A person should check each status against IUCN by hand before launch (D-027).
+- **The remaining 17–27 real profiles** (the next session): they need a primary source for status and population that the agent may read, or the owner's hand-checked notes.
+- No S3 storage adapter (M5, D-022). Back up `MEDIA_DIR` with the database.
+- Not built: staff invites and staff management (ARCHITECTURE lists them as open), the species archive endpoint, the form-based draft editor (D-011), CSV import (BACKLOG).
+- No admin end-to-end test: the e2e stack has no staff login. The admin pages are covered only by typecheck, lint and the API tests.
+- Query plans not re-measured (DATABASE.md).
+
+**Next:** finish the pilot photos (above), then the real catalogue, then M5 (docs/CLAUDE_TASKS.md).
+
 ## 2026-11-21: M3 Geography and support
 **Scope:** `GeoRepository`, map API and basemap, region pages, range maps as revision content (antimeridian split, vertex caps), generalization for sensitive species, the support directory (public page and admin), and the profile map and help section. Decisions: D-016 to D-021.
 

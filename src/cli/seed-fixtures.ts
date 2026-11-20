@@ -15,6 +15,8 @@ import { AppModule } from '../app.module';
 import { DB, Db } from '../db/db.module';
 import * as s from '../db/schema';
 import { EditorialService } from '../editorial/editorial.service';
+import { syntheticImage, SYNTHETIC_IMAGE_META } from '../fixtures/synthetic-image';
+import { MediaService } from '../media/media.service';
 import { FIXTURE_HABITATS, FIXTURE_LINKS, FIXTURE_ORGANIZATION, FIXTURE_SOURCE_TITLE, FIXTURE_SPECIES, FIXTURE_THREATS, FixtureLinkKey } from '../fixtures/dev-fixtures';
 import type { StaffPrincipal } from '../identity/session.service';
 import { SupportDirectoryService } from '../support-directory/support-directory.service';
@@ -64,6 +66,11 @@ export async function seedFixtures(app: INestApplicationContext): Promise<{ crea
     if (key) linkIds.set(key, l.id);
   }
 
+  // One generated CC0 test pattern, uploaded and approved through the real media workflow (M4).
+  const mediaService = app.get(MediaService);
+  const { asset: photo } = await mediaService.ingest(staff.id, await syntheticImage(), { ...SYNTHETIC_IMAGE_META });
+  if (photo.reviewState !== 'approved') await mediaService.review(staff, photo.id, 'approved');
+
   const created: string[] = [];
   const skipped: string[] = [];
   for (const f of FIXTURE_SPECIES) {
@@ -100,7 +107,7 @@ export async function seedFixtures(app: INestApplicationContext): Promise<{ crea
       threats: f.threats.map((code) => ({ threatId: threatIds.get(code)!, sourceId: source.id })),
       ranges: (f.ranges ?? []).map((r) => ({ sourceId: source.id, seasonality: r.seasonality ?? 'resident', presence: 'extant', geometry: r.geometry })),
       citations,
-      media: [],
+      media: f.photo ? [{ mediaId: photo.id, position: 0, role: 'primary', altText: 'Generated test pattern standing in for a photograph (synthetic fixture)' }] : [],
       supportLinks: (f.supportLinks ?? []).map((k) => ({ supportLinkId: linkIds.get(k)!, contextNote: null })),
     });
     await editorial.submit(staff, saved.id);

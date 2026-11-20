@@ -67,6 +67,8 @@ export type FixtureSpecies = {
   /** Synthetic range polygons (GeoJSON). Longitudes past 180 cross the antimeridian. */
   ranges?: Array<{ seasonality?: 'resident' | 'breeding' | 'non_breeding'; geometry: { type: 'Polygon' | 'MultiPolygon'; coordinates: unknown[] } }>;
   supportLinks?: FixtureLinkKey[];
+  /** Attach a generated, CC0 test pattern as the primary image (M4), so pages exercise the photo path. */
+  photo?: boolean;
 };
 
 const NOTE = 'Synthetic fixture text for development. Not a real species.';
@@ -132,6 +134,7 @@ export const FIXTURE_SPECIES: FixtureSpecies[] = [
     habitats: ['fx-forest'],
     threats: ['fx-collection'],
     supportLinks: ['volunteer', 'oldAppeal'],
+    photo: true,
   },
   {
     slug: 'fictus-marinus',

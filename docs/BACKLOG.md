@@ -19,6 +19,8 @@
 - Vector basemap (Protomaps)
 
 ## Technical follow-ups
+- CSV import format (R1 imports JSON only, DECISIONS D-023)
+- S3-compatible `StorageAdapter` (M5 deployment work, D-022)
 - Upgrade NestJS 11 → 12 in its own task
 - Rename `RedList-backent` → `RedList-backend`
 - CI pipeline (GitHub Actions) running typecheck, lint, tests against a PostGIS service, and build

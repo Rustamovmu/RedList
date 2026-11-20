@@ -525,6 +525,60 @@
         ]
       }
     },
+    "/api/v1/staff/species/{id}/rollback": {
+      "post": {
+        "operationId": "EditorialController_rollback",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT/DELETE",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RollbackDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The species with its published pointer moved to the restored revision",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffSpeciesDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-editorial"
+        ]
+      }
+    },
     "/api/v1/staff/revisions/{id}": {
       "get": {
         "operationId": "EditorialController_getRevision",
@@ -839,6 +893,60 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SourceDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-editorial"
+        ]
+      }
+    },
+    "/api/v1/staff/sources/{id}": {
+      "put": {
+        "operationId": "EditorialController_updateSource",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT/DELETE",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSourceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A source cited by a submitted or published revision is never changed: a new row is created instead",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceUpdateResultDto"
                 }
               }
             }
@@ -1537,6 +1645,374 @@
         ],
         "tags": [
           "staff-support"
+        ]
+      }
+    },
+    "/api/v1/media/{key}/{file}": {
+      "get": {
+        "operationId": "PublicMediaController_variant",
+        "parameters": [
+          {
+            "name": "key",
+            "required": true,
+            "in": "path",
+            "description": "storageKey from a profile or card",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "file",
+            "required": true,
+            "in": "path",
+            "description": "<width>.webp; the nearest generated width at least as wide is served",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "WebP image"
+          }
+        },
+        "tags": [
+          "media"
+        ]
+      }
+    },
+    "/api/v1/staff/media": {
+      "get": {
+        "operationId": "StaffMediaController_list",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "approved",
+                "rejected"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Newest first; filter by review state for the queue",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StaffMediaDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-media"
+        ]
+      },
+      "post": {
+        "operationId": "StaffMediaController_upload",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/MediaUploadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Stored as pending review",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffMediaDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-media"
+        ]
+      }
+    },
+    "/api/v1/staff/media/{id}": {
+      "get": {
+        "operationId": "StaffMediaController_get",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffMediaDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-media"
+        ]
+      },
+      "put": {
+        "operationId": "StaffMediaController_update",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MediaMetadataDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Edits send the image back to pending review. Published revisions keep their snapshots.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffMediaDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-media"
+        ]
+      }
+    },
+    "/api/v1/staff/media/{id}/preview/{file}": {
+      "get": {
+        "operationId": "StaffMediaController_preview",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "file",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "WebP preview of any image, for review"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-media"
+        ]
+      }
+    },
+    "/api/v1/staff/media/{id}/approve": {
+      "post": {
+        "operationId": "StaffMediaController_approve",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffMediaDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-media"
+        ]
+      }
+    },
+    "/api/v1/staff/media/{id}/reject": {
+      "post": {
+        "operationId": "StaffMediaController_reject",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectMediaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A rejected image disappears from public pages at once",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffMediaDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-media"
         ]
       }
     }
@@ -3457,6 +3933,30 @@
           "externalId"
         ]
       },
+      "RollbackDto": {
+        "type": "object",
+        "properties": {
+          "targetRevisionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "An earlier published revision of this species"
+          },
+          "expectedPublishedRevisionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The revision you saw as live; 409 if it has changed since"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Why the earlier version is restored (kept in the audit log)"
+          }
+        },
+        "required": [
+          "targetRevisionId",
+          "expectedPublishedRevisionId",
+          "reason"
+        ]
+      },
       "SaveDraftDto": {
         "type": "object",
         "properties": {
@@ -3873,6 +4373,70 @@
         },
         "required": [
           "title"
+        ]
+      },
+      "UpdateSourceDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "publisher": {
+            "type": "string",
+            "nullable": true
+          },
+          "authors": {
+            "type": "string",
+            "nullable": true
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "doi": {
+            "type": "string",
+            "nullable": true
+          },
+          "publishedOn": {
+            "type": "string",
+            "nullable": true
+          },
+          "accessedOn": {
+            "type": "string",
+            "nullable": true
+          },
+          "license": {
+            "type": "string",
+            "nullable": true
+          },
+          "permittedUseNote": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "title"
+        ]
+      },
+      "SourceUpdateResultDto": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "description": "The source as it now reads. Its id differs from the requested one when a new row was created.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SourceDto"
+              }
+            ]
+          },
+          "createdNewRow": {
+            "type": "boolean",
+            "description": "True when the old source is cited by a submitted or published revision, so a new source row was created and the old one left unchanged"
+          }
+        },
+        "required": [
+          "source",
+          "createdNewRow"
         ]
       },
       "RegionRefDto": {
@@ -5507,6 +6071,192 @@
           "url",
           "actionType",
           "description"
+        ]
+      },
+      "StaffMediaDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "storageKey": {
+            "type": "string",
+            "description": "Public images are served at /api/v1/media/<storageKey>/<width>.webp once approved"
+          },
+          "width": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          },
+          "bytes": {
+            "type": "number"
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "creator": {
+            "type": "string"
+          },
+          "credit": {
+            "type": "string"
+          },
+          "license": {
+            "type": "string"
+          },
+          "licenseAllowed": {
+            "type": "boolean",
+            "description": "Whether the licence is on the allow-list"
+          },
+          "licenseUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "sourceUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "modifications": {
+            "type": "string",
+            "nullable": true
+          },
+          "reviewState": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved",
+              "rejected"
+            ]
+          },
+          "reviewNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "reviewedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "usedByRevisions": {
+            "type": "number",
+            "description": "How many revisions use this image (any state)"
+          }
+        },
+        "required": [
+          "id",
+          "storageKey",
+          "width",
+          "height",
+          "bytes",
+          "variants",
+          "creator",
+          "credit",
+          "license",
+          "licenseAllowed",
+          "licenseUrl",
+          "sourceUrl",
+          "modifications",
+          "reviewState",
+          "reviewNote",
+          "reviewedAt",
+          "createdAt",
+          "usedByRevisions"
+        ]
+      },
+      "MediaUploadDto": {
+        "type": "object",
+        "properties": {
+          "creator": {
+            "type": "string",
+            "description": "Who made the image, as the source names them"
+          },
+          "credit": {
+            "type": "string",
+            "description": "The credit line shown under the image, e.g. \"Photo: Jane Doe, CC BY 4.0, via Wikimedia Commons\""
+          },
+          "license": {
+            "type": "string",
+            "description": "Licence. Must be on the allow-list: CC0, PDM, CC BY, CC BY-SA (any version)"
+          },
+          "licenseUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "sourceUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "The page the image came from (https)"
+          },
+          "modifications": {
+            "type": "string",
+            "nullable": true,
+            "description": "Changes made before upload (cropping, colour). Resizing and re-encoding are added automatically."
+          },
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "description": "JPEG, PNG or WebP. SVG and anything else is refused."
+          }
+        },
+        "required": [
+          "creator",
+          "credit",
+          "license",
+          "file"
+        ]
+      },
+      "MediaMetadataDto": {
+        "type": "object",
+        "properties": {
+          "creator": {
+            "type": "string",
+            "description": "Who made the image, as the source names them"
+          },
+          "credit": {
+            "type": "string",
+            "description": "The credit line shown under the image, e.g. \"Photo: Jane Doe, CC BY 4.0, via Wikimedia Commons\""
+          },
+          "license": {
+            "type": "string",
+            "description": "Licence. Must be on the allow-list: CC0, PDM, CC BY, CC BY-SA (any version)"
+          },
+          "licenseUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "sourceUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "The page the image came from (https)"
+          },
+          "modifications": {
+            "type": "string",
+            "nullable": true,
+            "description": "Changes made before upload (cropping, colour). Resizing and re-encoding are added automatically."
+          }
+        },
+        "required": [
+          "creator",
+          "credit",
+          "license"
+        ]
+      },
+      "RejectMediaDto": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string",
+            "description": "Why the image was rejected (shown to staff only)"
+          }
+        },
+        "required": [
+          "note"
         ]
       }
     }

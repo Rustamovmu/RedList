@@ -1,0 +1,416 @@
+{
+  "format": "wildward-import",
+  "version": 1,
+  "notes": "Real-catalogue pilot (M4, 2026-11-21), prepared by the coding agent. Every fact below was read from the cited source on 2026-11-21: GBIF Backbone Taxonomy (CC BY 4.0) through the GBIF API, Wikidata (CC0) through its API, and GBIF species profiles. IUCN Red List pages were NOT read: iucnredlist.org disallows this agent in robots.txt and returned 403, so status is cited second-hand from Wikidata, which references The IUCN Red List of Threatened Species 2022.2 (DECISIONS D-027). No population figure was checked, so every population is Unknown. Trend is not stated by Wikidata, so it is 'unknown'. Images are from Wikimedia Commons; each licence was read from the file's Commons metadata. Image licences were also compared with each file's embedded copyright metadata; a file whose metadata said 'all rights reserved' was not used.",
+  "sources": [
+    {
+      "key": "gbif-backbone",
+      "title": "GBIF Backbone Taxonomy",
+      "publisher": "GBIF Secretariat",
+      "url": "https://www.gbif.org/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c",
+      "doi": "10.15468/39omei",
+      "publishedOn": "2023-08-28",
+      "accessedOn": "2026-11-21",
+      "license": "CC BY 4.0",
+      "permittedUseNote": "Checklist dataset under CC BY 4.0 (read from the dataset record in the GBIF API). Cite GBIF and the DOI."
+    },
+    {
+      "key": "wikidata-q30197",
+      "title": "Wikidata item Q30197 (snow leopard): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q30197",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 22732), retrieved by Wikidata editors on 2023-01-02. Not checked against IUCN directly."
+    },
+    {
+      "key": "wikidata-q22718",
+      "title": "Wikidata item Q22718 (axolotl): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q22718",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 1095), retrieved by Wikidata editors on 2023-01-02. Not checked against IUCN directly."
+    },
+    {
+      "key": "wikidata-q203538",
+      "title": "Wikidata item Q203538 (hawksbill sea turtle): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q203538",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 8005), retrieved by Wikidata editors. Not checked against IUCN directly."
+    },
+    {
+      "key": "gbif-profile-2431950",
+      "title": "GBIF species profiles for taxon 2431950 (axolotl), from the World Register of Marine Species (WoRMS)",
+      "publisher": "GBIF Secretariat, from the World Register of Marine Species",
+      "url": "https://api.gbif.org/v1/species/2431950/speciesProfiles",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Only the marine / freshwater habitat flags that GBIF lists from WoRMS are used."
+    },
+    {
+      "key": "gbif-profile-8841716",
+      "title": "GBIF species profiles for taxon 8841716 (hawksbill sea turtle), from the World Register of Marine Species (WoRMS)",
+      "publisher": "GBIF Secretariat, from the World Register of Marine Species",
+      "url": "https://api.gbif.org/v1/species/8841716/speciesProfiles",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Only the marine / freshwater habitat flags that GBIF lists from WoRMS are used."
+    }
+  ],
+  "media": [
+    {
+      "key": "uncia-uncia-landgraf",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/a/a7/Uncia_uncia.jpg",
+      "creator": "Bernard Landgraf",
+      "credit": "Photo: Bernard Landgraf, CC BY-SA 3.0, via Wikimedia Commons",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Uncia_uncia.jpg"
+    },
+    {
+      "key": "axolotl-korzeniec",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/7/77/6_maja_06_r._ZOO_204.jpg",
+      "creator": "Monika Korzeniec",
+      "credit": "Photo: Monika Korzeniec, CC BY-SA 3.0, via Wikimedia Commons",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:6_maja_06_r._ZOO_204.jpg"
+    },
+    {
+      "key": "hawksbill-ras-muhammad-delso",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Tortuga_carey_%28Eretmochelys_imbricata%29%2C_parque_nacional_Ras_Muhammad%2C_Egipto%2C_2022-03-28%2C_DD_56.jpg/1920px-Tortuga_carey_%28Eretmochelys_imbricata%29%2C_parque_nacional_Ras_Muhammad%2C_Egipto%2C_2022-03-28%2C_DD_56.jpg",
+      "creator": "Diego Delso",
+      "credit": "Photo: Diego Delso, CC BY-SA 4.0, via Wikimedia Commons",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tortuga_carey_(Eretmochelys_imbricata),_parque_nacional_Ras_Muhammad,_Egipto,_2022-03-28,_DD_56.jpg",
+      "modifications": "Downloaded as the 1920-pixel-wide rendition generated by Wikimedia Commons."
+    }
+  ],
+  "species": [
+    {
+      "slug": "panthera-uncia",
+      "scientificName": "Panthera uncia",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2435238",
+          "sourceUrl": "https://www.gbif.org/species/2435238"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q30197",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q30197"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "22732"
+        }
+      ],
+      "content": {
+        "displayGroup": "mammal",
+        "editorial": {
+          "overview": "The snow leopard is a wild cat of the family Felidae, in the order Carnivora. Name use differs between sources: Wikidata uses Panthera uncia, while the GBIF Backbone Taxonomy accepts Uncia uncia and lists Panthera uncia as a synonym. It is listed as Vulnerable in the 2022.2 edition of the IUCN Red List, as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Mammalia",
+            "order": "Carnivora",
+            "family": "Felidae",
+            "genus": "Uncia"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Snow leopard",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "en",
+            "name": "Ounce",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Uncia uncia",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Felis uncia",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q30197",
+            "scope": "global",
+            "category": "VU",
+            "trend": "unknown"
+          }
+        ],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2435238 (Uncia uncia; Panthera uncia is usage 5787213)"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q30197",
+            "locator": "property P141 (IUCN conservation status) and P225 (taxon name)"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2435238"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q30197",
+            "locator": "property P141"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "uncia-uncia-landgraf",
+            "position": 0,
+            "role": "primary",
+            "altText": "A snow leopard"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "ambystoma-mexicanum",
+      "scientificName": "Ambystoma mexicanum",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2431950",
+          "sourceUrl": "https://www.gbif.org/species/2431950"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q22718",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q22718"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "1095"
+        }
+      ],
+      "content": {
+        "displayGroup": "amphibian",
+        "editorial": {
+          "overview": "The axolotl is a salamander of the family Ambystomatidae, in the order Caudata. The World Register of Marine Species, as listed by GBIF, records it as a freshwater species and not a marine one. It is listed as Critically Endangered in the 2022.2 edition of the IUCN Red List, as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Amphibia",
+            "order": "Caudata",
+            "family": "Ambystomatidae",
+            "genus": "Ambystoma"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Axolotl",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "la",
+            "name": "Siredon axolotl",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Gyrinus mexicanus",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [
+          "freshwater"
+        ],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q22718",
+            "scope": "global",
+            "category": "CR",
+            "trend": "unknown"
+          }
+        ],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2431950"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q22718",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-profile-2431950",
+            "locator": "GBIF taxon 2431950, species profile from WoRMS: freshwater true, marine false"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2431950"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q22718",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "gbif-profile-2431950",
+            "locator": "GBIF taxon 2431950, species profile from WoRMS"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "axolotl-korzeniec",
+            "position": 0,
+            "role": "primary",
+            "altText": "An axolotl"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "eretmochelys-imbricata",
+      "scientificName": "Eretmochelys imbricata",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "8841716",
+          "sourceUrl": "https://www.gbif.org/species/8841716"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q203538",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q203538"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "8005"
+        }
+      ],
+      "content": {
+        "displayGroup": "reptile",
+        "editorial": {
+          "overview": "The hawksbill sea turtle is a turtle of the family Cheloniidae. The World Register of Marine Species, as listed by GBIF, records it as a marine species. It is listed as Critically Endangered in the 2022.2 edition of the IUCN Red List, as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Testudines",
+            "family": "Cheloniidae",
+            "genus": "Eretmochelys"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Hawksbill sea turtle",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "en",
+            "name": "Hawksbill turtle",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Chelone imbricata",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [
+          "marine"
+        ],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q203538",
+            "scope": "global",
+            "category": "CR",
+            "trend": "unknown"
+          }
+        ],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 8841716"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q203538",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-profile-8841716",
+            "locator": "GBIF taxon 8841716, species profile from WoRMS: marine true"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 8841716 (GBIF places Testudines at class rank and gives no order)"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q203538",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "gbif-profile-8841716",
+            "locator": "GBIF taxon 8841716, species profile from WoRMS"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "hawksbill-ras-muhammad-delso",
+            "position": 0,
+            "role": "primary",
+            "altText": "A hawksbill sea turtle in Ras Muhammad National Park, Egypt"
+          }
+        ]
+      }
+    }
+  ]
+}

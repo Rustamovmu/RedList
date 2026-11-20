@@ -8,6 +8,11 @@ const EnvSchema = z.object({
   WEB_ORIGIN: z.string().url().default('http://localhost:3000'),
   WEB_REVALIDATE_URL: z.string().url().optional(),
   REVALIDATE_SECRET: z.string().min(24).optional(),
+  // Media (M4, DECISIONS D-022): originals are never stored; only re-encoded WebP variants, on local disk.
+  MEDIA_DIR: z.string().min(1).default('./storage/media'),
+  MEDIA_MAX_BYTES: z.coerce.number().int().positive().max(50_000_000).default(15_000_000),
+  // Optional contact (URL or address) appended to the User-Agent of outbound fetches (import downloads, link checker).
+  FETCH_CONTACT: z.string().max(200).optional(),
   COOKIE_SECURE: z
     .enum(['true', 'false'])
     .default('false')

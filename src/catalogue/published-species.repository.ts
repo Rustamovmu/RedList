@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { and, asc, eq, inArray, isNull, sql } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNull, ne, sql } from 'drizzle-orm';
 import { domainOf } from '../common/url';
 import { Db, InjectDb } from '../db/db.module';
 import * as s from '../db/schema';
@@ -89,7 +89,8 @@ export class PublishedSpeciesRepository {
         .select({ m: s.revisionMedia, asset: s.mediaAssets })
         .from(s.revisionMedia)
         .innerJoin(s.mediaAssets, eq(s.mediaAssets.id, s.revisionMedia.mediaId))
-        .where(eq(s.revisionMedia.revisionId, revId))
+        // A rejected image is a takedown: it disappears at once, without a new revision (DECISIONS D-022).
+        .where(and(eq(s.revisionMedia.revisionId, revId), ne(s.mediaAssets.reviewState, 'rejected')))
         .orderBy(asc(s.revisionMedia.position)),
       // Only links that are still approved, from approved organizations. Disabling a link hides it at once (PLAN §6).
       this.db

@@ -24,9 +24,9 @@ flowchart LR
 
 | Route | Purpose (PLAN §4) | Status |
 |---|---|---|
-| `/` | Home: hero, search, browse by group and environment, threatened species, places, "in this catalogue" stats | **done** (M2). No hero photo until licensed media exists (M4) |
+| `/` | Home: hero, search, browse by group and environment, threatened species, places, "in this catalogue" stats | **done** (M2, M4): the hero shows the first threatened species with an approved photo, with credit |
 | `/species` | Explore: search, filters, sort and page held in the URL; mobile filter drawer, chips, reset, empty and error states | **done** (M2) |
-| `/species/[slug]` | Profile: the eight questions, from "What is it?" to "How do we know?" | **done** (M1–M3): eight sections, Add to compare, related species, map with range list and region links, support links. Still to come: photos (M4) |
+| `/species/[slug]` | Profile: the eight questions, from "What is it?" to "How do we know?" | **done** (M1–M3): eight sections, Add to compare, related species, map with range list and region links, support links, photo with credit and licence (M4) |
 | `/compare?species=a,b,c` | Compare up to 3, with no scores and no mixed units; table on desktop, stacked on mobile | **done** (M2) |
 | `/map` | Map plus synced list, legend, labelled layer types; still works when tiles fail; "Near me" (in-browser only) | **done** (M3) |
 | `/regions/[slug]` | Country, sea or ocean page with region-aware filters | **done** (M3) |
@@ -45,8 +45,8 @@ Navigation: Explore · Map · Compare · About. The support directory is linked 
 | Species list, new species, identifiers, drafts, submit, publish, request changes, checklist | **done** (M1) |
 | Form-based draft editor with source picker, live preview and diff (PLAN §7); M1 edits content as validated JSON (DECISIONS D-011) | open, unassigned (R1) |
 | Organizations and support links (`/admin/support`) | **done** (M3) |
-| Media upload and review queue, rollback | M4 |
-| Staff invites (one-time link, no email), staff management | M4 (moved from M1; a solo admin works without it) |
+| Media upload and review queue (`/admin/media`), rollback ("Make this version live again" on `/admin/species/[id]`) | **done** (M4) |
+| Staff invites (one-time link, no email), staff management | open, unassigned (moved from M1, not built in M4; a solo admin works without it) |
 
 ## Web-app internal route
 
@@ -68,7 +68,9 @@ Navigation: Explore · Map · Compare · About. The support directory is linked 
 | `GET /support` | **done** (M3) |
 | Staff: `auth/login`, `auth/logout`, `auth/me`; `species` (list, create, get, identifiers, drafts); `revisions/:id` (get, save, submit, publish, request-changes); `sources` (list, create); `reference` | **done** (M1) |
 | Staff: organizations, support links (list, create, edit, approve, disable) | **done** (M3) |
-| Staff: media upload and review, rollback, staff management | M4 |
+| Staff: `media` (list, upload, get, preview, edit, approve, reject), `species/:id/rollback`, `PUT sources/:id` | **done** (M4) |
+| `GET /media/:key/:width.webp` (approved or live-published images only; rejected never) | **done** (M4, D-022) |
+| Staff: staff management and invites | open, unassigned |
 
 Swagger UI: `/api/docs` (non-production only).
 
@@ -79,10 +81,13 @@ Swagger UI: `/api/docs` (non-production only).
 | `health` | liveness and readiness | **done** |
 | `db` | Drizzle connection and `schema.ts` | **done** |
 | `common` | error shape, request IDs, JSON (bigint as string) | **done** |
-| `cli` | migrate, seed-regions, export-openapi, admin-create, seed-fixtures | **done**; import and links:check M4 |
+| `cli` | migrate, seed-regions, export-openapi, admin-create, seed-fixtures, e2e-prepare, import, links-check, validate-catalogue | **done** (M4 added the last three) |
 | `identity` | staff sessions, CSRF + Origin guard, roles, login throttle | **done** (M1) |
 | `editorial` | revisions, editorial zod schema, checklist, publish transaction, audit, revalidation, sources | **done** (M1) |
 | `catalogue` | `PublishedSpeciesRepository` plus the `PUBLISHED` SQL fragment in `catalogue-sql.ts` (the only public read path): profile, list, filters, related, compare | **done** (M1, M2) |
 | `geography` | regions, map, basemap, `GeoRepository` (the only home of spatial SQL) | **done** (M3) |
 | `support-directory` | organizations, support links, public directory | **done** (M3) |
-| `media` | uploads, `StorageAdapter`, variants, review | M4 |
+| `media` | uploads, `StorageAdapter` (local disk), image pipeline (sharp), review, public and staff serving | **done** (M4) |
+| `import` | import file schema (zod) and the import engine | **done** (M4) |
+| `quality` | `validate:catalogue` checks (PLAN §11) | **done** (M4) |
+| `common/safe-fetch` | SSRF-safe outbound fetcher (D-026) | **done** (M4) |

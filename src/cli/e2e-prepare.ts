@@ -11,6 +11,7 @@ config({ quiet: true });
 import { NestFactory } from '@nestjs/core';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
+import { rm } from 'node:fs/promises';
 import path from 'node:path';
 import { Client, Pool } from 'pg';
 import { AppModule } from '../app.module';
@@ -27,6 +28,11 @@ async function main() {
   const exists = await admin.query('SELECT 1 FROM pg_database WHERE datname = $1', [dbName]);
   if (!exists.rowCount) await admin.query(`CREATE DATABASE ${dbName}`); // name validated above
   await admin.end();
+
+  // Media for the e2e stack lives in its own folder, wiped too (MEDIA_DIR must contain "e2e").
+  const mediaDir = process.env.MEDIA_DIR ?? '';
+  if (!/e2e/.test(mediaDir)) throw new Error('Refusing to prepare: MEDIA_DIR must be set to a folder whose name contains "e2e"');
+  await rm(mediaDir, { recursive: true, force: true });
 
   const pool = new Pool({ connectionString: url.toString() });
   await pool.query('DROP SCHEMA IF EXISTS public CASCADE; DROP SCHEMA IF EXISTS drizzle CASCADE; CREATE SCHEMA public;');

@@ -5,7 +5,7 @@ The backend for **Wildward**, a wildlife discovery and conservation site: *under
 Stack: NestJS 11 · Drizzle ORM · PostgreSQL 16 + PostGIS 3.4 · Node 22.
 The web app lives in the sibling folder `../RedList-frontend`.
 
-**Status:** M0 foundation, M1 (species slice: staff login, draft → submit → publish, public profile) M2 (Explore, filters, compare, home) and M3 (map, region pages, range maps, support directory) are complete. See `docs/COMPLETED_TASKS.md`. Spec: `docs/PLAN.md`. Agent rules: `AGENTS.md` (loaded by Claude Code through `CLAUDE.md`). Milestone prompts: `docs/CLAUDE_TASKS.md`.
+**Status:** M0 foundation, M1 (species slice: staff login, draft → submit → publish, public profile), M2 (Explore, filters, compare, home), M3 (map, region pages, range maps, support directory) and M4 (media upload and review, import CLI, rollback, link checker, catalogue validation, a 3-species real pilot) are complete. See `docs/COMPLETED_TASKS.md`. Spec: `docs/PLAN.md`. Agent rules: `AGENTS.md` (loaded by Claude Code through `CLAUDE.md`). Milestone prompts: `docs/CLAUDE_TASKS.md`.
 
 ## Run locally (macOS)
 
@@ -37,7 +37,7 @@ Integration tests run against a **separate** real PostGIS database and wipe it o
 ```bash
 # with Docker:   docker compose exec db psql -U wild -c "CREATE DATABASE wild_test"
 # with Postgres.app: psql -c "CREATE DATABASE wild_test OWNER wild"
-cp .env.test.example .env.test   # adjust port 5433/5432
+cp .env.test.example .env.test   # adjust port 5433/5432; MEDIA_DIR must contain "test" (wiped by the tests)
 npm test
 ```
 
@@ -51,6 +51,9 @@ npm test
 | `npm run db:setup:local` | Postgres.app only: create the role and database from `.env`, then migrate |
 | `npm run db:check` | test the `DATABASE_URL` connection |
 | `npm run openapi:export` | write `openapi.json`, then run `npm run contracts:generate` in the frontend |
+| `npm run import -- <file.json> --dry-run` / `--apply` / `--apply --reconcile` | import species content into drafts (never publishes); Markdown report in `import-reports/` |
+| `npm run links:check` | record the HTTP status of every support link; failures are listed, nothing is disabled |
+| `npm run validate:catalogue` | quality report over everything published (citations, image licences, no drafts, compare units) |
 
 ## Layout
 
@@ -62,12 +65,16 @@ src/identity/           staff sessions, CSRF/Origin guard, roles, login throttle
 src/editorial/          revisions, editorial zod schema, checklist, publish transaction
 src/catalogue/          public reads (PublishedSpeciesRepository is the only path)
 src/geography/          map, regions, basemap; GeoRepository is the only home of spatial SQL
-src/support-directory/  organizations and support links (public directory + admin)
+src/support-directory/  organizations and support links (public directory + admin), link checker
+src/media/              uploads, image pipeline (sharp → WebP variants, metadata stripped), review, serving
+src/import/             import file schema and engine (drafts only, idempotent, --reconcile)
+src/quality/            validate:catalogue
+catalogue/              real-catalogue import files (sources checked, see notes in each file)
 src/fixtures/           SYNTHETIC dev fixtures
-src/cli/                migrate, seed-regions, seed-fixtures, admin-create, export-openapi
+src/cli/                migrate, seed-regions, seed-fixtures, admin-create, export-openapi, e2e-prepare, import, links-check, validate-catalogue
 scripts/                setup-local-db.sh (Postgres.app), check-db.cjs (connection test)
-test/integration/       PostGIS integration tests (auth, publication, catalogue, geography, support, integrity, health)
-test/unit/              editorial schema, checklist, licences, throttle, compare, bbox
+test/integration/       PostGIS integration tests (auth, publication, catalogue, geography, support, integrity, health, content-ops, import, quality)
+test/unit/              editorial schema, checklist, licences, throttle, compare, bbox, safe-fetch and image sniffing
 data/natural-earth/     public-domain boundaries
 docs/                   PLAN, ARCHITECTURE, DECISIONS, DATABASE, DATA_SOURCES, BACKLOG, COMPLETED_TASKS, CLAUDE_TASKS
 AGENTS.md, CLAUDE.md    rules for the coding agent (CLAUDE.md imports AGENTS.md)

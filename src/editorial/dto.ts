@@ -281,6 +281,13 @@ export class RequestChangesDto {
   @ApiProperty() @IsString() @MinLength(1) @MaxLength(2000) notes!: string;
 }
 
+/** Moves the published pointer back to an earlier published revision (PLAN §6 "Publication"). */
+export class RollbackDto {
+  @ApiProperty({ format: 'uuid', description: 'An earlier published revision of this species' }) @IsUUID() targetRevisionId!: string;
+  @ApiProperty({ format: 'uuid', description: 'The revision you saw as live; 409 if it has changed since' }) @IsUUID() expectedPublishedRevisionId!: string;
+  @ApiProperty({ description: 'Why the earlier version is restored (kept in the audit log)' }) @IsString() @MinLength(3) @MaxLength(500) reason!: string;
+}
+
 // ---------- sources and reference lists ----------
 
 export class CreateSourceDto {
@@ -295,6 +302,9 @@ export class CreateSourceDto {
   @ApiPropertyOptional({ nullable: true, type: String }) @IsOptional() @IsString() @MaxLength(1000) permittedUseNote?: string | null;
 }
 
+/** A full replacement of a source's fields. */
+export class UpdateSourceDto extends CreateSourceDto {}
+
 export class SourceDto {
   @ApiProperty({ format: 'uuid' }) id!: string;
   @ApiProperty() title!: string;
@@ -305,6 +315,12 @@ export class SourceDto {
   @ApiProperty({ nullable: true, type: String }) publishedOn!: string | null;
   @ApiProperty({ nullable: true, type: String }) accessedOn!: string | null;
   @ApiProperty({ nullable: true, type: String }) license!: string | null;
+}
+
+export class SourceUpdateResultDto {
+  @ApiProperty({ type: SourceDto, description: 'The source as it now reads. Its id differs from the requested one when a new row was created.' }) source!: SourceDto;
+  @ApiProperty({ description: 'True when the old source is cited by a submitted or published revision, so a new source row was created and the old one left unchanged' })
+  createdNewRow!: boolean;
 }
 
 class RefItemDto {

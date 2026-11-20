@@ -22,6 +22,9 @@
     "admin:create": "ts-node --transpile-only src/cli/admin-create.ts",
     "e2e:prepare": "ts-node --transpile-only src/cli/e2e-prepare.ts",
     "e2e:api": "npm run e2e:prepare && ts-node --transpile-only src/main.ts",
+    "import": "ts-node --transpile-only src/cli/import.ts",
+    "links:check": "ts-node --transpile-only src/cli/links-check.ts",
+    "validate:catalogue": "ts-node --transpile-only src/cli/validate-catalogue.ts",
     "openapi:export": "ts-node --transpile-only src/cli/export-openapi.ts",
     "test": "jest --config jest.config.js --runInBand"
   },
@@ -39,6 +42,7 @@
     "pg": "^8.23.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
+    "sharp": "0.35.5",
     "zod": "^4.6.7"
   },
   "devDependencies": {
@@ -47,6 +51,7 @@
     "@nestjs/testing": "^11.2.11",
     "@types/express": "^5.0.6",
     "@types/jest": "^29.5.14",
+    "@types/multer": "^2.3.0",
     "@types/node": "^22.20.5",
     "@types/pg": "^8.23.1",
     "@types/supertest": "^7.2.1",

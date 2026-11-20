@@ -125,7 +125,7 @@ export async function selectCards(db: DbOrTx, f: ListFilters, orderBy: SQL, limi
     LEFT JOIN LATERAL (
       SELECT ma.storage_key, rm.alt_text, rm.credit_snapshot, rm.license_snapshot
       FROM revision_media rm JOIN media_assets ma ON ma.id = rm.media_id
-      WHERE rm.revision_id = p.revision_id ORDER BY (rm.role = 'primary') DESC, rm.position LIMIT 1
+      WHERE rm.revision_id = p.revision_id AND ma.review_state <> 'rejected' ORDER BY (rm.role = 'primary') DESC, rm.position LIMIT 1
     ) img ON true
     WHERE ${whereClause(f)}
     ORDER BY ${orderBy}, p.slug
