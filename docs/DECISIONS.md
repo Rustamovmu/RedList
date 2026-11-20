@@ -256,3 +256,19 @@ White text on each IUCN badge colour measures 4.9:1 to 21:1, so all pass WCAG AA
 **Consequences:**
 - Pilot profiles carry an honest but second-hand status. Before launch, a person should check each status against the IUCN assessment by hand and replace the citation.
 - IUCN terms remain `pending` in DATA_SOURCES.
+
+## D-028 Information pages and SEO (2026-11-21, owner request after M4)
+**Decision:**
+- **Pages:** `/about`, `/methodology`, `/sources`, `/privacy` and `/terms`.
+  - The about and terms pages describe Wildward as a **personal portfolio project** and name no person or organization. The owner gave no operator details, and none are invented.
+  - A contact link appears only if `NEXT_PUBLIC_CONTACT_URL` is set.
+  - The privacy page states only what the code does: no visitor cookies or analytics, compare picks in localStorage, "Near me" resolved in the browser, staff session cookies.
+- **New public endpoints:**
+  - `GET /api/v1/sources`: sources cited by any child row of a published revision, plus region-boundary sources, with the published species citing each
+  - `GET /api/v1/sitemap`: published slugs with publication dates, and region slugs that have published, non-hidden species
+  - Both read through the `PUBLISHED` fragment.
+- **SEO:**
+  - `sitemap.ts` and `robots.ts`; robots disallows `/admin`, `/api/` and `/compare` (compare pages are combinations, not content).
+  - Open Graph and Twitter tags on every page; profiles use their licensed primary photo at 1280 px from our own API.
+  - JSON-LD: `Taxon` (with `parentTaxon` genus, alternate names, image) and `BreadcrumbList` on profiles; `WebSite` with a `SearchAction` on the home page. `jsonLd()` escapes `<`.
+**Consequences:** before a public launch, the owner should review the privacy and terms wording and decide whether to name an operator. `NEXT_PUBLIC_SITE_URL` must be the real origin in production, or canonical, sitemap and Open Graph URLs point at localhost.

@@ -297,3 +297,37 @@ export class CompareDto {
   @ApiProperty({ type: [SpeciesProfileDto], description: 'In the requested order' }) species!: SpeciesProfileDto[];
   @ApiProperty({ type: PopulationComparisonDto }) population!: PopulationComparisonDto;
 }
+
+// ---------- M5 prep: sources page and sitemap ----------
+
+export class CitingSpeciesDto {
+  @ApiProperty() slug!: string;
+  @ApiProperty() scientificName!: string;
+  @ApiProperty(N) commonName!: string | null;
+}
+
+/** A source cited by published content, with the published species that cite it. */
+export class PublicSourceDto {
+  @ApiProperty({ format: 'uuid' }) id!: string;
+  @ApiProperty() title!: string;
+  @ApiProperty(N) publisher!: string | null;
+  @ApiProperty(N) authors!: string | null;
+  @ApiProperty(N) url!: string | null;
+  @ApiProperty(N) doi!: string | null;
+  @ApiProperty(N) publishedOn!: string | null;
+  @ApiProperty(N) accessedOn!: string | null;
+  @ApiProperty(N) license!: string | null;
+  @ApiProperty({ ...N, description: 'How the source may be used, and caveats such as "second-hand"' }) note!: string | null;
+  @ApiProperty({ description: 'True for the boundary data behind maps and region pages' }) usedForBoundaries!: boolean;
+  @ApiProperty({ type: [CitingSpeciesDto] }) species!: CitingSpeciesDto[];
+}
+
+export class SitemapSpeciesDto {
+  @ApiProperty() slug!: string;
+  @ApiProperty({ description: 'When the live revision was published' }) publishedAt!: string;
+}
+
+export class SitemapDto {
+  @ApiProperty({ type: [SitemapSpeciesDto] }) species!: SitemapSpeciesDto[];
+  @ApiProperty({ type: [String], description: 'Regions with at least one published, non-sensitive species' }) regions!: string[];
+}

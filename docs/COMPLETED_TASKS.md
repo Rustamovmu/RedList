@@ -1,5 +1,53 @@
 # Completed tasks
 
+## 2026-11-21: Real catalogue batch 1 (40 species, owner request, after M4)
+**Scope:** 40 more real species, gathered and published the same way as the pilot (`catalogue/batch-1.json`, photos in `catalogue/media/`).
+- **Sources per species:**
+  - GBIF Backbone: accepted name, taxonKey and rank
+  - Wikidata: IUCN category from P141 with the edition it references; trend stays Unknown
+  - WoRMS through GBIF: environments, where listed
+  - Wikimedia Commons: one photo, with licence and creator checked through the API `extmetadata`
+  - English Wikipedia: population figures, approved by the owner for this portfolio (see DATA_SOURCES)
+  - Overviews are written in our own words.
+- **Published:** 40 of 40 drafts submitted and published as the owner admin, through the normal workflow and checklist. 38 images were approved.
+- **No photo:** Elkhorn coral (*Acropora palmata*) and Lord Howe Island stick insect (*Dryococelus australis*). No allow-listed Commons file names a creator.
+- **Population figures (13):**
+  - giant panda, eastern gorilla, red panda, polar bear, cheetah, black rhinoceros, vaquita
+  - whooping crane, Philippine eagle (Philippines, breeding pairs), snowy owl, Atlantic puffin (Europe, qualitative)
+  - Komodo dragon, kakapo
+  - The other 27 species show population Unknown.
+- **Other notes:**
+  - The emperor penguin's Wikidata status statement has no reference; its source note says so.
+  - The kakapo uses the GBIF accepted name *Strigops habroptila*.
+  - Green turtle, tuatara, Atlantic bluefin tuna and monarch butterfly show Least Concern, because that is what Wikidata cites.
+- **Commands run:**
+  - `npm run import -- catalogue/batch-1.json --dry-run`: 562 changes
+  - `--apply`: 562 changes; `--apply` again: **0 changes**
+  - one-off approve/submit/publish script (deleted): 38 images approved, 40/40 published
+  - `npm run validate:catalogue`: **PASS**. 49 published species, 78 cited numeric claims, 41 approved images, 1176 compare pairs with zero mixed units.
+- **Known gaps:**
+  - Population trend is Unknown everywhere.
+  - Habitats, threats and range maps are empty (licences pending).
+  - Wikidata and Wikipedia are second-hand citations, to be replaced by primary sources before any public launch.
+
+## 2026-11-21: Information pages and SEO (owner request, after M4)
+**Scope:** the five missing information pages and SEO (D-028).
+- **Backend:** public `GET /api/v1/sources` and `GET /api/v1/sitemap`, published content only. Two new tests in `quality.spec.ts` check that drafts never appear and that a hidden species' region (Peru) is left out of the sitemap.
+- **Frontend:**
+  - `/about`, `/methodology`, `/sources`, `/privacy` and `/terms`, using a shared `InfoPage` layout
+  - `sitemap.xml` and `robots.txt`
+  - Open Graph and Twitter defaults; profiles use their licensed photo
+  - JSON-LD `Taxon` and `BreadcrumbList` on profiles, `WebSite` + `SearchAction` on the home page
+  - canonical link on the home page
+- **Commands run:**
+  - backend `npm run typecheck` / `lint` / `build`: pass; `npm test`: **233/233** (14 suites)
+  - `openapi:export` → frontend `contracts:generate`
+  - frontend `typecheck` / `lint`: pass; `npm run test:e2e`: **36/36** (new `pages.spec.ts`: 4 tests × desktop and 360px)
+- **Known gaps:**
+  - No operator name or contact: set `NEXT_PUBLIC_CONTACT_URL` for a contact link.
+  - The privacy and terms texts are the agent's drafts for the owner to review before any public launch.
+  - The dev API on :4010 runs `dist/`; restart it so `/sources` works locally.
+
 ## 2026-11-21: M4 Content operations (tooling and a 3-species real pilot)
 **Scope:** media upload and review, import CLI, rollback, source editing, `links:check`, `validate:catalogue`, photos on public pages, and a real-catalogue pilot. Decisions D-022 to D-027.
 
@@ -101,8 +149,13 @@
 - **`validate:catalogue` passes** (dev and test). It fails as designed when a live image goes back to pending or a variant file is missing.
 
 **Known gaps:**
-- **Pilot photos are not imported.** Wikimedia rate-limits unidentified bots. To finish, set `FETCH_CONTACT` in `.env` to a project URL or role address (not a personal one), then run `npm run import -- catalogue/pilot.json --dry-run`, then `--apply`. That adds the three photos to the pilot drafts. Then approve them in `/admin/media`, review each draft and publish it.
-- **Pilot content is thin and second-hand:** no population, trend, countries, habitats, threats, diet or climate; status via Wikidata. A person should check each status against IUCN by hand before launch (D-027).
+- **Pilot photos:** resolved later the same day. The three verified Commons files were downloaded unchanged (HTTP 200 once the rate limit had cleared) into `catalogue/media/`, and `pilot.json` now points at them with `path`. `--apply` made 6 changes (3 images, 3 drafts' photo sections); a re-apply made 0. The images are **pending review**: approve them in `/admin/media`, then review and publish the three drafts.
+- **Pilot population figures** (added later the same day, at the owner's request, from pages read on 2026-11-21):
+  - snow leopard: 2,710–3,386 mature individuals and 7,446–7,996 in total (IUCN/SSC Cat Specialist Group page; no year given)
+  - axolotl: about 50–1,000 adults (Wikipedia, citing CITES; second-hand)
+  - hawksbill: no global total found; females nesting per year in Australia (8,000–10,000), Mexico (about 700) and Indonesia (1,000), from the U.S. National Park Service page (updated 2025-02-18), plus those three countries as nesting regions. The Seychelles figure was left out because the country is not in the 1:110m data. WWF's page refused access (403) and was not used.
+  - The snow leopard's figures went into draft **v2**, which an admin had created empty, using `--reconcile`. v1 is now a stale draft. Publish v2.
+- **Pilot content is still second-hand in places:** no population, trend, countries, habitats, threats, diet or climate; status via Wikidata. A person should check each status against IUCN by hand before launch (D-027).
 - **The remaining 17–27 real profiles** (the next session): they need a primary source for status and population that the agent may read, or the owner's hand-checked notes.
 - No S3 storage adapter (M5, D-022). Back up `MEDIA_DIR` with the database.
 - Not built: staff invites and staff management (ARCHITECTURE lists them as open), the species archive endpoint, the form-based draft editor (D-011), CSV import (BACKLOG).

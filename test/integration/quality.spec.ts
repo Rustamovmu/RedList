@@ -4,10 +4,12 @@
  */
 import { INestApplication } from '@nestjs/common';
 import { Pool } from 'pg';
+import request from 'supertest';
 import { createApp } from '../../src/bootstrap';
 import { seedFixtures } from '../../src/cli/seed-fixtures';
 import { seedRegions } from '../../src/cli/seed-regions';
 import { DB, Db } from '../../src/db/db.module';
+import { FIXTURE_SOURCE_TITLE } from '../../src/fixtures/dev-fixtures';
 import { validateCatalogue, validationMarkdown } from '../../src/quality/validate-catalogue';
 import { checkSupportLinks, StatusProbe } from '../../src/support-directory/link-checker';
 import { freshDatabase } from '../helpers';
@@ -90,5 +92,26 @@ describe('links:check', () => {
     expect(after.rows.find((r) => r.id === volunteer.linkId)?.last_status).toBe(200);
     const audit = await pool.query(`SELECT summary FROM audit_events WHERE action = 'links.check'`);
     expect(audit.rows[0].summary).toMatch(/No link was disabled/);
+  });
+});
+
+describe('public sources page and sitemap', () => {
+  it('lists cited sources with their published species, and the boundary source; never drafts', async () => {
+    const res = await request(app.getHttpServer()).get('/api/v1/sources').expect(200);
+    const fixture = res.body.find((x: { title: string }) => x.title === FIXTURE_SOURCE_TITLE);
+    expect(fixture.species.map((x: { slug: string }) => x.slug)).toEqual(expect.arrayContaining(['fictus-captivus', 'fictus-exemplaris']));
+    expect(res.body.some((x: { usedForBoundaries: boolean }) => x.usedForBoundaries)).toBe(true);
+    const all = res.body.flatMap((x: { species: Array<{ slug: string }> }) => x.species.map((y) => y.slug));
+    expect(all).not.toContain('fictus-draftonly');
+  });
+
+  it('lists published species and regions, without drafts or the regions of hidden species', async () => {
+    const res = await request(app.getHttpServer()).get('/api/v1/sitemap').expect(200);
+    expect(res.body.species.map((x: { slug: string }) => x.slug)).toEqual(
+      ['fictus-captivus', 'fictus-exemplaris', 'fictus-generalis', 'fictus-marinus', 'fictus-occultus', 'fictus-regionalis'],
+    );
+    expect(res.body.species.every((x: { publishedAt: string }) => !Number.isNaN(Date.parse(x.publishedAt)))).toBe(true);
+    expect(res.body.regions).toEqual(expect.arrayContaining(['kenya', 'fiji', 'madagascar']));
+    expect(res.body.regions).not.toContain('peru'); // fictus-occultus (hide_regions) lives only there
   });
 });

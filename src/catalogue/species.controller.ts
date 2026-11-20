@@ -1,7 +1,7 @@
 import { BadRequestException, Controller, Get, NotFoundException, Param, Query } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { comparePopulations } from './compare';
-import { CompareDto, FiltersDto, SpeciesListDto, SpeciesProfileDto } from './dto';
+import { CompareDto, FiltersDto, PublicSourceDto, SitemapDto, SpeciesListDto, SpeciesProfileDto } from './dto';
 import { CompareQuery, ListSpeciesQuery } from './list-query.dto';
 import { PublishedSpeciesRepository } from './published-species.repository';
 
@@ -54,5 +54,19 @@ export class SpeciesController {
     if (missing.length) throw new NotFoundException({ code: 'NOT_FOUND', message: 'Species not found', details: missing });
     const species = profiles as SpeciesProfileDto[];
     return { species, population: comparePopulations(species) };
+  }
+
+  /** Every source cited by published content, with the species that cite it (the public /sources page). */
+  @Get('sources')
+  @ApiOkResponse({ type: [PublicSourceDto] })
+  sources(): Promise<PublicSourceDto[]> {
+    return this.published.sources();
+  }
+
+  /** Published species slugs with publication dates, and region slugs, for sitemap.xml. */
+  @Get('sitemap')
+  @ApiOkResponse({ type: SitemapDto })
+  sitemap(): Promise<SitemapDto> {
+    return this.published.sitemap();
   }
 }

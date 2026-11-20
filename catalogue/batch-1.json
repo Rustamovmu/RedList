@@ -1,0 +1,5544 @@
+{
+  "format": "wildward-import",
+  "version": 1,
+  "notes": "Batch 1 (40 species), prepared by the coding agent on 2026-11-21 at the owner's request, for a portfolio project. Sources read that day: GBIF Backbone Taxonomy (CC BY 4.0) and GBIF species profiles (WoRMS flags) via the GBIF API; Wikidata (CC0) for the IUCN category, cited second-hand with the IUCN edition its statement references; English Wikipedia (revision ids recorded) for population figures, cited second-hand. IUCN pages were not read (robots.txt disallows this agent). Images from Wikimedia Commons: licence read from Commons metadata and compared with the file's embedded copyright fields; files without a named creator were not used. Trend is 'unknown' throughout (not stated by Wikidata). Countries and regions are not set.",
+  "sources": [
+    {
+      "key": "gbif-backbone",
+      "title": "GBIF Backbone Taxonomy",
+      "publisher": "GBIF Secretariat",
+      "url": "https://www.gbif.org/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c",
+      "doi": "10.15468/39omei",
+      "publishedOn": "2023-08-28",
+      "accessedOn": "2026-11-21",
+      "license": "CC BY 4.0",
+      "permittedUseNote": "Checklist dataset under CC BY 4.0 (read from the dataset record in the GBIF API). Cite GBIF and the DOI."
+    },
+    {
+      "key": "wikidata-q33602",
+      "title": "Wikidata item Q33602 (Giant panda): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q33602",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 712). Not checked against IUCN directly."
+    },
+    {
+      "key": "wikipedia-ailuropoda-melanoleuca",
+      "title": "Giant panda (Wikipedia article)",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/w/index.php?oldid=1386494512",
+      "accessedOn": "2026-11-21",
+      "license": "CC BY-SA 4.0",
+      "permittedUseNote": "Second-hand: figures as stated in revision 1386494512 of the article, which cites its own sources. Not checked against the original survey."
+    },
+    {
+      "key": "wikidata-q19939",
+      "title": "Wikidata item Q19939 (tiger): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q19939",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 15955). Not checked against IUCN directly."
+    },
+    {
+      "key": "wikidata-q36557",
+      "title": "Wikidata item Q36557 (African bush elephant): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q36557",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 181008073). Not checked against IUCN directly."
+    },
+    {
+      "key": "wikidata-q307157",
+      "title": "Wikidata item Q307157 (eastern gorilla): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q307157",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 39994). Not checked against IUCN directly."
+    },
+    {
+      "key": "wikipedia-gorilla-beringei",
+      "title": "Eastern gorilla (Wikipedia article)",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/w/index.php?oldid=1367438771",
+      "accessedOn": "2026-11-21",
+      "license": "CC BY-SA 4.0",
+      "permittedUseNote": "Second-hand: figures as stated in revision 1367438771 of the article, which cites its own sources. Not checked against the original survey."
+    },
+    {
+      "key": "wikidata-q599672",
+      "title": "Wikidata item Q599672 (Bornean orangutan): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q599672",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 17975). Not checked against IUCN directly."
+    },
+    {
+      "key": "wikidata-q41960",
+      "title": "Wikidata item Q41960 (Red Panda): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q41960",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 714). Not checked against IUCN directly."
+    },
+    {
+      "key": "wikipedia-ailurus-fulgens",
+      "title": "Red panda (Wikipedia article)",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/w/index.php?oldid=1385829145",
+      "accessedOn": "2026-11-21",
+      "license": "CC BY-SA 4.0",
+      "permittedUseNote": "Second-hand: figures as stated in revision 1385829145 of the article, which cites its own sources. Not checked against the original survey."
+    },
+    {
+      "key": "wikidata-q42196",
+      "title": "Wikidata item Q42196 (Balaenoptera musculus): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q42196",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 2477). Not checked against IUCN directly."
+    },
+    {
+      "key": "gbif-profile-2440735",
+      "title": "GBIF species profiles for taxon 2440735 (Blue whale), from the World Register of Marine Species (WoRMS)",
+      "publisher": "GBIF Secretariat, from the World Register of Marine Species",
+      "url": "https://api.gbif.org/v1/species/2440735/speciesProfiles",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Only the marine / freshwater / terrestrial habitat flags that GBIF lists from WoRMS are used."
+    },
+    {
+      "key": "wikidata-q33609",
+      "title": "Wikidata item Q33609 (Ursus maritimus): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q33609",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 22823). Not checked against IUCN directly."
+    },
+    {
+      "key": "gbif-profile-2433451",
+      "title": "GBIF species profiles for taxon 2433451 (Polar bear), from the World Register of Marine Species (WoRMS)",
+      "publisher": "GBIF Secretariat, from the World Register of Marine Species",
+      "url": "https://api.gbif.org/v1/species/2433451/speciesProfiles",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Only the marine / freshwater / terrestrial habitat flags that GBIF lists from WoRMS are used."
+    },
+    {
+      "key": "wikipedia-ursus-maritimus",
+      "title": "Polar bear (Wikipedia article)",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/w/index.php?oldid=1385828693",
+      "accessedOn": "2026-11-21",
+      "license": "CC BY-SA 4.0",
+      "permittedUseNote": "Second-hand: figures as stated in revision 1385828693 of the article, which cites its own sources. Not checked against the original survey."
+    },
+    {
+      "key": "wikidata-q23907",
+      "title": "Wikidata item Q23907 (cheetah): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q23907",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 219). Not checked against IUCN directly."
+    },
+    {
+      "key": "wikipedia-acinonyx-jubatus",
+      "title": "Cheetah (Wikipedia article)",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/w/index.php?oldid=1380372320",
+      "accessedOn": "2026-11-21",
+      "license": "CC BY-SA 4.0",
+      "permittedUseNote": "Second-hand: figures as stated in revision 1380372320 of the article, which cites its own sources. Not checked against the original survey."
+    },
+    {
+      "key": "wikidata-q95036",
+      "title": "Wikidata item Q95036 (Diceros bicornis): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q95036",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 6557). Not checked against IUCN directly."
+    },
+    {
+      "key": "wikipedia-diceros-bicornis",
+      "title": "Black rhinoceros (Wikipedia article)",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/w/index.php?oldid=1386481126",
+      "accessedOn": "2026-11-21",
+      "license": "CC BY-SA 4.0",
+      "permittedUseNote": "Second-hand: figures as stated in revision 1386481126 of the article, which cites its own sources. Not checked against the original survey."
+    },
+    {
+      "key": "wikidata-q725493",
+      "title": "Wikidata item Q725493 (Vaquita): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q725493",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 17028). Not checked against IUCN directly."
+    },
+    {
+      "key": "gbif-profile-2440665",
+      "title": "GBIF species profiles for taxon 2440665 (Vaquita), from the World Register of Marine Species (WoRMS)",
+      "publisher": "GBIF Secretariat, from the World Register of Marine Species",
+      "url": "https://api.gbif.org/v1/species/2440665/speciesProfiles",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Only the marine / freshwater / terrestrial habitat flags that GBIF lists from WoRMS are used."
+    },
+    {
+      "key": "wikipedia-phocoena-sinus",
+      "title": "Vaquita (Wikipedia article)",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/w/index.php?oldid=1382480031",
+      "accessedOn": "2026-11-21",
+      "license": "CC BY-SA 4.0",
+      "permittedUseNote": "Second-hand: figures as stated in revision 1382480031 of the article, which cites its own sources. Not checked against the original survey."
+    },
+    {
+      "key": "wikidata-q36101",
+      "title": "Wikidata item Q36101 (koala): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q36101",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 16892). Not checked against IUCN directly."
+    },
+    {
+      "key": "wikidata-q194314",
+      "title": "Wikidata item Q194314 (California condor): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q194314",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2021.3 (IUCN taxon ID 22697636). Not checked against IUCN directly."
+    },
+    {
+      "key": "wikidata-q185213",
+      "title": "Wikidata item Q185213 (Philippine Eagle): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q185213",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2021.3 (IUCN taxon ID 22696012). Not checked against IUCN directly."
+    },
+    {
+      "key": "gbif-profile-2480381",
+      "title": "GBIF species profiles for taxon 2480381 (Philippine Eagle), from the World Register of Marine Species (WoRMS)",
+      "publisher": "GBIF Secretariat, from the World Register of Marine Species",
+      "url": "https://api.gbif.org/v1/species/2480381/speciesProfiles",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Only the marine / freshwater / terrestrial habitat flags that GBIF lists from WoRMS are used."
+    },
+    {
+      "key": "wikipedia-pithecophaga-jefferyi",
+      "title": "Philippine eagle (Wikipedia article)",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/w/index.php?oldid=1385905519",
+      "accessedOn": "2026-11-21",
+      "license": "CC BY-SA 4.0",
+      "permittedUseNote": "Second-hand: figures as stated in revision 1385905519 of the article, which cites its own sources. Not checked against the original survey."
+    },
+    {
+      "key": "wikidata-q457477",
+      "title": "Wikidata item Q457477 (whooping crane): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q457477",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2021.3 (IUCN taxon ID 22692156). Not checked against IUCN directly."
+    },
+    {
+      "key": "gbif-profile-2474941",
+      "title": "GBIF species profiles for taxon 2474941 (Whooping crane), from the World Register of Marine Species (WoRMS)",
+      "publisher": "GBIF Secretariat, from the World Register of Marine Species",
+      "url": "https://api.gbif.org/v1/species/2474941/speciesProfiles",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Only the marine / freshwater / terrestrial habitat flags that GBIF lists from WoRMS are used."
+    },
+    {
+      "key": "wikipedia-grus-americana",
+      "title": "Whooping crane (Wikipedia article)",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/w/index.php?oldid=1380782589",
+      "accessedOn": "2026-11-21",
+      "license": "CC BY-SA 4.0",
+      "permittedUseNote": "Second-hand: figures as stated in revision 1380782589 of the article, which cites its own sources. Not checked against the original survey."
+    },
+    {
+      "key": "wikidata-q161829",
+      "title": "Wikidata item Q161829 (Emperor Penguin): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q161829",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. Wikidata gives no reference for this statement. Not checked against IUCN directly."
+    },
+    {
+      "key": "gbif-profile-2481661",
+      "title": "GBIF species profiles for taxon 2481661 (Emperor Penguin), from the World Register of Marine Species (WoRMS)",
+      "publisher": "GBIF Secretariat, from the World Register of Marine Species",
+      "url": "https://api.gbif.org/v1/species/2481661/speciesProfiles",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Only the marine / freshwater / terrestrial habitat flags that GBIF lists from WoRMS are used."
+    },
+    {
+      "key": "wikidata-q170177",
+      "title": "Wikidata item Q170177 (Snowy Owl): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q170177",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2021.3 (IUCN taxon ID 22689055). Not checked against IUCN directly."
+    },
+    {
+      "key": "gbif-profile-5959143",
+      "title": "GBIF species profiles for taxon 5959143 (Snowy Owl), from the World Register of Marine Species (WoRMS)",
+      "publisher": "GBIF Secretariat, from the World Register of Marine Species",
+      "url": "https://api.gbif.org/v1/species/5959143/speciesProfiles",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Only the marine / freshwater / terrestrial habitat flags that GBIF lists from WoRMS are used."
+    },
+    {
+      "key": "wikipedia-bubo-scandiacus",
+      "title": "Snowy owl (Wikipedia article)",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/w/index.php?oldid=1386484366",
+      "accessedOn": "2026-11-21",
+      "license": "CC BY-SA 4.0",
+      "permittedUseNote": "Second-hand: figures as stated in revision 1386484366 of the article, which cites its own sources. Not checked against the original survey."
+    },
+    {
+      "key": "wikidata-q127216",
+      "title": "Wikidata item Q127216 (bald eagle): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q127216",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2021.3 (IUCN taxon ID 22695144). Not checked against IUCN directly."
+    },
+    {
+      "key": "gbif-profile-2480446",
+      "title": "GBIF species profiles for taxon 2480446 (Bald eagle), from the World Register of Marine Species (WoRMS)",
+      "publisher": "GBIF Secretariat, from the World Register of Marine Species",
+      "url": "https://api.gbif.org/v1/species/2480446/speciesProfiles",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Only the marine / freshwater / terrestrial habitat flags that GBIF lists from WoRMS are used."
+    },
+    {
+      "key": "wikidata-q26685",
+      "title": "Wikidata item Q26685 (Atlantic Puffin): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q26685",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2021.3 (IUCN taxon ID 22694927). Not checked against IUCN directly."
+    },
+    {
+      "key": "gbif-profile-2481353",
+      "title": "GBIF species profiles for taxon 2481353 (Atlantic Puffin), from the World Register of Marine Species (WoRMS)",
+      "publisher": "GBIF Secretariat, from the World Register of Marine Species",
+      "url": "https://api.gbif.org/v1/species/2481353/speciesProfiles",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Only the marine / freshwater / terrestrial habitat flags that GBIF lists from WoRMS are used."
+    },
+    {
+      "key": "wikipedia-fratercula-arctica",
+      "title": "Atlantic puffin (Wikipedia article)",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/w/index.php?oldid=1386456517",
+      "accessedOn": "2026-11-21",
+      "license": "CC BY-SA 4.0",
+      "permittedUseNote": "Second-hand: figures as stated in revision 1386456517 of the article, which cites its own sources. Not checked against the original survey."
+    },
+    {
+      "key": "wikidata-q4504",
+      "title": "Wikidata item Q4504 (Komodo dragon): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q4504",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 22884). Not checked against IUCN directly."
+    },
+    {
+      "key": "wikipedia-varanus-komodoensis",
+      "title": "Komodo dragon (Wikipedia article)",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/w/index.php?oldid=1383701465",
+      "accessedOn": "2026-11-21",
+      "license": "CC BY-SA 4.0",
+      "permittedUseNote": "Second-hand: figures as stated in revision 1383701465 of the article, which cites its own sources. Not checked against the original survey."
+    },
+    {
+      "key": "wikidata-q120043",
+      "title": "Wikidata item Q120043 (leatherback sea turtle): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q120043",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 6494). Not checked against IUCN directly."
+    },
+    {
+      "key": "gbif-profile-9789983",
+      "title": "GBIF species profiles for taxon 9789983 (Leatherback sea turtle), from the World Register of Marine Species (WoRMS)",
+      "publisher": "GBIF Secretariat, from the World Register of Marine Species",
+      "url": "https://api.gbif.org/v1/species/9789983/speciesProfiles",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Only the marine / freshwater / terrestrial habitat flags that GBIF lists from WoRMS are used."
+    },
+    {
+      "key": "wikidata-q17134",
+      "title": "Wikidata item Q17134 (Gharial): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q17134",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 8966). Not checked against IUCN directly."
+    },
+    {
+      "key": "gbif-profile-2441360",
+      "title": "GBIF species profiles for taxon 2441360 (Gharial), from the World Register of Marine Species (WoRMS)",
+      "publisher": "GBIF Secretariat, from the World Register of Marine Species",
+      "url": "https://api.gbif.org/v1/species/2441360/speciesProfiles",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Only the marine / freshwater / terrestrial habitat flags that GBIF lists from WoRMS are used."
+    },
+    {
+      "key": "wikidata-q199458",
+      "title": "Wikidata item Q199458 (Chelonia mydas): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q199458",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2025.2 (IUCN taxon ID 4615). Not checked against IUCN directly."
+    },
+    {
+      "key": "gbif-profile-2442225",
+      "title": "GBIF species profiles for taxon 2442225 (Green turtle), from the World Register of Marine Species (WoRMS)",
+      "publisher": "GBIF Secretariat, from the World Register of Marine Species",
+      "url": "https://api.gbif.org/v1/species/2442225/speciesProfiles",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Only the marine / freshwater / terrestrial habitat flags that GBIF lists from WoRMS are used."
+    },
+    {
+      "key": "wikidata-q3007063",
+      "title": "Wikidata item Q3007063 (Sphenodon punctatus): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q3007063",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 20613). Not checked against IUCN directly."
+    },
+    {
+      "key": "wikidata-q963997",
+      "title": "Wikidata item Q963997 (golden poison frog): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q963997",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 55264). Not checked against IUCN directly."
+    },
+    {
+      "key": "wikidata-q61312",
+      "title": "Wikidata item Q61312 (Chinese giant salamander): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q61312",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 1272). Not checked against IUCN directly."
+    },
+    {
+      "key": "gbif-profile-2432037",
+      "title": "GBIF species profiles for taxon 2432037 (Chinese giant salamander), from the World Register of Marine Species (WoRMS)",
+      "publisher": "GBIF Secretariat, from the World Register of Marine Species",
+      "url": "https://api.gbif.org/v1/species/2432037/speciesProfiles",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Only the marine / freshwater / terrestrial habitat flags that GBIF lists from WoRMS are used."
+    },
+    {
+      "key": "wikidata-q369467",
+      "title": "Wikidata item Q369467 (hellbender): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q369467",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 59077). Not checked against IUCN directly."
+    },
+    {
+      "key": "gbif-profile-2432031",
+      "title": "GBIF species profiles for taxon 2432031 (Hellbender), from the World Register of Marine Species (WoRMS)",
+      "publisher": "GBIF Secretariat, from the World Register of Marine Species",
+      "url": "https://api.gbif.org/v1/species/2432031/speciesProfiles",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Only the marine / freshwater / terrestrial habitat flags that GBIF lists from WoRMS are used."
+    },
+    {
+      "key": "wikidata-q16487060",
+      "title": "Wikidata item Q16487060 (Agalychnis lemur): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q16487060",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 55855). Not checked against IUCN directly."
+    },
+    {
+      "key": "wikidata-q80378",
+      "title": "Wikidata item Q80378 (whale shark): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q80378",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 19488). Not checked against IUCN directly."
+    },
+    {
+      "key": "gbif-profile-2417522",
+      "title": "GBIF species profiles for taxon 2417522 (Whale shark), from the World Register of Marine Species (WoRMS)",
+      "publisher": "GBIF Secretariat, from the World Register of Marine Species",
+      "url": "https://api.gbif.org/v1/species/2417522/speciesProfiles",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Only the marine / freshwater / terrestrial habitat flags that GBIF lists from WoRMS are used."
+    },
+    {
+      "key": "wikidata-q129026",
+      "title": "Wikidata item Q129026 (great white shark): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q129026",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 3855). Not checked against IUCN directly."
+    },
+    {
+      "key": "gbif-profile-2420694",
+      "title": "GBIF species profiles for taxon 2420694 (Great white shark), from the World Register of Marine Species (WoRMS)",
+      "publisher": "GBIF Secretariat, from the World Register of Marine Species",
+      "url": "https://api.gbif.org/v1/species/2420694/speciesProfiles",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Only the marine / freshwater / terrestrial habitat flags that GBIF lists from WoRMS are used."
+    },
+    {
+      "key": "wikidata-q191816",
+      "title": "Wikidata item Q191816 (Beluga): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q191816",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 10269). Not checked against IUCN directly."
+    },
+    {
+      "key": "gbif-profile-2402105",
+      "title": "GBIF species profiles for taxon 2402105 (Beluga), from the World Register of Marine Species (WoRMS)",
+      "publisher": "GBIF Secretariat, from the World Register of Marine Species",
+      "url": "https://api.gbif.org/v1/species/2402105/speciesProfiles",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Only the marine / freshwater / terrestrial habitat flags that GBIF lists from WoRMS are used."
+    },
+    {
+      "key": "wikidata-q214415",
+      "title": "Wikidata item Q214415 (Atlantic bluefin tuna): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q214415",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 21860). Not checked against IUCN directly."
+    },
+    {
+      "key": "gbif-profile-2373980",
+      "title": "GBIF species profiles for taxon 2373980 (Atlantic bluefin tuna), from the World Register of Marine Species (WoRMS)",
+      "publisher": "GBIF Secretariat, from the World Register of Marine Species",
+      "url": "https://api.gbif.org/v1/species/2373980/speciesProfiles",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Only the marine / freshwater / terrestrial habitat flags that GBIF lists from WoRMS are used."
+    },
+    {
+      "key": "wikidata-q873701",
+      "title": "Wikidata item Q873701 (scalloped hammerhead): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q873701",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 39385). Not checked against IUCN directly."
+    },
+    {
+      "key": "gbif-profile-2418789",
+      "title": "GBIF species profiles for taxon 2418789 (Scalloped hammerhead), from the World Register of Marine Species (WoRMS)",
+      "publisher": "GBIF Secretariat, from the World Register of Marine Species",
+      "url": "https://api.gbif.org/v1/species/2418789/speciesProfiles",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Only the marine / freshwater / terrestrial habitat flags that GBIF lists from WoRMS are used."
+    },
+    {
+      "key": "wikidata-q212398",
+      "title": "Wikidata item Q212398 (Danaus plexippus): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q212398",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 159971). Not checked against IUCN directly."
+    },
+    {
+      "key": "gbif-profile-5133088",
+      "title": "GBIF species profiles for taxon 5133088 (Monarch butterfly), from the World Register of Marine Species (WoRMS)",
+      "publisher": "GBIF Secretariat, from the World Register of Marine Species",
+      "url": "https://api.gbif.org/v1/species/5133088/speciesProfiles",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Only the marine / freshwater / terrestrial habitat flags that GBIF lists from WoRMS are used."
+    },
+    {
+      "key": "wikidata-q2297570",
+      "title": "Wikidata item Q2297570 (rusty patched bumble bee): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q2297570",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 44937399). Not checked against IUCN directly."
+    },
+    {
+      "key": "wikidata-q152856",
+      "title": "Wikidata item Q152856 (Dryococelus australis): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q152856",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 6852). Not checked against IUCN directly."
+    },
+    {
+      "key": "wikidata-q751784",
+      "title": "Wikidata item Q751784 (Tridacna gigas): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q751784",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 22137). Not checked against IUCN directly."
+    },
+    {
+      "key": "gbif-profile-4372619",
+      "title": "GBIF species profiles for taxon 4372619 (Giant clam), from the World Register of Marine Species (WoRMS)",
+      "publisher": "GBIF Secretariat, from the World Register of Marine Species",
+      "url": "https://api.gbif.org/v1/species/4372619/speciesProfiles",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Only the marine / freshwater / terrestrial habitat flags that GBIF lists from WoRMS are used."
+    },
+    {
+      "key": "wikidata-q163614",
+      "title": "Wikidata item Q163614 (Elkhorn coral): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q163614",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 133006). Not checked against IUCN directly."
+    },
+    {
+      "key": "gbif-profile-5184657",
+      "title": "GBIF species profiles for taxon 5184657 (Elkhorn coral), from the World Register of Marine Species (WoRMS)",
+      "publisher": "GBIF Secretariat, from the World Register of Marine Species",
+      "url": "https://api.gbif.org/v1/species/5184657/speciesProfiles",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Only the marine / freshwater / terrestrial habitat flags that GBIF lists from WoRMS are used."
+    },
+    {
+      "key": "wikidata-q206070",
+      "title": "Wikidata item Q206070 (Coconut crab): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q206070",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2022.2 (IUCN taxon ID 2811). Not checked against IUCN directly."
+    },
+    {
+      "key": "gbif-profile-4311512",
+      "title": "GBIF species profiles for taxon 4311512 (Coconut crab), from the World Register of Marine Species (WoRMS)",
+      "publisher": "GBIF Secretariat, from the World Register of Marine Species",
+      "url": "https://api.gbif.org/v1/species/4311512/speciesProfiles",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Only the marine / freshwater / terrestrial habitat flags that GBIF lists from WoRMS are used."
+    },
+    {
+      "key": "wikidata-q179959",
+      "title": "Wikidata item Q179959 (Kakapo): IUCN conservation status statement",
+      "publisher": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q179959",
+      "accessedOn": "2026-11-21",
+      "license": "CC0",
+      "permittedUseNote": "Second-hand source. The statement cites The IUCN Red List of Threatened Species 2021.3 (IUCN taxon ID 22685245). Not checked against IUCN directly."
+    },
+    {
+      "key": "wikipedia-strigops-habroptila",
+      "title": "Kākāpō (Wikipedia article)",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/w/index.php?oldid=1386205374",
+      "accessedOn": "2026-11-21",
+      "license": "CC BY-SA 4.0",
+      "permittedUseNote": "Second-hand: figures as stated in revision 1386205374 of the article, which cites its own sources. Not checked against the original survey."
+    }
+  ],
+  "media": [
+    {
+      "key": "photo-ailuropoda-melanoleuca",
+      "path": "media/ailuropoda-melanoleuca.jpg",
+      "creator": "Jeff Kubina",
+      "credit": "Photo: Jeff Kubina, public domain, via Wikimedia Commons",
+      "license": "PDM",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Giant_Panda_2004-03-2.jpg",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-panthera-tigris",
+      "path": "media/panthera-tigris.jpg",
+      "creator": "Seemaleena",
+      "credit": "Photo: Seemaleena, CC BY-SA 4.0, via Wikimedia Commons",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Adult_male_Royal_Bengal_tiger.jpg",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-loxodonta-africana",
+      "path": "media/loxodonta-africana.jpg",
+      "creator": "Giles Laurent",
+      "credit": "Photo: Giles Laurent, CC BY-SA 4.0, via Wikimedia Commons",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:178_Male_African_bush_elephant_in_Etosha_National_Park_Photo_by_Giles_Laurent.jpg",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-gorilla-beringei",
+      "path": "media/gorilla-beringei.jpg",
+      "creator": "Fiver Löcker",
+      "credit": "Photo: Fiver Löcker, CC BY-SA 2.0, via Wikimedia Commons",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Gorillas_in_Uganda-1,_by_Fiver_L%C3%B6cker.jpg",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-pongo-pygmaeus",
+      "path": "media/pongo-pygmaeus.jpg",
+      "creator": "Ltshears",
+      "credit": "Photo: Ltshears, public domain, via Wikimedia Commons",
+      "license": "PDM",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:OrangutanP1.jpg"
+    },
+    {
+      "key": "photo-ailurus-fulgens",
+      "path": "media/ailurus-fulgens.jpg",
+      "creator": "Ajit Hota",
+      "credit": "Photo: Ajit Hota, CC BY-SA 4.0, via Wikimedia Commons",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:RedPanda_SingalilaNationalPark_DFrame.jpg"
+    },
+    {
+      "key": "photo-balaenoptera-musculus",
+      "path": "media/balaenoptera-musculus.jpg",
+      "creator": "NOAA Photo Library",
+      "credit": "Photo: NOAA Photo Library, public domain, via Wikimedia Commons",
+      "license": "PDM",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Anim1755_-_Flickr_-_NOAA_Photo_Library.jpg",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-ursus-maritimus",
+      "path": "media/ursus-maritimus.jpg",
+      "creator": "Alan Wilson",
+      "credit": "Photo: Alan Wilson, CC BY-SA 3.0, via Wikimedia Commons",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Polar_Bear_-_Alaska_(cropped).jpg"
+    },
+    {
+      "key": "photo-acinonyx-jubatus",
+      "path": "media/acinonyx-jubatus.jpg",
+      "creator": "Charles J. Sharp",
+      "credit": "Photo: Charles J. Sharp, CC BY-SA 4.0, via Wikimedia Commons",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Cheetah_(Acinonyx_jubatus)_female_2.jpg",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-diceros-bicornis",
+      "path": "media/diceros-bicornis.jpg",
+      "creator": "Yathin S Krishnappa",
+      "credit": "Photo: Yathin S Krishnappa, CC BY-SA 3.0, via Wikimedia Commons",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:2012_Black_Rhinoceros_Gemsbokvlakte.jpg",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-phocoena-sinus",
+      "path": "media/phocoena-sinus.jpg",
+      "creator": "Paula Olson, NOAA",
+      "credit": "Photo: Paula Olson, NOAA, public domain, via Wikimedia Commons",
+      "license": "PDM",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Vaquita4_Olson_NOAA.jpg",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-phascolarctos-cinereus",
+      "path": "media/phascolarctos-cinereus.jpg",
+      "creator": "Diliff",
+      "credit": "Photo: Diliff, CC BY-SA 3.0, via Wikimedia Commons",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Koala_climbing_tree.jpg"
+    },
+    {
+      "key": "photo-gymnogyps-californianus",
+      "path": "media/gymnogyps-californianus.jpg",
+      "creator": "Stacy",
+      "credit": "Photo: Stacy, CC BY 2.0, via Wikimedia Commons",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Gymnogyps_californianus_-San_Diego_Zoo-8a.jpg",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-pithecophaga-jefferyi",
+      "path": "media/pithecophaga-jefferyi.jpg",
+      "creator": "Aimee Valencia",
+      "credit": "Photo: Aimee Valencia, CC BY 4.0, via Wikimedia Commons",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Pamarayeg_IIIx2.jpg"
+    },
+    {
+      "key": "photo-grus-americana",
+      "path": "media/grus-americana.jpg",
+      "creator": "Sasata",
+      "credit": "Photo: Sasata, CC BY-SA 3.0, via Wikimedia Commons",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Grus_americana_Sasata.jpg",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-aptenodytes-forsteri",
+      "path": "media/aptenodytes-forsteri.jpg",
+      "creator": "Ian Duffy",
+      "credit": "Photo: Ian Duffy, CC BY 2.0, via Wikimedia Commons",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Aptenodytes_forsteri_-Snow_Hill_Island,_Antarctica_-adults_and_juvenile-8.jpg"
+    },
+    {
+      "key": "photo-bubo-scandiacus",
+      "path": "media/bubo-scandiacus.jpg",
+      "creator": "Bill Bouton",
+      "credit": "Photo: Bill Bouton, CC BY-SA 2.0, via Wikimedia Commons",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bubo_scandiacus_male_Muskegon.jpg"
+    },
+    {
+      "key": "photo-haliaeetus-leucocephalus",
+      "path": "media/haliaeetus-leucocephalus.jpg",
+      "creator": "Andy  Morffew",
+      "credit": "Photo: Andy  Morffew, CC BY 2.0, via Wikimedia Commons",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bald_Eagle_(Haliaeetus_leucocephalus)_Kachemak_Bay,_Alaska.jpg",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-fratercula-arctica",
+      "path": "media/fratercula-arctica.jpg",
+      "creator": "Charles J. Sharp",
+      "credit": "Photo: Charles J. Sharp, CC BY-SA 4.0, via Wikimedia Commons",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Puffin_(Fratercula_arctica).jpg",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-varanus-komodoensis",
+      "path": "media/varanus-komodoensis.jpg",
+      "creator": "Midori",
+      "credit": "Photo: Midori, CC BY-SA 3.0, via Wikimedia Commons",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Komodo_dragon_Varanus_komodoensis_Ragunan_Zoo_2.JPG",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-dermochelys-coriacea",
+      "path": "media/dermochelys-coriacea.jpg",
+      "creator": "Julien Renoult",
+      "credit": "Photo: Julien Renoult, CC BY 4.0, via Wikimedia Commons",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Dermochelys_coriacea_-_Julien_Renoult_-_12981952.jpeg",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-gavialis-gangeticus",
+      "path": "media/gavialis-gangeticus.jpg",
+      "creator": "Bo Link",
+      "credit": "Photo: Bo Link, CC BY 2.0, via Wikimedia Commons",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Gharial_san_diego.jpg"
+    },
+    {
+      "key": "photo-chelonia-mydas",
+      "path": "media/chelonia-mydas.jpg",
+      "creator": "Charles J. Sharp",
+      "credit": "Photo: Charles J. Sharp, CC BY-SA 4.0, via Wikimedia Commons",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Green_sea_turtle_(Chelonia_mydas)_Moorea.jpg",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-sphenodon-punctatus",
+      "path": "media/sphenodon-punctatus.jpg",
+      "creator": "Stewart Nimmo",
+      "credit": "Photo: Stewart Nimmo, CC BY-SA 4.0, via Wikimedia Commons",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:TWC_Wildlife_Centre%E2%80%A2_Stewart_Nimmo_%E2%80%A2_MRD_8910.jpg",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-phyllobates-terribilis",
+      "path": "media/phyllobates-terribilis.jpg",
+      "creator": "Wilfried Berns",
+      "credit": "Photo: Wilfried Berns, CC BY-SA 2.0 de, via Wikimedia Commons",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/de/deed.en",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Schrecklicherpfeilgiftfrosch-01.jpg"
+    },
+    {
+      "key": "photo-andrias-davidianus",
+      "path": "media/andrias-davidianus.jpg",
+      "creator": "J. Patrick Fischer",
+      "credit": "Photo: J. Patrick Fischer, CC BY-SA 3.0, via Wikimedia Commons",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:2009_Andrias_davidianus.JPG",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-cryptobranchus-alleganiensis",
+      "path": "media/cryptobranchus-alleganiensis.jpg",
+      "creator": "Brian Gratwicke",
+      "credit": "Photo: Brian Gratwicke, CC BY 2.0, via Wikimedia Commons",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Hellbender.jpg",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-agalychnis-lemur",
+      "path": "media/agalychnis-lemur.jpg",
+      "creator": "Brian Gratwicke",
+      "credit": "Photo: Brian Gratwicke, CC BY 2.0, via Wikimedia Commons",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Hylomantis_lemur_-_Lemur_leaf_frog.jpg",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-rhincodon-typus",
+      "path": "media/rhincodon-typus.jpg",
+      "creator": "Zac Wolf (original) and Stefan (cropping)",
+      "credit": "Photo: Zac Wolf (original) and Stefan (cropping), CC BY-SA 2.5, via Wikimedia Commons",
+      "license": "CC BY-SA 2.5",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.5",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Whale_shark_Georgia_aquarium.jpg",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-carcharodon-carcharias",
+      "path": "media/carcharodon-carcharias.jpg",
+      "creator": "Sharkdiver.com",
+      "credit": "Photo: Sharkdiver.com, public domain, via Wikimedia Commons",
+      "license": "PDM",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Carcharodon_carcharias.jpg",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-huso-huso",
+      "path": "media/huso-huso.jpg",
+      "creator": "Daniel Döhne",
+      "credit": "Photo: Daniel Döhne, CC BY-SA 3.0, via Wikimedia Commons",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Hausen_(Huso_huso_L.)editDOB.JPG",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-thunnus-thynnus",
+      "path": "media/thunnus-thynnus.jpg",
+      "creator": "NOAA Photo Library (author not named)",
+      "credit": "Photo: NOAA Photo Library (author not named), public domain, via Wikimedia Commons",
+      "license": "PDM",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bluefin-big.jpg",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-sphyrna-lewini",
+      "path": "media/sphyrna-lewini.jpg",
+      "creator": "NOAA Photo Library",
+      "credit": "Photo: NOAA Photo Library, public domain, via Wikimedia Commons",
+      "license": "PDM",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Corl0184_(27688326114).jpg",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-danaus-plexippus",
+      "path": "media/danaus-plexippus.jpg",
+      "creator": "Didier Descouens",
+      "credit": "Photo: Didier Descouens, CC BY-SA 3.0, via Wikimedia Commons",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Danaus_plexippus_MHNT_femelle.jpg",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-bombus-affinis",
+      "path": "media/bombus-affinis.jpg",
+      "creator": "USGS Bee Inventory and Monitoring Lab",
+      "credit": "Photo: USGS Bee Inventory and Monitoring Lab, public domain, via Wikimedia Commons",
+      "license": "PDM",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bombus_affinis,_F,_side,_sky_meadows,_virginia_2014-09-22-18.05.02_ZS_PMax_(15169110488).jpg",
+      "modifications": "Downloaded as the 1280-pixel-wide rendition generated by Wikimedia Commons."
+    },
+    {
+      "key": "photo-tridacna-gigas",
+      "path": "media/tridacna-gigas.jpg",
+      "creator": "Nhobgood Nick Hobgood",
+      "credit": "Photo: Nhobgood Nick Hobgood, CC BY-SA 3.0, via Wikimedia Commons",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Giant_clam_black%26white_komodo.jpg"
+    },
+    {
+      "key": "photo-birgus-latro",
+      "path": "media/birgus-latro.jpg",
+      "creator": "fearlessRich",
+      "credit": "Photo: fearlessRich, CC BY 2.0, via Wikimedia Commons",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Birgus_latro.jpg"
+    },
+    {
+      "key": "photo-strigops-habroptila",
+      "path": "media/strigops-habroptila.jpg",
+      "creator": "John Gerrard Keulemans",
+      "credit": "Illustration: John Gerrard Keulemans, public domain, via Wikimedia Commons",
+      "license": "PDM",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Buller_Kakapo.jpg"
+    }
+  ],
+  "species": [
+    {
+      "slug": "ailuropoda-melanoleuca",
+      "scientificName": "Ailuropoda melanoleuca",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2433399",
+          "sourceUrl": "https://www.gbif.org/species/2433399"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q33602",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q33602"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "712"
+        }
+      ],
+      "content": {
+        "displayGroup": "mammal",
+        "editorial": {
+          "overview": "The giant panda (Ailuropoda melanoleuca) is a mammal of the family Ursidae, in the order Carnivora. It is listed as Vulnerable on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Mammalia",
+            "order": "Carnivora",
+            "family": "Ursidae",
+            "genus": "Ailuropoda"
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Giant panda",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "la",
+            "name": "Aeluropus melanoleucus",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Ailuropus melanoleucus",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q33602",
+            "scope": "global",
+            "category": "VU",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [
+          {
+            "scope": "global",
+            "context": "wild",
+            "basis": "other",
+            "form": "exact",
+            "pointValue": "1864",
+            "referenceStart": "2011-01-01",
+            "referenceEnd": "2014-12-31",
+            "method": "Wild pandas older than 1.5 years, excluding dependent young (Fourth National Survey, China, 2011–2014, published 2015)",
+            "sourceKey": "wikipedia-ailuropoda-melanoleuca"
+          }
+        ],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2433399"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2433399"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q33602",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q33602",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "population",
+            "sourceKey": "wikipedia-ailuropoda-melanoleuca",
+            "locator": "revision 1386494512"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-ailuropoda-melanoleuca",
+            "position": 0,
+            "role": "primary",
+            "altText": "A giant panda"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "panthera-tigris",
+      "scientificName": "Panthera tigris",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "5219416",
+          "sourceUrl": "https://www.gbif.org/species/5219416"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q19939",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q19939"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "15955"
+        }
+      ],
+      "content": {
+        "displayGroup": "mammal",
+        "editorial": {
+          "overview": "The tiger (Panthera tigris) is a mammal of the family Felidae, in the order Carnivora. It is listed as Endangered on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Mammalia",
+            "order": "Carnivora",
+            "family": "Felidae",
+            "genus": "Panthera"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Tiger",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "la",
+            "name": "Felis tigris",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q19939",
+            "scope": "global",
+            "category": "EN",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 5219416"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 5219416"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q19939",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q19939",
+            "locator": "property P141 (IUCN conservation status)"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-panthera-tigris",
+            "position": 0,
+            "role": "primary",
+            "altText": "A tiger"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "loxodonta-africana",
+      "scientificName": "Loxodonta africana",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2435350",
+          "sourceUrl": "https://www.gbif.org/species/2435350"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q36557",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q36557"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "181008073"
+        }
+      ],
+      "content": {
+        "displayGroup": "mammal",
+        "editorial": {
+          "overview": "The african bush elephant (Loxodonta africana) is a mammal of the family Elephantidae, in the order Proboscidea. It is listed as Endangered on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Mammalia",
+            "order": "Proboscidea",
+            "family": "Elephantidae",
+            "genus": "Loxodonta"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "African bush elephant",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "en",
+            "name": "African elephant",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Elephas africana",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Elephas capensis",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q36557",
+            "scope": "global",
+            "category": "EN",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2435350"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2435350"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q36557",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q36557",
+            "locator": "property P141 (IUCN conservation status)"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-loxodonta-africana",
+            "position": 0,
+            "role": "primary",
+            "altText": "A african bush elephant"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "gorilla-beringei",
+      "scientificName": "Gorilla beringei",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "7262070",
+          "sourceUrl": "https://www.gbif.org/species/7262070"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q307157",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q307157"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "39994"
+        }
+      ],
+      "content": {
+        "displayGroup": "mammal",
+        "editorial": {
+          "overview": "The eastern gorilla (Gorilla beringei) is a mammal of the family Hominidae, in the order Primates. It is listed as Critically endangered on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Mammalia",
+            "order": "Primates",
+            "family": "Hominidae",
+            "genus": "Gorilla"
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Eastern gorilla",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "la",
+            "name": "Gorilla gorilla beringei",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q307157",
+            "scope": "global",
+            "category": "CR",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [
+          {
+            "scope": "global",
+            "context": "wild",
+            "basis": "individuals",
+            "form": "at_most",
+            "maxValue": "6000",
+            "referenceStart": "2016-01-01",
+            "referenceEnd": "2016-12-31",
+            "uncertaintyNote": "Stated as \"less than 6,000\" by 2016.",
+            "sourceKey": "wikipedia-gorilla-beringei"
+          }
+        ],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 7262070"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 7262070"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q307157",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q307157",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "population",
+            "sourceKey": "wikipedia-gorilla-beringei",
+            "locator": "revision 1367438771"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-gorilla-beringei",
+            "position": 0,
+            "role": "primary",
+            "altText": "A eastern gorilla"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "pongo-pygmaeus",
+      "scientificName": "Pongo pygmaeus",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "5219532",
+          "sourceUrl": "https://www.gbif.org/species/5219532"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q599672",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q599672"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "17975"
+        }
+      ],
+      "content": {
+        "displayGroup": "mammal",
+        "editorial": {
+          "overview": "The bornean orangutan (Pongo pygmaeus) is a mammal of the family Hominidae, in the order Primates. It is listed as Critically endangered on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Mammalia",
+            "order": "Primates",
+            "family": "Hominidae",
+            "genus": "Pongo"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Bornean orangutan",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "la",
+            "name": "Simia pygmaeus",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q599672",
+            "scope": "global",
+            "category": "CR",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 5219532"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 5219532"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q599672",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q599672",
+            "locator": "property P141 (IUCN conservation status)"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-pongo-pygmaeus",
+            "position": 0,
+            "role": "primary",
+            "altText": "A bornean orangutan"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "ailurus-fulgens",
+      "scientificName": "Ailurus fulgens",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "5219446",
+          "sourceUrl": "https://www.gbif.org/species/5219446"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q41960",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q41960"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "714"
+        }
+      ],
+      "content": {
+        "displayGroup": "mammal",
+        "editorial": {
+          "overview": "The red Panda (Ailurus fulgens) is a mammal of the family Ailuridae, in the order Carnivora. It is listed as Endangered on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Mammalia",
+            "order": "Carnivora",
+            "family": "Ailuridae",
+            "genus": "Ailurus"
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Red Panda",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "en",
+            "name": "Lesser Panda",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "en",
+            "name": "Red Cat-bear",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Ailurus fulgens fulgens",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Ailurus fulgens refulgens",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q41960",
+            "scope": "global",
+            "category": "EN",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [
+          {
+            "scope": "global",
+            "context": "wild",
+            "basis": "individuals",
+            "form": "exact",
+            "pointValue": "10000",
+            "uncertaintyNote": "Stated as an estimate of 10,000 individuals; no year given.",
+            "sourceKey": "wikipedia-ailurus-fulgens"
+          }
+        ],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 5219446"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 5219446"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q41960",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q41960",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "population",
+            "sourceKey": "wikipedia-ailurus-fulgens",
+            "locator": "revision 1385829145"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-ailurus-fulgens",
+            "position": 0,
+            "role": "primary",
+            "altText": "A red panda"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "balaenoptera-musculus",
+      "scientificName": "Balaenoptera musculus",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2440735",
+          "sourceUrl": "https://www.gbif.org/species/2440735"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q42196",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q42196"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "2477"
+        }
+      ],
+      "content": {
+        "displayGroup": "mammal",
+        "editorial": {
+          "overview": "The blue whale (Balaenoptera musculus) is a mammal of the family Balaenopteridae, in the order Cetacea. The World Register of Marine Species, as listed by GBIF, records it as marine. It is listed as Endangered on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Mammalia",
+            "order": "Cetacea",
+            "family": "Balaenopteridae",
+            "genus": "Balaenoptera"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Blue whale",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "en",
+            "name": "Sibbold’s Rorqual",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "en",
+            "name": "Sulphur-bottom Whale",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "en",
+            "name": "Pygmy Blue Whale",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Balaena borealis",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Balaena maximus",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [
+          "marine"
+        ],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q42196",
+            "scope": "global",
+            "category": "EN",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2440735"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2440735"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q42196",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q42196",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "gbif-profile-2440735",
+            "locator": "GBIF taxon 2440735, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-profile-2440735",
+            "locator": "GBIF taxon 2440735, WoRMS habitat flags"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-balaenoptera-musculus",
+            "position": 0,
+            "role": "primary",
+            "altText": "A blue whale"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "ursus-maritimus",
+      "scientificName": "Ursus maritimus",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2433451",
+          "sourceUrl": "https://www.gbif.org/species/2433451"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q33609",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q33609"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "22823"
+        }
+      ],
+      "content": {
+        "displayGroup": "mammal",
+        "editorial": {
+          "overview": "The polar bear (Ursus maritimus) is a mammal of the family Ursidae, in the order Carnivora. The World Register of Marine Species, as listed by GBIF, records it as marine. It is listed as Vulnerable on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Mammalia",
+            "order": "Carnivora",
+            "family": "Ursidae",
+            "genus": "Ursus"
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Polar bear",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "la",
+            "name": "Thalarctos maritimus",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Thalarctos polaris",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [
+          "marine"
+        ],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q33609",
+            "scope": "global",
+            "category": "VU",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [
+          {
+            "scope": "global",
+            "context": "wild",
+            "basis": "individuals",
+            "form": "range",
+            "minValue": "22000",
+            "maxValue": "31000",
+            "uncertaintyNote": "Attributed by the article to the IUCN; no year given.",
+            "sourceKey": "wikipedia-ursus-maritimus"
+          }
+        ],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2433451"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2433451"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q33609",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q33609",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "gbif-profile-2433451",
+            "locator": "GBIF taxon 2433451, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-profile-2433451",
+            "locator": "GBIF taxon 2433451, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "population",
+            "sourceKey": "wikipedia-ursus-maritimus",
+            "locator": "revision 1385828693"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-ursus-maritimus",
+            "position": 0,
+            "role": "primary",
+            "altText": "A polar bear"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "acinonyx-jubatus",
+      "scientificName": "Acinonyx jubatus",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2435270",
+          "sourceUrl": "https://www.gbif.org/species/2435270"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q23907",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q23907"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "219"
+        }
+      ],
+      "content": {
+        "displayGroup": "mammal",
+        "editorial": {
+          "overview": "The cheetah (Acinonyx jubatus) is a mammal of the family Felidae, in the order Carnivora. It is listed as Vulnerable on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Mammalia",
+            "order": "Carnivora",
+            "family": "Felidae",
+            "genus": "Acinonyx"
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Cheetah",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "en",
+            "name": "Hunting Leopard",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Cynaelurus jubatus",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Felis jubata",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q23907",
+            "scope": "global",
+            "category": "VU",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [
+          {
+            "scope": "global",
+            "context": "wild",
+            "basis": "mature_individuals",
+            "form": "exact",
+            "pointValue": "6517",
+            "referenceStart": "2021-01-01",
+            "referenceEnd": "2021-12-31",
+            "uncertaintyNote": "Estimate for 2021.",
+            "sourceKey": "wikipedia-acinonyx-jubatus"
+          }
+        ],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2435270"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2435270"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q23907",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q23907",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "population",
+            "sourceKey": "wikipedia-acinonyx-jubatus",
+            "locator": "revision 1380372320"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-acinonyx-jubatus",
+            "position": 0,
+            "role": "primary",
+            "altText": "A cheetah"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "diceros-bicornis",
+      "scientificName": "Diceros bicornis",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "5220111",
+          "sourceUrl": "https://www.gbif.org/species/5220111"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q95036",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q95036"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "6557"
+        }
+      ],
+      "content": {
+        "displayGroup": "mammal",
+        "editorial": {
+          "overview": "The black rhinoceros (Diceros bicornis) is a mammal of the family Rhinocerotidae, in the order Perissodactyla. It is listed as Critically endangered on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Mammalia",
+            "order": "Perissodactyla",
+            "family": "Rhinocerotidae",
+            "genus": "Diceros"
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Black rhinoceros",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "en",
+            "name": "Hook-lipped Rhinoceros",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "en",
+            "name": "Hooked-lipped Rhinoceros",
+            "nameType": "common",
+            "preferred": false
+          }
+        ],
+        "environments": [],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q95036",
+            "scope": "global",
+            "category": "CR",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [
+          {
+            "scope": "global",
+            "context": "wild",
+            "basis": "mature_individuals",
+            "form": "exact",
+            "pointValue": "3142",
+            "uncertaintyNote": "Attributed by the article to the IUCN; no year given.",
+            "sourceKey": "wikipedia-diceros-bicornis"
+          }
+        ],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 5220111"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 5220111"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q95036",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q95036",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "population",
+            "sourceKey": "wikipedia-diceros-bicornis",
+            "locator": "revision 1386481126"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-diceros-bicornis",
+            "position": 0,
+            "role": "primary",
+            "altText": "A black rhinoceros"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "phocoena-sinus",
+      "scientificName": "Phocoena sinus",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2440665",
+          "sourceUrl": "https://www.gbif.org/species/2440665"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q725493",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q725493"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "17028"
+        }
+      ],
+      "content": {
+        "displayGroup": "mammal",
+        "editorial": {
+          "overview": "The vaquita (Phocoena sinus) is a mammal of the family Phocoenidae, in the order Cetacea. The World Register of Marine Species, as listed by GBIF, records it as marine. It is listed as Critically endangered on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Mammalia",
+            "order": "Cetacea",
+            "family": "Phocoenidae",
+            "genus": "Phocoena"
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Vaquita",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "en",
+            "name": "Cochito",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "en",
+            "name": "Gulf Of California Harbour Porpoise",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "en",
+            "name": "Gulf Of California Porpoise",
+            "nameType": "common",
+            "preferred": false
+          }
+        ],
+        "environments": [
+          "marine"
+        ],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q725493",
+            "scope": "global",
+            "category": "CR",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [
+          {
+            "scope": "global",
+            "context": "wild",
+            "basis": "individuals",
+            "form": "at_most",
+            "maxValue": "19",
+            "referenceStart": "2018-01-01",
+            "referenceEnd": "2018-12-31",
+            "uncertaintyNote": "Stated as \"fewer than 19\" remaining in the wild in 2018.",
+            "sourceKey": "wikipedia-phocoena-sinus"
+          }
+        ],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2440665"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2440665"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q725493",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q725493",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "gbif-profile-2440665",
+            "locator": "GBIF taxon 2440665, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-profile-2440665",
+            "locator": "GBIF taxon 2440665, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "population",
+            "sourceKey": "wikipedia-phocoena-sinus",
+            "locator": "revision 1382480031"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-phocoena-sinus",
+            "position": 0,
+            "role": "primary",
+            "altText": "A vaquita"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "phascolarctos-cinereus",
+      "scientificName": "Phascolarctos cinereus",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2440012",
+          "sourceUrl": "https://www.gbif.org/species/2440012"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q36101",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q36101"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "16892"
+        }
+      ],
+      "content": {
+        "displayGroup": "mammal",
+        "editorial": {
+          "overview": "The koala (Phascolarctos cinereus) is a mammal of the family Phascolarctidae, in the order Diprotodontia. It is listed as Vulnerable on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Mammalia",
+            "order": "Diprotodontia",
+            "family": "Phascolarctidae",
+            "genus": "Phascolarctos"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Koala",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "la",
+            "name": "Lipurus cinereus",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q36101",
+            "scope": "global",
+            "category": "VU",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2440012"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2440012"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q36101",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q36101",
+            "locator": "property P141 (IUCN conservation status)"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-phascolarctos-cinereus",
+            "position": 0,
+            "role": "primary",
+            "altText": "A koala"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "gymnogyps-californianus",
+      "scientificName": "Gymnogyps californianus",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2481920",
+          "sourceUrl": "https://www.gbif.org/species/2481920"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q194314",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q194314"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "22697636"
+        }
+      ],
+      "content": {
+        "displayGroup": "bird",
+        "editorial": {
+          "overview": "The california condor (Gymnogyps californianus) is a bird of the family Cathartidae, in the order Accipitriformes. It is listed as Critically endangered on the IUCN Red List (2021.3 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Aves",
+            "order": "Accipitriformes",
+            "family": "Cathartidae",
+            "genus": "Gymnogyps"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "California condor",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "la",
+            "name": "Gymnogyps amplus",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Pseudogryphus californianus",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q194314",
+            "scope": "global",
+            "category": "CR",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2481920"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2481920"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q194314",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q194314",
+            "locator": "property P141 (IUCN conservation status)"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-gymnogyps-californianus",
+            "position": 0,
+            "role": "primary",
+            "altText": "A california condor"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "pithecophaga-jefferyi",
+      "scientificName": "Pithecophaga jefferyi",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2480381",
+          "sourceUrl": "https://www.gbif.org/species/2480381"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q185213",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q185213"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "22696012"
+        }
+      ],
+      "content": {
+        "displayGroup": "bird",
+        "editorial": {
+          "overview": "The philippine Eagle (Pithecophaga jefferyi) is a bird of the family Accipitridae, in the order Accipitriformes. The World Register of Marine Species, as listed by GBIF, records it as terrestrial. It is listed as Critically endangered on the IUCN Red List (2021.3 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Aves",
+            "order": "Accipitriformes",
+            "family": "Accipitridae",
+            "genus": "Pithecophaga"
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Philippine Eagle",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "en",
+            "name": "Great Philippine Eagle",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "en",
+            "name": "Monkey-eating Eagle",
+            "nameType": "common",
+            "preferred": false
+          }
+        ],
+        "environments": [
+          "terrestrial"
+        ],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q185213",
+            "scope": "global",
+            "category": "CR",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [
+          {
+            "scope": "regional",
+            "context": "wild",
+            "region": "philippines",
+            "basis": "breeding_pairs",
+            "form": "range",
+            "minValue": "82",
+            "maxValue": "233",
+            "uncertaintyNote": "Mindanao only, where the largest numbers live; no year given.",
+            "sourceKey": "wikipedia-pithecophaga-jefferyi"
+          }
+        ],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2480381"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2480381"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q185213",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q185213",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "gbif-profile-2480381",
+            "locator": "GBIF taxon 2480381, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-profile-2480381",
+            "locator": "GBIF taxon 2480381, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "population",
+            "sourceKey": "wikipedia-pithecophaga-jefferyi",
+            "locator": "revision 1385905519"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-pithecophaga-jefferyi",
+            "position": 0,
+            "role": "primary",
+            "altText": "A philippine eagle"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "grus-americana",
+      "scientificName": "Grus americana",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2474941",
+          "sourceUrl": "https://www.gbif.org/species/2474941"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q457477",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q457477"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "22692156"
+        }
+      ],
+      "content": {
+        "displayGroup": "bird",
+        "editorial": {
+          "overview": "The whooping crane (Grus americana) is a bird of the family Gruidae, in the order Gruiformes. The World Register of Marine Species, as listed by GBIF, records it as terrestrial. It is listed as Endangered on the IUCN Red List (2021.3 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Aves",
+            "order": "Gruiformes",
+            "family": "Gruidae",
+            "genus": "Grus"
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Whooping crane",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "la",
+            "name": "Ardea americana",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [
+          "terrestrial"
+        ],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q457477",
+            "scope": "global",
+            "category": "EN",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [
+          {
+            "scope": "global",
+            "context": "wild",
+            "basis": "individuals",
+            "form": "qualitative",
+            "qualitativeText": "About 560 in the migratory Aransas–Wood Buffalo population and about 140 in two reintroduced populations (Wisconsin and Louisiana), as of 2025",
+            "referenceStart": "2025-01-01",
+            "referenceEnd": "2025-12-31",
+            "sourceKey": "wikipedia-grus-americana"
+          },
+          {
+            "scope": "global",
+            "context": "captive",
+            "basis": "individuals",
+            "form": "exact",
+            "pointValue": "130",
+            "referenceStart": "2025-01-01",
+            "referenceEnd": "2025-12-31",
+            "uncertaintyNote": "Stated as \"about 130\".",
+            "sourceKey": "wikipedia-grus-americana"
+          }
+        ],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2474941"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2474941"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q457477",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q457477",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "gbif-profile-2474941",
+            "locator": "GBIF taxon 2474941, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-profile-2474941",
+            "locator": "GBIF taxon 2474941, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "population",
+            "sourceKey": "wikipedia-grus-americana",
+            "locator": "revision 1380782589"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-grus-americana",
+            "position": 0,
+            "role": "primary",
+            "altText": "A whooping crane"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "aptenodytes-forsteri",
+      "scientificName": "Aptenodytes forsteri",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2481661",
+          "sourceUrl": "https://www.gbif.org/species/2481661"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q161829",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q161829"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "22697752"
+        }
+      ],
+      "content": {
+        "displayGroup": "bird",
+        "editorial": {
+          "overview": "The emperor Penguin (Aptenodytes forsteri) is a bird of the family Spheniscidae, in the order Sphenisciformes. The World Register of Marine Species, as listed by GBIF, records it as marine and terrestrial. It is listed as Near threatened on the IUCN Red List, as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Aves",
+            "order": "Sphenisciformes",
+            "family": "Spheniscidae",
+            "genus": "Aptenodytes"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Emperor Penguin",
+            "nameType": "common",
+            "preferred": true
+          }
+        ],
+        "environments": [
+          "marine",
+          "terrestrial"
+        ],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q161829",
+            "scope": "global",
+            "category": "NT",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2481661"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2481661"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q161829",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q161829",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "gbif-profile-2481661",
+            "locator": "GBIF taxon 2481661, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-profile-2481661",
+            "locator": "GBIF taxon 2481661, WoRMS habitat flags"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-aptenodytes-forsteri",
+            "position": 0,
+            "role": "primary",
+            "altText": "A emperor penguin"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "bubo-scandiacus",
+      "scientificName": "Bubo scandiacus",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "5959143",
+          "sourceUrl": "https://www.gbif.org/species/5959143"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q170177",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q170177"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "22689055"
+        }
+      ],
+      "content": {
+        "displayGroup": "bird",
+        "editorial": {
+          "overview": "The snowy Owl (Bubo scandiacus) is a bird of the family Strigidae, in the order Strigiformes. The World Register of Marine Species, as listed by GBIF, records it as terrestrial. It is listed as Vulnerable on the IUCN Red List (2021.3 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Aves",
+            "order": "Strigiformes",
+            "family": "Strigidae",
+            "genus": "Bubo"
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Snowy Owl",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "la",
+            "name": "Bubo virginianus wapacuthu",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Nyctea nivea",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [
+          "terrestrial"
+        ],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q170177",
+            "scope": "global",
+            "category": "VU",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [
+          {
+            "scope": "global",
+            "context": "wild",
+            "basis": "individuals",
+            "form": "at_most",
+            "maxValue": "100000",
+            "uncertaintyNote": "Stated as \"probably fewer than 100,000\", from 2010s–2020s data.",
+            "sourceKey": "wikipedia-bubo-scandiacus"
+          },
+          {
+            "scope": "global",
+            "context": "wild",
+            "basis": "breeding_pairs",
+            "form": "at_most",
+            "maxValue": "28000",
+            "uncertaintyNote": "Stated as \"28,000 or even considerably less\" successful breeding pairs.",
+            "sourceKey": "wikipedia-bubo-scandiacus"
+          }
+        ],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 5959143"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 5959143"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q170177",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q170177",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "gbif-profile-5959143",
+            "locator": "GBIF taxon 5959143, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-profile-5959143",
+            "locator": "GBIF taxon 5959143, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "population",
+            "sourceKey": "wikipedia-bubo-scandiacus",
+            "locator": "revision 1386484366"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-bubo-scandiacus",
+            "position": 0,
+            "role": "primary",
+            "altText": "A snowy owl"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "haliaeetus-leucocephalus",
+      "scientificName": "Haliaeetus leucocephalus",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2480446",
+          "sourceUrl": "https://www.gbif.org/species/2480446"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q127216",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q127216"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "22695144"
+        }
+      ],
+      "content": {
+        "displayGroup": "bird",
+        "editorial": {
+          "overview": "The bald eagle (Haliaeetus leucocephalus) is a bird of the family Accipitridae, in the order Accipitriformes. The World Register of Marine Species, as listed by GBIF, records it as marine and freshwater and terrestrial. It is listed as Least concern on the IUCN Red List (2021.3 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Aves",
+            "order": "Accipitriformes",
+            "family": "Accipitridae",
+            "genus": "Haliaeetus"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Bald eagle",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "la",
+            "name": "Falco leucocephalus",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [
+          "marine",
+          "freshwater",
+          "terrestrial"
+        ],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q127216",
+            "scope": "global",
+            "category": "LC",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2480446"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2480446"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q127216",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q127216",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "gbif-profile-2480446",
+            "locator": "GBIF taxon 2480446, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-profile-2480446",
+            "locator": "GBIF taxon 2480446, WoRMS habitat flags"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-haliaeetus-leucocephalus",
+            "position": 0,
+            "role": "primary",
+            "altText": "A bald eagle"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "fratercula-arctica",
+      "scientificName": "Fratercula arctica",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2481353",
+          "sourceUrl": "https://www.gbif.org/species/2481353"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q26685",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q26685"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "22694927"
+        }
+      ],
+      "content": {
+        "displayGroup": "bird",
+        "editorial": {
+          "overview": "The atlantic Puffin (Fratercula arctica) is a bird of the family Alcidae, in the order Charadriiformes. The World Register of Marine Species, as listed by GBIF, records it as marine and terrestrial. It is listed as Vulnerable on the IUCN Red List (2021.3 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Aves",
+            "order": "Charadriiformes",
+            "family": "Alcidae",
+            "genus": "Fratercula"
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Atlantic Puffin",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "en",
+            "name": "Puffin",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Alca arctica",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Fratercula arctica arctica",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [
+          "marine",
+          "terrestrial"
+        ],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q26685",
+            "scope": "global",
+            "category": "VU",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [
+          {
+            "scope": "global",
+            "context": "wild",
+            "basis": "breeding_pairs",
+            "form": "qualitative",
+            "qualitativeText": "In Europe, which holds more than 90% of the global population: 4,770,000–5,780,000 pairs (9,550,000–11,600,000 adults)",
+            "sourceKey": "wikipedia-fratercula-arctica"
+          }
+        ],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2481353"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2481353"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q26685",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q26685",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "gbif-profile-2481353",
+            "locator": "GBIF taxon 2481353, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-profile-2481353",
+            "locator": "GBIF taxon 2481353, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "population",
+            "sourceKey": "wikipedia-fratercula-arctica",
+            "locator": "revision 1386456517"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-fratercula-arctica",
+            "position": 0,
+            "role": "primary",
+            "altText": "A atlantic puffin"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "varanus-komodoensis",
+      "scientificName": "Varanus komodoensis",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2470854",
+          "sourceUrl": "https://www.gbif.org/species/2470854"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q4504",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q4504"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "22884"
+        }
+      ],
+      "content": {
+        "displayGroup": "reptile",
+        "editorial": {
+          "overview": "The komodo dragon (Varanus komodoensis) is a reptile of the family Varanidae. It is listed as Endangered on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Squamata",
+            "family": "Varanidae",
+            "genus": "Varanus"
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Komodo dragon",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "en",
+            "name": "Komodo Monitor",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "en",
+            "name": "Ora",
+            "nameType": "common",
+            "preferred": false
+          }
+        ],
+        "environments": [],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q4504",
+            "scope": "global",
+            "category": "EN",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [
+          {
+            "scope": "global",
+            "context": "wild",
+            "basis": "individuals",
+            "form": "exact",
+            "pointValue": "3014",
+            "referenceStart": "2015-01-01",
+            "referenceEnd": "2015-12-31",
+            "uncertaintyNote": "Assessed as 3,222 in 2013 and 3,092 in 2014.",
+            "sourceKey": "wikipedia-varanus-komodoensis"
+          }
+        ],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2470854"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2470854"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q4504",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q4504",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "population",
+            "sourceKey": "wikipedia-varanus-komodoensis",
+            "locator": "revision 1383701465"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-varanus-komodoensis",
+            "position": 0,
+            "role": "primary",
+            "altText": "A komodo dragon"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "dermochelys-coriacea",
+      "scientificName": "Dermochelys coriacea",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "9789983",
+          "sourceUrl": "https://www.gbif.org/species/9789983"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q120043",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q120043"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "6494"
+        }
+      ],
+      "content": {
+        "displayGroup": "reptile",
+        "editorial": {
+          "overview": "The leatherback sea turtle (Dermochelys coriacea) is a reptile of the family Dermochelyidae. The World Register of Marine Species, as listed by GBIF, records it as marine. It is listed as Vulnerable on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Testudines",
+            "family": "Dermochelyidae",
+            "genus": "Dermochelys"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Leatherback sea turtle",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "en",
+            "name": "Leatherback turtle",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "en",
+            "name": "Coffin-back",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "en",
+            "name": "Leatherback",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Chelonia lutaria",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Chelonias lutaria",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [
+          "marine"
+        ],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q120043",
+            "scope": "global",
+            "category": "VU",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 9789983"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 9789983"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q120043",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q120043",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "gbif-profile-9789983",
+            "locator": "GBIF taxon 9789983, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-profile-9789983",
+            "locator": "GBIF taxon 9789983, WoRMS habitat flags"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-dermochelys-coriacea",
+            "position": 0,
+            "role": "primary",
+            "altText": "A leatherback sea turtle"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "gavialis-gangeticus",
+      "scientificName": "Gavialis gangeticus",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2441360",
+          "sourceUrl": "https://www.gbif.org/species/2441360"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q17134",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q17134"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "8966"
+        }
+      ],
+      "content": {
+        "displayGroup": "reptile",
+        "editorial": {
+          "overview": "The gharial (Gavialis gangeticus) is a reptile of the family Gavialidae. The World Register of Marine Species, as listed by GBIF, records it as freshwater and terrestrial. It is listed as Critically endangered on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Crocodylia",
+            "family": "Gavialidae",
+            "genus": "Gavialis"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Gharial",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "en",
+            "name": "Fish-eating Crocodile",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "en",
+            "name": "Gavial",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "en",
+            "name": "Indian Gavial",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Crocodilus arctirostris",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Crocodilus gavial",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [
+          "freshwater",
+          "terrestrial"
+        ],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q17134",
+            "scope": "global",
+            "category": "CR",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2441360"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2441360"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q17134",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q17134",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "gbif-profile-2441360",
+            "locator": "GBIF taxon 2441360, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-profile-2441360",
+            "locator": "GBIF taxon 2441360, WoRMS habitat flags"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-gavialis-gangeticus",
+            "position": 0,
+            "role": "primary",
+            "altText": "A gharial"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "chelonia-mydas",
+      "scientificName": "Chelonia mydas",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2442225",
+          "sourceUrl": "https://www.gbif.org/species/2442225"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q199458",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q199458"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "4615"
+        }
+      ],
+      "content": {
+        "displayGroup": "reptile",
+        "editorial": {
+          "overview": "The green turtle (Chelonia mydas) is a reptile of the family Cheloniidae. The World Register of Marine Species, as listed by GBIF, records it as marine. It is listed as Least concern on the IUCN Red List (2025.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Testudines",
+            "family": "Cheloniidae",
+            "genus": "Chelonia"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Green turtle",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "la",
+            "name": "Caretta cepedii",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Caretta esculenta",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [
+          "marine"
+        ],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q199458",
+            "scope": "global",
+            "category": "LC",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2442225"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2442225"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q199458",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q199458",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "gbif-profile-2442225",
+            "locator": "GBIF taxon 2442225, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-profile-2442225",
+            "locator": "GBIF taxon 2442225, WoRMS habitat flags"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-chelonia-mydas",
+            "position": 0,
+            "role": "primary",
+            "altText": "A green turtle"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "sphenodon-punctatus",
+      "scientificName": "Sphenodon punctatus",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "5227650",
+          "sourceUrl": "https://www.gbif.org/species/5227650"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q3007063",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q3007063"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "20613"
+        }
+      ],
+      "content": {
+        "displayGroup": "reptile",
+        "editorial": {
+          "overview": "The tuatara (Sphenodon punctatus) is a reptile of the family Sphenodontidae. It is listed as Least concern on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Sphenodontia",
+            "family": "Sphenodontidae",
+            "genus": "Sphenodon"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Tuatara",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "en",
+            "name": "Cook Strait Tuatara",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "en",
+            "name": "Sphenodon",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Hatteria punctata",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Sphenodon guntheri",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q3007063",
+            "scope": "global",
+            "category": "LC",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 5227650"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 5227650"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q3007063",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q3007063",
+            "locator": "property P141 (IUCN conservation status)"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-sphenodon-punctatus",
+            "position": 0,
+            "role": "primary",
+            "altText": "A tuatara"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "phyllobates-terribilis",
+      "scientificName": "Phyllobates terribilis",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "5218020",
+          "sourceUrl": "https://www.gbif.org/species/5218020"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q963997",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q963997"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "55264"
+        }
+      ],
+      "content": {
+        "displayGroup": "amphibian",
+        "editorial": {
+          "overview": "The golden poison frog (Phyllobates terribilis) is a amphibian of the family Dendrobatidae, in the order Anura. It is listed as Endangered on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Amphibia",
+            "order": "Anura",
+            "family": "Dendrobatidae",
+            "genus": "Phyllobates"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Golden poison frog",
+            "nameType": "common",
+            "preferred": true
+          }
+        ],
+        "environments": [],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q963997",
+            "scope": "global",
+            "category": "EN",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 5218020"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 5218020"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q963997",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q963997",
+            "locator": "property P141 (IUCN conservation status)"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-phyllobates-terribilis",
+            "position": 0,
+            "role": "primary",
+            "altText": "A golden poison frog"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "andrias-davidianus",
+      "scientificName": "Andrias davidianus",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2432037",
+          "sourceUrl": "https://www.gbif.org/species/2432037"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q61312",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q61312"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "1272"
+        }
+      ],
+      "content": {
+        "displayGroup": "amphibian",
+        "editorial": {
+          "overview": "The chinese giant salamander (Andrias davidianus) is a amphibian of the family Cryptobranchidae, in the order Caudata. The World Register of Marine Species, as listed by GBIF, records it as freshwater. It is listed as Critically endangered on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Amphibia",
+            "order": "Caudata",
+            "family": "Cryptobranchidae",
+            "genus": "Andrias"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Chinese giant salamander",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "la",
+            "name": "Andrias davidianus davidianus",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Andrias scheuchzeri davidiana",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [
+          "freshwater"
+        ],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q61312",
+            "scope": "global",
+            "category": "CR",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2432037"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2432037"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q61312",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q61312",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "gbif-profile-2432037",
+            "locator": "GBIF taxon 2432037, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-profile-2432037",
+            "locator": "GBIF taxon 2432037, WoRMS habitat flags"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-andrias-davidianus",
+            "position": 0,
+            "role": "primary",
+            "altText": "A chinese giant salamander"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "cryptobranchus-alleganiensis",
+      "scientificName": "Cryptobranchus alleganiensis",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2432031",
+          "sourceUrl": "https://www.gbif.org/species/2432031"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q369467",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q369467"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "59077"
+        }
+      ],
+      "content": {
+        "displayGroup": "amphibian",
+        "editorial": {
+          "overview": "The hellbender (Cryptobranchus alleganiensis) is a amphibian of the family Cryptobranchidae, in the order Caudata. The World Register of Marine Species, as listed by GBIF, records it as freshwater. It is listed as Vulnerable on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Amphibia",
+            "order": "Caudata",
+            "family": "Cryptobranchidae",
+            "genus": "Cryptobranchus"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Hellbender",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "la",
+            "name": "? alleganensis",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "? alleghaniensis",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [
+          "freshwater"
+        ],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q369467",
+            "scope": "global",
+            "category": "VU",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2432031"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2432031"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q369467",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q369467",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "gbif-profile-2432031",
+            "locator": "GBIF taxon 2432031, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-profile-2432031",
+            "locator": "GBIF taxon 2432031, WoRMS habitat flags"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-cryptobranchus-alleganiensis",
+            "position": 0,
+            "role": "primary",
+            "altText": "A hellbender"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "agalychnis-lemur",
+      "scientificName": "Agalychnis lemur",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "10050363",
+          "sourceUrl": "https://www.gbif.org/species/10050363"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q16487060",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q16487060"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "55855"
+        }
+      ],
+      "content": {
+        "displayGroup": "amphibian",
+        "editorial": {
+          "overview": "The lemur Leaf Frog (Agalychnis lemur) is a amphibian of the family Phyllomedusidae, in the order Anura. It is listed as Critically endangered on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Amphibia",
+            "order": "Anura",
+            "family": "Phyllomedusidae",
+            "genus": "Agalychnis"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Lemur Leaf Frog",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "la",
+            "name": "Hylomantis lemur",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Phyllomedusa lemur",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q16487060",
+            "scope": "global",
+            "category": "CR",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 10050363"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 10050363"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q16487060",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q16487060",
+            "locator": "property P141 (IUCN conservation status)"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-agalychnis-lemur",
+            "position": 0,
+            "role": "primary",
+            "altText": "A lemur leaf frog"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "rhincodon-typus",
+      "scientificName": "Rhincodon typus",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2417522",
+          "sourceUrl": "https://www.gbif.org/species/2417522"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q80378",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q80378"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "19488"
+        }
+      ],
+      "content": {
+        "displayGroup": "fish",
+        "editorial": {
+          "overview": "The whale shark (Rhincodon typus) is a fish of the family Rhincodontidae, in the order Orectolobiformes. The World Register of Marine Species, as listed by GBIF, records it as marine. It is listed as Endangered on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Elasmobranchii",
+            "order": "Orectolobiformes",
+            "family": "Rhincodontidae",
+            "genus": "Rhincodon"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Whale shark",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "la",
+            "name": "Micristodus punctatus",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Rhicodon typus",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [
+          "marine"
+        ],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q80378",
+            "scope": "global",
+            "category": "EN",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2417522"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2417522"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q80378",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q80378",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "gbif-profile-2417522",
+            "locator": "GBIF taxon 2417522, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-profile-2417522",
+            "locator": "GBIF taxon 2417522, WoRMS habitat flags"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-rhincodon-typus",
+            "position": 0,
+            "role": "primary",
+            "altText": "A whale shark"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "carcharodon-carcharias",
+      "scientificName": "Carcharodon carcharias",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2420694",
+          "sourceUrl": "https://www.gbif.org/species/2420694"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q129026",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q129026"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "3855"
+        }
+      ],
+      "content": {
+        "displayGroup": "fish",
+        "editorial": {
+          "overview": "The great white shark (Carcharodon carcharias) is a fish of the family Lamnidae, in the order Lamniformes. The World Register of Marine Species, as listed by GBIF, records it as marine. It is listed as Vulnerable on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Elasmobranchii",
+            "order": "Lamniformes",
+            "family": "Lamnidae",
+            "genus": "Carcharodon"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Great white shark",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "la",
+            "name": "Carcharias atwoodi",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Carcharias carcharias",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [
+          "marine"
+        ],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q129026",
+            "scope": "global",
+            "category": "VU",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2420694"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2420694"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q129026",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q129026",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "gbif-profile-2420694",
+            "locator": "GBIF taxon 2420694, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-profile-2420694",
+            "locator": "GBIF taxon 2420694, WoRMS habitat flags"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-carcharodon-carcharias",
+            "position": 0,
+            "role": "primary",
+            "altText": "A great white shark"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "huso-huso",
+      "scientificName": "Huso huso",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2402105",
+          "sourceUrl": "https://www.gbif.org/species/2402105"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q191816",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q191816"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "10269"
+        }
+      ],
+      "content": {
+        "displayGroup": "fish",
+        "editorial": {
+          "overview": "The beluga (Huso huso) is a fish of the family Acipenseridae, in the order Acipenseriformes. The World Register of Marine Species, as listed by GBIF, records it as marine and freshwater. It is listed as Critically endangered on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "order": "Acipenseriformes",
+            "family": "Acipenseridae",
+            "genus": "Huso"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Beluga",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "en",
+            "name": "European Sturgeon",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "en",
+            "name": "Giant Sturgeon",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "en",
+            "name": "Great Sturgeon",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Acipenser albula",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Acipenser beluga",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [
+          "marine",
+          "freshwater"
+        ],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q191816",
+            "scope": "global",
+            "category": "CR",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2402105"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2402105"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q191816",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q191816",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "gbif-profile-2402105",
+            "locator": "GBIF taxon 2402105, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-profile-2402105",
+            "locator": "GBIF taxon 2402105, WoRMS habitat flags"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-huso-huso",
+            "position": 0,
+            "role": "primary",
+            "altText": "A beluga"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "thunnus-thynnus",
+      "scientificName": "Thunnus thynnus",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2373980",
+          "sourceUrl": "https://www.gbif.org/species/2373980"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q214415",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q214415"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "21860"
+        }
+      ],
+      "content": {
+        "displayGroup": "fish",
+        "editorial": {
+          "overview": "The atlantic bluefin tuna (Thunnus thynnus) is a fish of the family Scombridae, in the order Perciformes. The World Register of Marine Species, as listed by GBIF, records it as marine. It is listed as Least concern on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "order": "Perciformes",
+            "family": "Scombridae",
+            "genus": "Thunnus"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Atlantic bluefin tuna",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "la",
+            "name": "? secundodorsalis",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Albacora thynnus",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [
+          "marine"
+        ],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q214415",
+            "scope": "global",
+            "category": "LC",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2373980"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2373980"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q214415",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q214415",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "gbif-profile-2373980",
+            "locator": "GBIF taxon 2373980, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-profile-2373980",
+            "locator": "GBIF taxon 2373980, WoRMS habitat flags"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-thunnus-thynnus",
+            "position": 0,
+            "role": "primary",
+            "altText": "A atlantic bluefin tuna"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "sphyrna-lewini",
+      "scientificName": "Sphyrna lewini",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2418789",
+          "sourceUrl": "https://www.gbif.org/species/2418789"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q873701",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q873701"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "39385"
+        }
+      ],
+      "content": {
+        "displayGroup": "fish",
+        "editorial": {
+          "overview": "The scalloped hammerhead (Sphyrna lewini) is a fish of the family Sphyrnidae, in the order Carcharhiniformes. The World Register of Marine Species, as listed by GBIF, records it as marine. It is listed as Critically endangered on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Elasmobranchii",
+            "order": "Carcharhiniformes",
+            "family": "Sphyrnidae",
+            "genus": "Sphyrna"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Scalloped hammerhead",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "la",
+            "name": "Cestracion leeuwenii",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Cestracion oceanica",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [
+          "marine"
+        ],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q873701",
+            "scope": "global",
+            "category": "CR",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2418789"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2418789"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q873701",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q873701",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "gbif-profile-2418789",
+            "locator": "GBIF taxon 2418789, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-profile-2418789",
+            "locator": "GBIF taxon 2418789, WoRMS habitat flags"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-sphyrna-lewini",
+            "position": 0,
+            "role": "primary",
+            "altText": "A scalloped hammerhead"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "danaus-plexippus",
+      "scientificName": "Danaus plexippus",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "5133088",
+          "sourceUrl": "https://www.gbif.org/species/5133088"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q212398",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q212398"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "159971"
+        }
+      ],
+      "content": {
+        "displayGroup": "insect",
+        "editorial": {
+          "overview": "The monarch butterfly (Danaus plexippus) is a insect of the family Nymphalidae, in the order Lepidoptera. The World Register of Marine Species, as listed by GBIF, records it as terrestrial. It is listed as Least concern on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Arthropoda",
+            "class": "Insecta",
+            "order": "Lepidoptera",
+            "family": "Nymphalidae",
+            "genus": "Danaus"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Monarch butterfly",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "en",
+            "name": "Monarch",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "en",
+            "name": "Common tiger wanderer",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Danaida plexippus",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Danais archippus fumosus",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [
+          "terrestrial"
+        ],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q212398",
+            "scope": "global",
+            "category": "LC",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 5133088"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 5133088"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q212398",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q212398",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "gbif-profile-5133088",
+            "locator": "GBIF taxon 5133088, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-profile-5133088",
+            "locator": "GBIF taxon 5133088, WoRMS habitat flags"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-danaus-plexippus",
+            "position": 0,
+            "role": "primary",
+            "altText": "A monarch butterfly"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "bombus-affinis",
+      "scientificName": "Bombus affinis",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "1340481",
+          "sourceUrl": "https://www.gbif.org/species/1340481"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q2297570",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q2297570"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "44937399"
+        }
+      ],
+      "content": {
+        "displayGroup": "insect",
+        "editorial": {
+          "overview": "The rusty patched bumble bee (Bombus affinis) is a insect of the family Apidae, in the order Hymenoptera. It is listed as Critically endangered on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Arthropoda",
+            "class": "Insecta",
+            "order": "Hymenoptera",
+            "family": "Apidae",
+            "genus": "Bombus"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Rusty patched bumble bee",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "la",
+            "name": "Bombus affinis novaeangliae",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Bremus affinis",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q2297570",
+            "scope": "global",
+            "category": "CR",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 1340481"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 1340481"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q2297570",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q2297570",
+            "locator": "property P141 (IUCN conservation status)"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-bombus-affinis",
+            "position": 0,
+            "role": "primary",
+            "altText": "A rusty patched bumble bee"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "dryococelus-australis",
+      "scientificName": "Dryococelus australis",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "11375304",
+          "sourceUrl": "https://www.gbif.org/species/11375304"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q152856",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q152856"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "6852"
+        }
+      ],
+      "content": {
+        "displayGroup": "insect",
+        "editorial": {
+          "overview": "The lord Howe Island stick insect (Dryococelus australis) is a insect of the family Phasmatidae, in the order Phasmida. It is listed as Critically endangered on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Arthropoda",
+            "class": "Insecta",
+            "order": "Phasmida",
+            "family": "Phasmatidae",
+            "genus": "Dryococelus"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Lord Howe Island stick insect",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "en",
+            "name": "Lord Howe Island tree lobster",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "en",
+            "name": "Lord Howe tree lobster",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "en",
+            "name": "Land Lobster",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "? australis",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Carabidion australe",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q152856",
+            "scope": "global",
+            "category": "CR",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 11375304"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 11375304"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q152856",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q152856",
+            "locator": "property P141 (IUCN conservation status)"
+          }
+        ],
+        "media": []
+      }
+    },
+    {
+      "slug": "tridacna-gigas",
+      "scientificName": "Tridacna gigas",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "4372619",
+          "sourceUrl": "https://www.gbif.org/species/4372619"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q751784",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q751784"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "22137"
+        }
+      ],
+      "content": {
+        "displayGroup": "mollusc",
+        "editorial": {
+          "overview": "The giant clam (Tridacna gigas) is a mollusc of the family Cardiidae, in the order Cardiida. The World Register of Marine Species, as listed by GBIF, records it as marine. It is listed as Critically endangered on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Mollusca",
+            "class": "Bivalvia",
+            "order": "Cardiida",
+            "family": "Cardiidae",
+            "genus": "Tridacna"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Giant clam",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "la",
+            "name": "Chama gigantea",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Chama gigas",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [
+          "marine"
+        ],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q751784",
+            "scope": "global",
+            "category": "CR",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 4372619"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 4372619"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q751784",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q751784",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "gbif-profile-4372619",
+            "locator": "GBIF taxon 4372619, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-profile-4372619",
+            "locator": "GBIF taxon 4372619, WoRMS habitat flags"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-tridacna-gigas",
+            "position": 0,
+            "role": "primary",
+            "altText": "A giant clam"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "acropora-palmata",
+      "scientificName": "Acropora palmata",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "5184657",
+          "sourceUrl": "https://www.gbif.org/species/5184657"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q163614",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q163614"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "133006"
+        }
+      ],
+      "content": {
+        "displayGroup": "coral",
+        "editorial": {
+          "overview": "The elkhorn coral (Acropora palmata) is a coral of the family Acroporidae, in the order Scleractinia. The World Register of Marine Species, as listed by GBIF, records it as marine. It is listed as Critically endangered on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Cnidaria",
+            "class": "Anthozoa",
+            "order": "Scleractinia",
+            "family": "Acroporidae",
+            "genus": "Acropora"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Elkhorn coral",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "la",
+            "name": "Acropora alces",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Acropora flabellum",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [
+          "marine"
+        ],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q163614",
+            "scope": "global",
+            "category": "CR",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 5184657"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 5184657"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q163614",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q163614",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "gbif-profile-5184657",
+            "locator": "GBIF taxon 5184657, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-profile-5184657",
+            "locator": "GBIF taxon 5184657, WoRMS habitat flags"
+          }
+        ],
+        "media": []
+      }
+    },
+    {
+      "slug": "birgus-latro",
+      "scientificName": "Birgus latro",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "4311512",
+          "sourceUrl": "https://www.gbif.org/species/4311512"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q206070",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q206070"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "2811"
+        }
+      ],
+      "content": {
+        "displayGroup": "crustacean",
+        "editorial": {
+          "overview": "The coconut crab (Birgus latro) is a crustacean of the family Coenobitidae, in the order Decapoda. The World Register of Marine Species, as listed by GBIF, records it as marine and terrestrial. It is listed as Vulnerable on the IUCN Red List (2022.2 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Arthropoda",
+            "class": "Malacostraca",
+            "order": "Decapoda",
+            "family": "Coenobitidae",
+            "genus": "Birgus"
+          },
+          "population": {
+            "unknown": true,
+            "note": "We have not yet checked a published population estimate for this profile."
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Coconut crab",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "en",
+            "name": "Palm Thief",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "en",
+            "name": "Robber Crab",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Birgus laticauda",
+            "nameType": "synonym",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Cancer crumenatus",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [
+          "marine",
+          "terrestrial"
+        ],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q206070",
+            "scope": "global",
+            "category": "VU",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 4311512"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 4311512"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q206070",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q206070",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "gbif-profile-4311512",
+            "locator": "GBIF taxon 4311512, WoRMS habitat flags"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-profile-4311512",
+            "locator": "GBIF taxon 4311512, WoRMS habitat flags"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-birgus-latro",
+            "position": 0,
+            "role": "primary",
+            "altText": "A coconut crab"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "strigops-habroptila",
+      "scientificName": "Strigops habroptila",
+      "rank": "species",
+      "identifiers": [
+        {
+          "provider": "gbif",
+          "externalId": "2479236",
+          "sourceUrl": "https://www.gbif.org/species/2479236"
+        },
+        {
+          "provider": "wikidata",
+          "externalId": "Q179959",
+          "sourceUrl": "https://www.wikidata.org/wiki/Q179959"
+        },
+        {
+          "provider": "iucn",
+          "externalId": "22685245"
+        }
+      ],
+      "content": {
+        "displayGroup": "bird",
+        "editorial": {
+          "overview": "The kakapo (Strigops habroptila) is a bird of the family Psittacidae, in the order Psittaciformes. It is listed as Critically endangered on the IUCN Red List (2021.3 edition), as recorded on Wikidata.",
+          "taxonomy": {
+            "kingdom": "Animalia",
+            "phylum": "Chordata",
+            "class": "Aves",
+            "order": "Psittaciformes",
+            "family": "Psittacidae",
+            "genus": "Strigops"
+          }
+        },
+        "names": [
+          {
+            "language": "en",
+            "name": "Kakapo",
+            "nameType": "common",
+            "preferred": true
+          },
+          {
+            "language": "en",
+            "name": "Owl Parrot",
+            "nameType": "common",
+            "preferred": false
+          },
+          {
+            "language": "la",
+            "name": "Stringops habroptilus",
+            "nameType": "synonym",
+            "preferred": false
+          }
+        ],
+        "environments": [],
+        "assessments": [
+          {
+            "sourceKey": "wikidata-q179959",
+            "scope": "global",
+            "category": "CR",
+            "trend": "unknown"
+          }
+        ],
+        "populationEstimates": [
+          {
+            "scope": "global",
+            "context": "wild",
+            "basis": "individuals",
+            "form": "exact",
+            "pointValue": "325",
+            "referenceStart": "2026-01-01",
+            "referenceEnd": "2026-12-31",
+            "uncertaintyNote": "Total known population of living individuals, as of 2026. Every bird is individually known.",
+            "sourceKey": "wikipedia-strigops-habroptila"
+          }
+        ],
+        "citations": [
+          {
+            "sectionKey": "overview",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2479236"
+          },
+          {
+            "sectionKey": "classification",
+            "sourceKey": "gbif-backbone",
+            "locator": "GBIF taxon 2479236"
+          },
+          {
+            "sectionKey": "status",
+            "sourceKey": "wikidata-q179959",
+            "locator": "property P141"
+          },
+          {
+            "sectionKey": "overview",
+            "sourceKey": "wikidata-q179959",
+            "locator": "property P141 (IUCN conservation status)"
+          },
+          {
+            "sectionKey": "population",
+            "sourceKey": "wikipedia-strigops-habroptila",
+            "locator": "revision 1386205374"
+          }
+        ],
+        "media": [
+          {
+            "mediaKey": "photo-strigops-habroptila",
+            "position": 0,
+            "role": "primary",
+            "altText": "An illustration of a kākāpō by John Gerrard Keulemans (19th century)"
+          }
+        ]
+      }
+    }
+  ]
+}

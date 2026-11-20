@@ -1214,6 +1214,51 @@
         ]
       }
     },
+    "/api/v1/sources": {
+      "get": {
+        "operationId": "SpeciesController_sources",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublicSourceDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "catalogue"
+        ]
+      }
+    },
+    "/api/v1/sitemap": {
+      "get": {
+        "operationId": "SpeciesController_sitemap",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SitemapDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "catalogue"
+        ]
+      }
+    },
     "/api/v1/support": {
       "get": {
         "operationId": "SupportController_list",
@@ -5746,6 +5791,133 @@
         "required": [
           "species",
           "population"
+        ]
+      },
+      "CitingSpeciesDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "scientificName": {
+            "type": "string"
+          },
+          "commonName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "slug",
+          "scientificName",
+          "commonName"
+        ]
+      },
+      "PublicSourceDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "publisher": {
+            "type": "string",
+            "nullable": true
+          },
+          "authors": {
+            "type": "string",
+            "nullable": true
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "doi": {
+            "type": "string",
+            "nullable": true
+          },
+          "publishedOn": {
+            "type": "string",
+            "nullable": true
+          },
+          "accessedOn": {
+            "type": "string",
+            "nullable": true
+          },
+          "license": {
+            "type": "string",
+            "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "description": "How the source may be used, and caveats such as \"second-hand\""
+          },
+          "usedForBoundaries": {
+            "type": "boolean",
+            "description": "True for the boundary data behind maps and region pages"
+          },
+          "species": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CitingSpeciesDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "publisher",
+          "authors",
+          "url",
+          "doi",
+          "publishedOn",
+          "accessedOn",
+          "license",
+          "note",
+          "usedForBoundaries",
+          "species"
+        ]
+      },
+      "SitemapSpeciesDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "publishedAt": {
+            "type": "string",
+            "description": "When the live revision was published"
+          }
+        },
+        "required": [
+          "slug",
+          "publishedAt"
+        ]
+      },
+      "SitemapDto": {
+        "type": "object",
+        "properties": {
+          "species": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SitemapSpeciesDto"
+            }
+          },
+          "regions": {
+            "description": "Regions with at least one published, non-sensitive species",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "species",
+          "regions"
         ]
       },
       "SupportSpeciesRefDto": {

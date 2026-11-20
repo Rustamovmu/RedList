@@ -1,7 +1,7 @@
 {
   "format": "wildward-import",
   "version": 1,
-  "notes": "Real-catalogue pilot (M4, 2026-11-21), prepared by the coding agent. Every fact below was read from the cited source on 2026-11-21: GBIF Backbone Taxonomy (CC BY 4.0) through the GBIF API, Wikidata (CC0) through its API, and GBIF species profiles. IUCN Red List pages were NOT read: iucnredlist.org disallows this agent in robots.txt and returned 403, so status is cited second-hand from Wikidata, which references The IUCN Red List of Threatened Species 2022.2 (DECISIONS D-027). No population figure was checked, so every population is Unknown. Trend is not stated by Wikidata, so it is 'unknown'. Images are from Wikimedia Commons; each licence was read from the file's Commons metadata. Image licences were also compared with each file's embedded copyright metadata; a file whose metadata said 'all rights reserved' was not used.",
+  "notes": "Real-catalogue pilot (M4, 2026-11-21), prepared by the coding agent. Every fact below was read from the cited source on 2026-11-21: GBIF Backbone Taxonomy (CC BY 4.0) through the GBIF API, Wikidata (CC0) through its API, and GBIF species profiles. IUCN Red List pages were NOT read: iucnredlist.org disallows this agent in robots.txt and returned 403, so status is cited second-hand from Wikidata, which references The IUCN Red List of Threatened Species 2022.2 (DECISIONS D-027). No population figure was checked, so every population is Unknown. Trend is not stated by Wikidata, so it is 'unknown'. Images are from Wikimedia Commons; each licence was read from the file's Commons metadata. Image licences were also compared with each file's embedded copyright metadata; a file whose metadata said 'all rights reserved' was not used. The three image files are stored next to this file in media/, downloaded unchanged from the Commons URLs on 2026-11-21 (source pages in sourceUrl). Population figures were added on 2026-11-21 at the owner's request from pages read that day: IUCN/SSC Cat Specialist Group (snow leopard), Wikipedia citing CITES (axolotl), and the U.S. National Park Service (hawksbill nesting females by country; no global total was found). The WWF hawksbill page refused access (403) and was not used.",
   "sources": [
     {
       "key": "gbif-backbone",
@@ -56,36 +56,63 @@
       "url": "https://api.gbif.org/v1/species/8841716/speciesProfiles",
       "accessedOn": "2026-11-21",
       "permittedUseNote": "Only the marine / freshwater habitat flags that GBIF lists from WoRMS are used."
+    },
+    {
+      "key": "catsg-snow-leopard",
+      "title": "Living Species - Snow Leopard",
+      "publisher": "IUCN/SSC Cat Specialist Group",
+      "url": "https://www.catsg.org/living-species-snowleopard",
+      "accessedOn": "2026-11-21",
+      "permittedUseNote": "Figures quoted from the page, which gives no year for its 'most recent estimate' and says reliable global estimates are lacking."
+    },
+    {
+      "key": "wikipedia-axolotl",
+      "title": "Axolotl",
+      "publisher": "Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Axolotl",
+      "accessedOn": "2026-11-21",
+      "license": "CC BY-SA 4.0",
+      "permittedUseNote": "Second-hand: the figure in the article's lead cites CITES. Revision reviewed 1 November 2026. No year given for the estimate."
+    },
+    {
+      "key": "nps-hawksbill",
+      "title": "The Hawksbill Sea Turtle",
+      "publisher": "U.S. National Park Service, Padre Island National Seashore",
+      "url": "https://www.nps.gov/pais/learn/nature/hawksbill.htm",
+      "publishedOn": "2025-02-18",
+      "accessedOn": "2026-11-21",
+      "license": "Public domain (U.S. federal government work)",
+      "permittedUseNote": "Page cites National Marine Fisheries Service 2020 and U.S. Fish and Wildlife Service 2020. It gives no global total and says population trends are undetermined."
     }
   ],
   "media": [
     {
       "key": "uncia-uncia-landgraf",
-      "url": "https://upload.wikimedia.org/wikipedia/commons/a/a7/Uncia_uncia.jpg",
       "creator": "Bernard Landgraf",
       "credit": "Photo: Bernard Landgraf, CC BY-SA 3.0, via Wikimedia Commons",
       "license": "CC BY-SA 3.0",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
-      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Uncia_uncia.jpg"
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Uncia_uncia.jpg",
+      "path": "media/snow-leopard-landgraf.jpg"
     },
     {
       "key": "axolotl-korzeniec",
-      "url": "https://upload.wikimedia.org/wikipedia/commons/7/77/6_maja_06_r._ZOO_204.jpg",
       "creator": "Monika Korzeniec",
       "credit": "Photo: Monika Korzeniec, CC BY-SA 3.0, via Wikimedia Commons",
       "license": "CC BY-SA 3.0",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
-      "sourceUrl": "https://commons.wikimedia.org/wiki/File:6_maja_06_r._ZOO_204.jpg"
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:6_maja_06_r._ZOO_204.jpg",
+      "path": "media/axolotl-korzeniec.jpg"
     },
     {
       "key": "hawksbill-ras-muhammad-delso",
-      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Tortuga_carey_%28Eretmochelys_imbricata%29%2C_parque_nacional_Ras_Muhammad%2C_Egipto%2C_2022-03-28%2C_DD_56.jpg/1920px-Tortuga_carey_%28Eretmochelys_imbricata%29%2C_parque_nacional_Ras_Muhammad%2C_Egipto%2C_2022-03-28%2C_DD_56.jpg",
       "creator": "Diego Delso",
       "credit": "Photo: Diego Delso, CC BY-SA 4.0, via Wikimedia Commons",
       "license": "CC BY-SA 4.0",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
       "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tortuga_carey_(Eretmochelys_imbricata),_parque_nacional_Ras_Muhammad,_Egipto,_2022-03-28,_DD_56.jpg",
-      "modifications": "Downloaded as the 1920-pixel-wide rendition generated by Wikimedia Commons."
+      "modifications": "Downloaded as the 1920-pixel-wide rendition generated by Wikimedia Commons.",
+      "path": "media/hawksbill-delso.jpg"
     }
   ],
   "species": [
@@ -120,10 +147,6 @@
             "order": "Carnivora",
             "family": "Felidae",
             "genus": "Uncia"
-          },
-          "population": {
-            "unknown": true,
-            "note": "We have not yet checked a published population estimate for this profile."
           }
         },
         "names": [
@@ -181,6 +204,11 @@
             "sectionKey": "status",
             "sourceKey": "wikidata-q30197",
             "locator": "property P141"
+          },
+          {
+            "sectionKey": "population",
+            "sourceKey": "catsg-snow-leopard",
+            "locator": "'The most recent estimate…' paragraph"
           }
         ],
         "media": [
@@ -189,6 +217,28 @@
             "position": 0,
             "role": "primary",
             "altText": "A snow leopard"
+          }
+        ],
+        "populationEstimates": [
+          {
+            "scope": "global",
+            "context": "wild",
+            "form": "range",
+            "sourceKey": "catsg-snow-leopard",
+            "basis": "mature_individuals",
+            "minValue": "2710",
+            "maxValue": "3386",
+            "uncertaintyNote": "The source calls this its most recent estimate but gives no year, and says reliable global estimates are lacking."
+          },
+          {
+            "scope": "global",
+            "context": "wild",
+            "form": "range",
+            "sourceKey": "catsg-snow-leopard",
+            "basis": "individuals",
+            "minValue": "7446",
+            "maxValue": "7996",
+            "uncertaintyNote": "All ages. Same estimate as the mature-individual figure; no year given."
           }
         ]
       }
@@ -224,10 +274,6 @@
             "order": "Caudata",
             "family": "Ambystomatidae",
             "genus": "Ambystoma"
-          },
-          "population": {
-            "unknown": true,
-            "note": "We have not yet checked a published population estimate for this profile."
           }
         },
         "names": [
@@ -291,6 +337,11 @@
             "sectionKey": "geography",
             "sourceKey": "gbif-profile-2431950",
             "locator": "GBIF taxon 2431950, species profile from WoRMS"
+          },
+          {
+            "sectionKey": "population",
+            "sourceKey": "wikipedia-axolotl",
+            "locator": "article lead"
           }
         ],
         "media": [
@@ -299,6 +350,18 @@
             "position": 0,
             "role": "primary",
             "altText": "An axolotl"
+          }
+        ],
+        "populationEstimates": [
+          {
+            "scope": "global",
+            "context": "wild",
+            "form": "range",
+            "sourceKey": "wikipedia-axolotl",
+            "basis": "mature_individuals",
+            "minValue": "50",
+            "maxValue": "1000",
+            "uncertaintyNote": "Stated as 'around 50 to 1,000 adult individuals'. Second-hand (Wikipedia, citing CITES); no year given."
           }
         ]
       }
@@ -333,10 +396,6 @@
             "class": "Testudines",
             "family": "Cheloniidae",
             "genus": "Eretmochelys"
-          },
-          "population": {
-            "unknown": true,
-            "note": "We have not yet checked a published population estimate for this profile."
           }
         },
         "names": [
@@ -400,6 +459,16 @@
             "sectionKey": "geography",
             "sourceKey": "gbif-profile-8841716",
             "locator": "GBIF taxon 8841716, species profile from WoRMS"
+          },
+          {
+            "sectionKey": "population",
+            "sourceKey": "nps-hawksbill",
+            "locator": "'Current population'"
+          },
+          {
+            "sectionKey": "geography",
+            "sourceKey": "nps-hawksbill",
+            "locator": "'Current population' (nesting countries)"
           }
         ],
         "media": [
@@ -408,6 +477,65 @@
             "position": 0,
             "role": "primary",
             "altText": "A hawksbill sea turtle in Ras Muhammad National Park, Egypt"
+          }
+        ],
+        "populationEstimates": [
+          {
+            "sourceKey": "nps-hawksbill",
+            "scope": "regional",
+            "region": "australia",
+            "context": "wild",
+            "basis": "other",
+            "form": "range",
+            "minValue": "8000",
+            "maxValue": "10000",
+            "method": "Females nesting each year",
+            "uncertaintyNote": "Females nesting per year, not a total population. Sources cited by the page: NMFS 2020, USFWS 2020."
+          },
+          {
+            "sourceKey": "nps-hawksbill",
+            "scope": "regional",
+            "region": "mexico",
+            "context": "wild",
+            "basis": "other",
+            "form": "exact",
+            "pointValue": "700",
+            "method": "Females nesting each year (average)",
+            "uncertaintyNote": "Females nesting per year, not a total population. Sources cited by the page: NMFS 2020, USFWS 2020."
+          },
+          {
+            "sourceKey": "nps-hawksbill",
+            "scope": "regional",
+            "region": "indonesia",
+            "context": "wild",
+            "basis": "other",
+            "form": "exact",
+            "pointValue": "1000",
+            "method": "Females nesting each year",
+            "uncertaintyNote": "Females nesting per year, not a total population. Sources cited by the page: NMFS 2020, USFWS 2020. The page also gives 1,000 for the Seychelles, which is not in this catalogue's country list."
+          }
+        ],
+        "regions": [
+          {
+            "region": "australia",
+            "presence": "extant",
+            "origin": "native",
+            "seasonality": "breeding",
+            "sourceKey": "nps-hawksbill"
+          },
+          {
+            "region": "mexico",
+            "presence": "extant",
+            "origin": "native",
+            "seasonality": "breeding",
+            "sourceKey": "nps-hawksbill"
+          },
+          {
+            "region": "indonesia",
+            "presence": "extant",
+            "origin": "native",
+            "seasonality": "breeding",
+            "sourceKey": "nps-hawksbill"
           }
         ]
       }

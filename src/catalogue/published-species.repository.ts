@@ -4,8 +4,11 @@ import { domainOf } from '../common/url';
 import { Db, InjectDb } from '../db/db.module';
 import * as s from '../db/schema';
 import { CURRENT_EDITORIAL_VERSION, Editorial, parseEditorial } from '../editorial/editorial-schema';
-import { countCards, DISPLAY_NAME, HEADLINE, ListFilters, PUBLISHED, selectCards, SEVERITY } from './catalogue-sql';
-import { FacetDto, FiltersDto, HabitatFacetDto, RangeValueDto, RegionFacetDto, RegionLinkDto, SpeciesCardDto, SpeciesListDto, SpeciesProfileDto } from './dto';
+import { COMMON_NAME, countCards, DISPLAY_NAME, HEADLINE, ListFilters, PUBLISHED, selectCards, SEVERITY } from './catalogue-sql';
+import {
+  FacetDto, FiltersDto, HabitatFacetDto, PublicSourceDto, RangeValueDto, RegionFacetDto, RegionLinkDto, SitemapDto, SpeciesCardDto, SpeciesListDto,
+  SpeciesProfileDto,
+} from './dto';
 import { MAX_PAGE_SIZE } from './list-query.dto';
 
 const region = (r: { slug: string | null; name: string | null; type: RegionLinkDto['type'] | null }): RegionLinkDto | null =>
@@ -266,5 +269,59 @@ export class PublishedSpeciesRepository {
     if (!ids.length) return [];
     // Keep the score order from above.
     return selectCards(this.db, { speciesIds: ids }, sql`array_position(${sql.param(ids)}::uuid[], p.species_id)`, limit, 0);
+  }
+
+  // ---------- sources page and sitemap ----------
+
+  /**
+   * Every source cited by published content (any revision child table, through the PUBLISHED set only),
+   * plus sources of region boundaries. Species that are location-sensitive are listed by name only.
+   */
+  async sources(): Promise<PublicSourceDto[]> {
+    const res = await this.db.execute<{
+      id: string; title: string; publisher: string | null; authors: string | null; url: string | null; doi: string | null;
+      published_on: string | null; accessed_on: string | null; license: string | null; permitted_use_note: string | null;
+      boundaries: boolean; species: Array<{ slug: string; scientificName: string; commonName: string | null }> | null;
+    }>(sql`
+      WITH p AS (${PUBLISHED}),
+      cited AS (
+        SELECT source_id, revision_id FROM revision_citations
+        UNION SELECT source_id, revision_id FROM assessments
+        UNION SELECT source_id, revision_id FROM population_estimates
+        UNION SELECT source_id, revision_id FROM species_regions
+        UNION SELECT source_id, revision_id FROM species_ranges
+        UNION SELECT source_id, revision_id FROM species_habitats
+        UNION SELECT source_id, revision_id FROM species_threats
+      ),
+      used AS (
+        SELECT c.source_id, p.slug, p.accepted_scientific_name, cn.name AS common_name
+        FROM cited c JOIN p ON p.revision_id = c.revision_id ${COMMON_NAME}
+      )
+      SELECT s.id, s.title, s.publisher, s.authors, s.url, s.doi, s.published_on::text, s.accessed_on::text, s.license, s.permitted_use_note,
+             EXISTS (SELECT 1 FROM regions rg WHERE rg.source_id = s.id) AS boundaries,
+             (SELECT json_agg(json_build_object('slug', u.slug, 'scientificName', u.accepted_scientific_name, 'commonName', u.common_name)
+                              ORDER BY lower(coalesce(u.common_name, u.accepted_scientific_name)))
+              FROM (SELECT DISTINCT slug, accepted_scientific_name, common_name FROM used WHERE used.source_id = s.id) u) AS species
+      FROM sources s
+      WHERE s.id IN (SELECT source_id FROM used) OR EXISTS (SELECT 1 FROM regions rg WHERE rg.source_id = s.id)
+      ORDER BY lower(s.title), s.id`);
+    return res.rows.map((r) => ({
+      id: r.id, title: r.title, publisher: r.publisher, authors: r.authors, url: r.url, doi: r.doi, publishedOn: r.published_on,
+      accessedOn: r.accessed_on, license: r.license, note: r.permitted_use_note, usedForBoundaries: r.boundaries, species: r.species ?? [],
+    }));
+  }
+
+  /** Published species (with publication date) and regions that have published, non-sensitive species. */
+  async sitemap(): Promise<SitemapDto> {
+    const species = await this.db.execute<{ slug: string; published_at: Date | string }>(sql`
+      WITH p AS (${PUBLISHED}) SELECT p.slug, p.published_at FROM p ORDER BY p.slug`);
+    const regions = await this.db.execute<{ slug: string }>(sql`
+      WITH p AS (${PUBLISHED})
+      SELECT DISTINCT rg.slug FROM p JOIN species_regions sr ON sr.revision_id = p.revision_id JOIN regions rg ON rg.id = sr.region_id
+      WHERE p.location_sensitivity <> 'hide_regions' ORDER BY rg.slug`);
+    return {
+      species: species.rows.map((r) => ({ slug: r.slug, publishedAt: new Date(r.published_at).toISOString() })),
+      regions: regions.rows.map((r) => r.slug),
+    };
   }
 }
