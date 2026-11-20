@@ -18,6 +18,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "ts-node --transpile-only src/cli/migrate.ts",
     "db:seed:regions": "ts-node --transpile-only src/cli/seed-regions.ts",
+    "db:seed:fixtures": "ts-node --transpile-only src/cli/seed-fixtures.ts",
+    "admin:create": "ts-node --transpile-only src/cli/admin-create.ts",
     "openapi:export": "ts-node --transpile-only src/cli/export-openapi.ts",
     "test": "jest --config jest.config.js --runInBand"
   },
@@ -26,6 +28,7 @@
     "@nestjs/core": "^11.2.11",
     "@nestjs/platform-express": "^11.2.11",
     "@nestjs/swagger": "^11.4.8",
+    "argon2": "^0.45.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "dotenv": "^18.0.10",

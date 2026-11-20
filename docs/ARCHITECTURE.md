@@ -26,7 +26,7 @@ flowchart LR
 |---|---|---|
 | `/` | Home: hero, search, browse by group and environment, curated threatened species, "in this catalogue" stats | **done** as a temporary system-check page; M2 replaces it |
 | `/species` | Explore: search, filters, sort and page held in the URL; mobile filter drawer | M2 |
-| `/species/[slug]` | Profile: the eight questions, from "What is it?" to "How do we know?" | M1 (first version), refined in M2 (related species, add to compare) and M3 ("How can I help?" links) |
+| `/species/[slug]` | Profile: the eight questions, from "What is it?" to "How do we know?" | **done** (M1): all eight sections with Unknown states. Still to come: photos (M4 media serving), map (M3), related species and add to compare (M2) |
 | `/compare?species=a,b,c` | Compare up to 3, with no scores and no mixed units | M2 |
 | `/map` | Map plus synced list, legend, labelled layer types; still works when tiles fail | M3 |
 | `/regions/[slug]` | Country, sea or ocean page with region-aware filters | M3 |
@@ -41,11 +41,12 @@ Navigation: Explore · Map · Compare · About. The support directory is linked 
 
 | Area | Status |
 |---|---|
-| Login, sessions, CSRF | M1 |
-| Species draft editor, submit, review, publish (with checklist) | M1 |
+| Login, sessions, CSRF | **done** (M1) |
+| Species list, new species, identifiers, drafts, submit, publish, request changes, checklist | **done** (M1) |
+| Form-based draft editor with source picker, live preview and diff (PLAN §7); M1 edits content as validated JSON (DECISIONS D-011) | open, unassigned (R1) |
 | Organizations and support links | M3 |
 | Media upload and review queue, rollback | M4 |
-| Staff invites (one-time link, no email) | M1 (with auth). PLAN §7 gives no specific milestone, so this is an assumption. |
+| Staff invites (one-time link, no email), staff management | M4 (moved from M1; a solo admin works without it) |
 
 ## Web-app internal route
 
@@ -58,16 +59,16 @@ Navigation: Explore · Map · Compare · About. The support directory is linked 
 | Endpoint | Status |
 |---|---|
 | `GET /health/live`, `GET /health/ready` | **done** |
-| `GET /species/:slug` | M1 |
+| `GET /species/:slug` | **done** (M1) |
 | `GET /species` (q, filters, sort, page, pageSize ≤ 48) | M2 |
 | `GET /filters` | M2 |
 | `GET /compare?species=a,b,c` (max 3, 400 otherwise) | M2 |
 | `GET /regions/:slug` | M3 |
 | `GET /map?bbox&group&category` (antimeridian-aware, capped) | M3 |
 | `GET /support` | M3 |
-| Staff: auth, drafts, submit, review, publish | M1 |
+| Staff: `auth/login`, `auth/logout`, `auth/me`; `species` (list, create, get, identifiers, drafts); `revisions/:id` (get, save, submit, publish, request-changes); `sources` (list, create); `reference` | **done** (M1) |
 | Staff: organizations, support links | M3 |
-| Staff: media, sources, rollback, staff management | M4 (sources are needed for M1 drafts, so a minimal source picker comes first) |
+| Staff: media upload and review, rollback, staff management | M4 |
 
 Swagger UI: `/api/docs` (non-production only).
 
@@ -78,10 +79,10 @@ Swagger UI: `/api/docs` (non-production only).
 | `health` | liveness and readiness | **done** |
 | `db` | Drizzle connection and `schema.ts` | **done** |
 | `common` | error shape, request IDs, JSON (bigint as string) | **done** |
-| `cli` | migrate, seed-regions, export-openapi | **done**; admin:create M1, import and links:check M4 |
-| `identity` | staff users, sessions, CSRF, guards | M1 |
-| `editorial` | revisions, publish transaction, checklist, audit | M1 |
-| `catalogue` | public species, filters, compare | M1–M2 |
+| `cli` | migrate, seed-regions, export-openapi, admin-create, seed-fixtures | **done**; import and links:check M4 |
+| `identity` | staff sessions, CSRF + Origin guard, roles, login throttle | **done** (M1) |
+| `editorial` | revisions, editorial zod schema, checklist, publish transaction, audit, revalidation, sources | **done** (M1) |
+| `catalogue` | `PublishedSpeciesRepository` (the only public read path); profile done in M1; list, filters, compare M2 | partly done |
 | `geography` | regions, map, `GeoRepository` (the only home of spatial SQL) | M3 |
 | `support-directory` | organizations, support links | M3 |
 | `media` | uploads, `StorageAdapter`, variants, review | M4 |

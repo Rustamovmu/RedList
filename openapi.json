@@ -42,17 +42,730 @@
           "health"
         ]
       }
+    },
+    "/api/v1/staff/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "staff-auth"
+        ]
+      }
+    },
+    "/api/v1/staff/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-auth"
+        ]
+      }
+    },
+    "/api/v1/staff/auth/me": {
+      "get": {
+        "operationId": "AuthController_whoami",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-auth"
+        ]
+      }
+    },
+    "/api/v1/staff/species": {
+      "get": {
+        "operationId": "EditorialController_listSpecies",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT/DELETE",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StaffSpeciesDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-editorial"
+        ]
+      },
+      "post": {
+        "operationId": "EditorialController_createSpecies",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT/DELETE",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSpeciesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The new species with its first draft (v1)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevisionDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-editorial"
+        ]
+      }
+    },
+    "/api/v1/staff/species/{id}": {
+      "get": {
+        "operationId": "EditorialController_getSpecies",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT/DELETE",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffSpeciesDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-editorial"
+        ]
+      }
+    },
+    "/api/v1/staff/species/{id}/identifiers": {
+      "post": {
+        "operationId": "EditorialController_addIdentifier",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT/DELETE",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddIdentifierDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffSpeciesDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-editorial"
+        ]
+      }
+    },
+    "/api/v1/staff/species/{id}/drafts": {
+      "post": {
+        "operationId": "EditorialController_createDraft",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT/DELETE",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "A new draft copied from the published revision",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevisionDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-editorial"
+        ]
+      }
+    },
+    "/api/v1/staff/revisions/{id}": {
+      "get": {
+        "operationId": "EditorialController_getRevision",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT/DELETE",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevisionDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-editorial"
+        ]
+      },
+      "put": {
+        "operationId": "EditorialController_saveDraft",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT/DELETE",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveDraftDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevisionDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-editorial"
+        ]
+      }
+    },
+    "/api/v1/staff/revisions/{id}/submit": {
+      "post": {
+        "operationId": "EditorialController_submit",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT/DELETE",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevisionDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-editorial"
+        ]
+      }
+    },
+    "/api/v1/staff/revisions/{id}/publish": {
+      "post": {
+        "operationId": "EditorialController_publish",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT/DELETE",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevisionDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-editorial"
+        ]
+      }
+    },
+    "/api/v1/staff/revisions/{id}/request-changes": {
+      "post": {
+        "operationId": "EditorialController_requestChanges",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT/DELETE",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestChangesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevisionDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-editorial"
+        ]
+      }
+    },
+    "/api/v1/staff/sources": {
+      "get": {
+        "operationId": "EditorialController_listSources",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT/DELETE",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SourceDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-editorial"
+        ]
+      },
+      "post": {
+        "operationId": "EditorialController_createSource",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT/DELETE",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSourceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-editorial"
+        ]
+      }
+    },
+    "/api/v1/staff/reference": {
+      "get": {
+        "operationId": "EditorialController_reference",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT/DELETE",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pick lists for the editor: regions, habitats, threats, media, support links",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReferenceListsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-editorial"
+        ]
+      }
+    },
+    "/api/v1/species/{slug}": {
+      "get": {
+        "operationId": "SpeciesController_profile",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpeciesProfileDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No published species with this slug"
+          }
+        },
+        "tags": [
+          "catalogue"
+        ]
+      }
     }
   },
   "info": {
     "title": "Wildward API",
-    "description": "Public catalogue and staff editorial API (R1). Population counts are strings (bigint).",
+    "description": "Public catalogue and staff editorial API (R1). Population counts are strings (bigint). Staff routes need the session cookie; mutations also need Origin and x-csrf-token.",
     "version": "0.1.0",
     "contact": {}
   },
   "tags": [],
   "servers": [],
   "components": {
+    "securitySchemes": {
+      "cookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "ww_session"
+      }
+    },
     "schemas": {
       "HealthDto": {
         "type": "object",
@@ -81,6 +794,2531 @@
         "required": [
           "status",
           "postgis"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "StaffMeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "editor",
+              "admin"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "role"
+        ]
+      },
+      "SessionDto": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/StaffMeDto"
+          },
+          "csrfToken": {
+            "type": "string",
+            "description": "Send this back in the x-csrf-token header on every mutation. It is also set as a readable cookie."
+          }
+        },
+        "required": [
+          "user",
+          "csrfToken"
+        ]
+      },
+      "OkDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "ok"
+        ]
+      },
+      "IdentifierDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "sourceUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "provider",
+          "externalId",
+          "sourceUrl"
+        ]
+      },
+      "RevisionSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "version": {
+            "type": "number"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "submitted",
+              "changes_requested",
+              "published",
+              "withdrawn"
+            ]
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "publishedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "isPublished": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "state",
+          "updatedAt",
+          "publishedAt",
+          "isPublished"
+        ]
+      },
+      "StaffSpeciesDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "acceptedScientificName": {
+            "type": "string"
+          },
+          "rank": {
+            "type": "string",
+            "enum": [
+              "species",
+              "subspecies"
+            ]
+          },
+          "locationSensitivity": {
+            "type": "string",
+            "enum": [
+              "none",
+              "generalize_country",
+              "hide_regions"
+            ]
+          },
+          "publishedRevisionId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "identifiers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IdentifierDto"
+            }
+          },
+          "revisions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RevisionSummaryDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "acceptedScientificName",
+          "rank",
+          "locationSensitivity",
+          "publishedRevisionId",
+          "identifiers",
+          "revisions"
+        ]
+      },
+      "CreateSpeciesDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "example": "fictus-exemplaris"
+          },
+          "acceptedScientificName": {
+            "type": "string",
+            "example": "Fictus exemplaris"
+          },
+          "rank": {
+            "type": "string",
+            "enum": [
+              "species",
+              "subspecies"
+            ]
+          },
+          "displayGroup": {
+            "type": "string",
+            "enum": [
+              "mammal",
+              "bird",
+              "reptile",
+              "amphibian",
+              "fish",
+              "insect",
+              "arachnid",
+              "mollusc",
+              "crustacean",
+              "coral",
+              "other_invertebrate"
+            ]
+          },
+          "locationSensitivity": {
+            "type": "string",
+            "enum": [
+              "none",
+              "generalize_country",
+              "hide_regions"
+            ]
+          }
+        },
+        "required": [
+          "slug",
+          "acceptedScientificName",
+          "rank",
+          "displayGroup"
+        ]
+      },
+      "NameInput": {
+        "type": "object",
+        "properties": {
+          "language": {
+            "type": "string",
+            "example": "en"
+          },
+          "name": {
+            "type": "string"
+          },
+          "nameType": {
+            "type": "string",
+            "enum": [
+              "common",
+              "synonym"
+            ]
+          },
+          "preferred": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "language",
+          "name",
+          "nameType",
+          "preferred"
+        ]
+      },
+      "AssessmentInput": {
+        "type": "object",
+        "properties": {
+          "providerAssessmentId": {
+            "type": "string",
+            "nullable": true
+          },
+          "sourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "global",
+              "regional"
+            ]
+          },
+          "regionId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "EX",
+              "EW",
+              "CR",
+              "EN",
+              "VU",
+              "NT",
+              "LC",
+              "DD",
+              "NE"
+            ]
+          },
+          "trend": {
+            "type": "string",
+            "enum": [
+              "increasing",
+              "decreasing",
+              "stable",
+              "unknown"
+            ]
+          },
+          "assessedOn": {
+            "type": "string",
+            "example": "2021-06-01",
+            "nullable": true
+          },
+          "publishedOn": {
+            "type": "string",
+            "example": "2021-12-09",
+            "nullable": true
+          },
+          "criteria": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "sourceId",
+          "scope",
+          "category",
+          "trend"
+        ]
+      },
+      "EstimateInput": {
+        "type": "object",
+        "properties": {
+          "assessmentIndex": {
+            "type": "number",
+            "description": "Index into `assessments` of the same payload",
+            "nullable": true
+          },
+          "sourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "global",
+              "regional"
+            ]
+          },
+          "regionId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "context": {
+            "type": "string",
+            "enum": [
+              "wild",
+              "captive"
+            ]
+          },
+          "basis": {
+            "type": "string",
+            "enum": [
+              "mature_individuals",
+              "breeding_pairs",
+              "individuals",
+              "other"
+            ]
+          },
+          "form": {
+            "type": "string",
+            "enum": [
+              "exact",
+              "range",
+              "at_least",
+              "at_most",
+              "qualitative",
+              "unknown"
+            ]
+          },
+          "pointValue": {
+            "type": "string",
+            "description": "Count as a decimal string (bigint)",
+            "example": "2500",
+            "nullable": true
+          },
+          "minValue": {
+            "type": "string",
+            "nullable": true
+          },
+          "maxValue": {
+            "type": "string",
+            "nullable": true
+          },
+          "qualitativeText": {
+            "type": "string",
+            "nullable": true
+          },
+          "referenceStart": {
+            "type": "string",
+            "nullable": true
+          },
+          "referenceEnd": {
+            "type": "string",
+            "nullable": true
+          },
+          "method": {
+            "type": "string",
+            "nullable": true
+          },
+          "uncertaintyNote": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "sourceId",
+          "scope",
+          "context",
+          "basis",
+          "form"
+        ]
+      },
+      "RegionPresenceInput": {
+        "type": "object",
+        "properties": {
+          "regionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "presence": {
+            "type": "string",
+            "enum": [
+              "extant",
+              "probably_extant",
+              "possibly_extant",
+              "possibly_extinct",
+              "extinct",
+              "presence_uncertain"
+            ]
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "native",
+              "reintroduced",
+              "introduced",
+              "vagrant",
+              "origin_uncertain"
+            ]
+          },
+          "seasonality": {
+            "type": "string",
+            "enum": [
+              "resident",
+              "breeding",
+              "non_breeding",
+              "passage",
+              "seasonal_uncertain"
+            ]
+          },
+          "sourceId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "regionId",
+          "presence",
+          "origin",
+          "seasonality",
+          "sourceId"
+        ]
+      },
+      "HabitatInput": {
+        "type": "object",
+        "properties": {
+          "habitatId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "suitability": {
+            "type": "string",
+            "nullable": true
+          },
+          "seasonality": {
+            "type": "string",
+            "enum": [
+              "resident",
+              "breeding",
+              "non_breeding",
+              "passage",
+              "seasonal_uncertain"
+            ],
+            "nullable": true
+          },
+          "sourceId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "habitatId",
+          "sourceId"
+        ]
+      },
+      "ThreatInput": {
+        "type": "object",
+        "properties": {
+          "threatId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "severity": {
+            "type": "string",
+            "nullable": true
+          },
+          "timing": {
+            "type": "string",
+            "nullable": true
+          },
+          "sourceId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "threatId",
+          "sourceId"
+        ]
+      },
+      "CitationInput": {
+        "type": "object",
+        "properties": {
+          "sectionKey": {
+            "type": "string",
+            "enum": [
+              "overview",
+              "classification",
+              "status",
+              "population",
+              "geography",
+              "habitat",
+              "climate",
+              "diet",
+              "biology",
+              "threats",
+              "actions",
+              "media"
+            ]
+          },
+          "sourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "locator": {
+            "type": "string",
+            "description": "Page, table or section in the source",
+            "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "sectionKey",
+          "sourceId"
+        ]
+      },
+      "MediaInput": {
+        "type": "object",
+        "properties": {
+          "mediaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "position": {
+            "type": "number"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "primary",
+              "gallery"
+            ]
+          },
+          "altText": {
+            "type": "string"
+          },
+          "caption": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "mediaId",
+          "position",
+          "role",
+          "altText"
+        ]
+      },
+      "SupportLinkInput": {
+        "type": "object",
+        "properties": {
+          "supportLinkId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "contextNote": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "supportLinkId"
+        ]
+      },
+      "RevisionContentDto": {
+        "type": "object",
+        "properties": {
+          "displayGroup": {
+            "type": "string",
+            "enum": [
+              "mammal",
+              "bird",
+              "reptile",
+              "amphibian",
+              "fish",
+              "insect",
+              "arachnid",
+              "mollusc",
+              "crustacean",
+              "coral",
+              "other_invertebrate"
+            ]
+          },
+          "editorial": {
+            "type": "object",
+            "properties": {
+              "overview": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              },
+              "taxonomy": {
+                "type": "object",
+                "properties": {
+                  "kingdom": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "phylum": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "class": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "order": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "family": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "genus": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  }
+                },
+                "additionalProperties": false
+              },
+              "status": {
+                "type": "object",
+                "properties": {
+                  "notAssessed": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "notAssessed"
+                ],
+                "additionalProperties": false
+              },
+              "population": {
+                "type": "object",
+                "properties": {
+                  "unknown": {
+                    "type": "boolean"
+                  },
+                  "note": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  }
+                },
+                "required": [
+                  "unknown"
+                ],
+                "additionalProperties": false
+              },
+              "diet": {
+                "type": "object",
+                "properties": {
+                  "narrative": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4000
+                  },
+                  "tags": {
+                    "maxItems": 20,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 40
+                    }
+                  },
+                  "context": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000
+                  }
+                },
+                "additionalProperties": false
+              },
+              "climate": {
+                "type": "object",
+                "properties": {
+                  "narrative": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  },
+                  "ranges": {
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 80
+                        },
+                        "min": {
+                          "type": "number"
+                        },
+                        "max": {
+                          "type": "number"
+                        },
+                        "unit": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 20
+                        },
+                        "context": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "unit",
+                        "context"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "additionalProperties": false
+              },
+              "measurements": {
+                "maxItems": 20,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 80
+                    },
+                    "value": {
+                      "type": "number"
+                    },
+                    "min": {
+                      "type": "number"
+                    },
+                    "max": {
+                      "type": "number"
+                    },
+                    "unit": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 20
+                    },
+                    "context": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "unit"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "biology": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              },
+              "conservationActions": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              }
+            },
+            "additionalProperties": false,
+            "description": "Editorial JSON, validated by the versioned zod schema"
+          },
+          "names": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NameInput"
+            }
+          },
+          "environments": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "terrestrial",
+                "freshwater",
+                "marine",
+                "brackish",
+                "subterranean",
+                "aerial"
+              ]
+            }
+          },
+          "assessments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssessmentInput"
+            }
+          },
+          "populationEstimates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EstimateInput"
+            }
+          },
+          "regions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RegionPresenceInput"
+            }
+          },
+          "habitats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HabitatInput"
+            }
+          },
+          "threats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ThreatInput"
+            }
+          },
+          "citations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CitationInput"
+            }
+          },
+          "media": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaInput"
+            }
+          },
+          "supportLinks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SupportLinkInput"
+            }
+          }
+        },
+        "required": [
+          "displayGroup",
+          "editorial",
+          "names",
+          "environments",
+          "assessments",
+          "populationEstimates",
+          "regions",
+          "habitats",
+          "threats",
+          "citations",
+          "media",
+          "supportLinks"
+        ]
+      },
+      "ChecklistItemDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "ok": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "ok",
+          "message"
+        ]
+      },
+      "RevisionDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "speciesId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "speciesSlug": {
+            "type": "string"
+          },
+          "version": {
+            "type": "number"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "submitted",
+              "changes_requested",
+              "published",
+              "withdrawn"
+            ]
+          },
+          "schemaVersion": {
+            "type": "number"
+          },
+          "baseRevisionId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "isPublished": {
+            "type": "boolean"
+          },
+          "selfReviewed": {
+            "type": "boolean"
+          },
+          "reviewNotes": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "submittedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "reviewedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "publishedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "content": {
+            "$ref": "#/components/schemas/RevisionContentDto"
+          },
+          "checklist": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChecklistItemDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "speciesId",
+          "speciesSlug",
+          "version",
+          "state",
+          "schemaVersion",
+          "baseRevisionId",
+          "isPublished",
+          "selfReviewed",
+          "reviewNotes",
+          "createdAt",
+          "updatedAt",
+          "submittedAt",
+          "reviewedAt",
+          "publishedAt",
+          "content",
+          "checklist"
+        ]
+      },
+      "AddIdentifierDto": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "example": "gbif"
+          },
+          "externalId": {
+            "type": "string",
+            "example": "2435099"
+          },
+          "sourceUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "provider",
+          "externalId"
+        ]
+      },
+      "SaveDraftDto": {
+        "type": "object",
+        "properties": {
+          "displayGroup": {
+            "type": "string",
+            "enum": [
+              "mammal",
+              "bird",
+              "reptile",
+              "amphibian",
+              "fish",
+              "insect",
+              "arachnid",
+              "mollusc",
+              "crustacean",
+              "coral",
+              "other_invertebrate"
+            ]
+          },
+          "editorial": {
+            "type": "object",
+            "properties": {
+              "overview": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              },
+              "taxonomy": {
+                "type": "object",
+                "properties": {
+                  "kingdom": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "phylum": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "class": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "order": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "family": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "genus": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  }
+                },
+                "additionalProperties": false
+              },
+              "status": {
+                "type": "object",
+                "properties": {
+                  "notAssessed": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "notAssessed"
+                ],
+                "additionalProperties": false
+              },
+              "population": {
+                "type": "object",
+                "properties": {
+                  "unknown": {
+                    "type": "boolean"
+                  },
+                  "note": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  }
+                },
+                "required": [
+                  "unknown"
+                ],
+                "additionalProperties": false
+              },
+              "diet": {
+                "type": "object",
+                "properties": {
+                  "narrative": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4000
+                  },
+                  "tags": {
+                    "maxItems": 20,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 40
+                    }
+                  },
+                  "context": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000
+                  }
+                },
+                "additionalProperties": false
+              },
+              "climate": {
+                "type": "object",
+                "properties": {
+                  "narrative": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  },
+                  "ranges": {
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 80
+                        },
+                        "min": {
+                          "type": "number"
+                        },
+                        "max": {
+                          "type": "number"
+                        },
+                        "unit": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 20
+                        },
+                        "context": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "unit",
+                        "context"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "additionalProperties": false
+              },
+              "measurements": {
+                "maxItems": 20,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 80
+                    },
+                    "value": {
+                      "type": "number"
+                    },
+                    "min": {
+                      "type": "number"
+                    },
+                    "max": {
+                      "type": "number"
+                    },
+                    "unit": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 20
+                    },
+                    "context": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "unit"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "biology": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              },
+              "conservationActions": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              }
+            },
+            "additionalProperties": false,
+            "description": "Editorial JSON, validated by the versioned zod schema"
+          },
+          "names": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NameInput"
+            }
+          },
+          "environments": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "terrestrial",
+                "freshwater",
+                "marine",
+                "brackish",
+                "subterranean",
+                "aerial"
+              ]
+            }
+          },
+          "assessments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssessmentInput"
+            }
+          },
+          "populationEstimates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EstimateInput"
+            }
+          },
+          "regions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RegionPresenceInput"
+            }
+          },
+          "habitats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HabitatInput"
+            }
+          },
+          "threats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ThreatInput"
+            }
+          },
+          "citations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CitationInput"
+            }
+          },
+          "media": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaInput"
+            }
+          },
+          "supportLinks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SupportLinkInput"
+            }
+          },
+          "expectedUpdatedAt": {
+            "type": "string",
+            "description": "updatedAt from your last read. A mismatch means someone else saved first (409)."
+          }
+        },
+        "required": [
+          "displayGroup",
+          "editorial",
+          "names",
+          "environments",
+          "assessments",
+          "populationEstimates",
+          "regions",
+          "habitats",
+          "threats",
+          "citations",
+          "media",
+          "supportLinks",
+          "expectedUpdatedAt"
+        ]
+      },
+      "RequestChangesDto": {
+        "type": "object",
+        "properties": {
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "notes"
+        ]
+      },
+      "SourceDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "publisher": {
+            "type": "string",
+            "nullable": true
+          },
+          "authors": {
+            "type": "string",
+            "nullable": true
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "doi": {
+            "type": "string",
+            "nullable": true
+          },
+          "publishedOn": {
+            "type": "string",
+            "nullable": true
+          },
+          "accessedOn": {
+            "type": "string",
+            "nullable": true
+          },
+          "license": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "publisher",
+          "authors",
+          "url",
+          "doi",
+          "publishedOn",
+          "accessedOn",
+          "license"
+        ]
+      },
+      "CreateSourceDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "publisher": {
+            "type": "string",
+            "nullable": true
+          },
+          "authors": {
+            "type": "string",
+            "nullable": true
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "doi": {
+            "type": "string",
+            "nullable": true
+          },
+          "publishedOn": {
+            "type": "string",
+            "nullable": true
+          },
+          "accessedOn": {
+            "type": "string",
+            "nullable": true
+          },
+          "license": {
+            "type": "string",
+            "nullable": true
+          },
+          "permittedUseNote": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "title"
+        ]
+      },
+      "RegionRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "country",
+              "ocean",
+              "sea",
+              "other"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "type"
+        ]
+      },
+      "CodedRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "code"
+        ]
+      },
+      "MediaRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "credit": {
+            "type": "string"
+          },
+          "license": {
+            "type": "string"
+          },
+          "reviewState": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved",
+              "rejected"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "credit",
+          "license",
+          "reviewState"
+        ]
+      },
+      "SupportLinkRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organizationName": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "editorialStatus": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved",
+              "disabled"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "organizationName",
+          "url",
+          "editorialStatus"
+        ]
+      },
+      "ReferenceListsDto": {
+        "type": "object",
+        "properties": {
+          "regions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RegionRefDto"
+            }
+          },
+          "habitats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CodedRefDto"
+            }
+          },
+          "threats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CodedRefDto"
+            }
+          },
+          "media": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaRefDto"
+            }
+          },
+          "supportLinks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SupportLinkRefDto"
+            }
+          }
+        },
+        "required": [
+          "regions",
+          "habitats",
+          "threats",
+          "media",
+          "supportLinks"
+        ]
+      },
+      "NameDto": {
+        "type": "object",
+        "properties": {
+          "language": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "language",
+          "name"
+        ]
+      },
+      "TaxonomyDto": {
+        "type": "object",
+        "properties": {
+          "kingdom": {
+            "type": "string",
+            "nullable": true
+          },
+          "phylum": {
+            "type": "string",
+            "nullable": true
+          },
+          "class": {
+            "type": "string",
+            "nullable": true
+          },
+          "order": {
+            "type": "string",
+            "nullable": true
+          },
+          "family": {
+            "type": "string",
+            "nullable": true
+          },
+          "genus": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "kingdom",
+          "phylum",
+          "class",
+          "order",
+          "family",
+          "genus"
+        ]
+      },
+      "RegionLinkDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "country",
+              "ocean",
+              "sea",
+              "other"
+            ]
+          }
+        },
+        "required": [
+          "slug",
+          "name",
+          "type"
+        ]
+      },
+      "AssessmentDto": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": [
+              "EX",
+              "EW",
+              "CR",
+              "EN",
+              "VU",
+              "NT",
+              "LC",
+              "DD",
+              "NE"
+            ]
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "global",
+              "regional"
+            ]
+          },
+          "region": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RegionLinkDto"
+              }
+            ]
+          },
+          "trend": {
+            "type": "string",
+            "enum": [
+              "increasing",
+              "decreasing",
+              "stable",
+              "unknown"
+            ]
+          },
+          "assessedOn": {
+            "type": "string",
+            "nullable": true
+          },
+          "publishedOn": {
+            "type": "string",
+            "nullable": true
+          },
+          "criteria": {
+            "type": "string",
+            "nullable": true
+          },
+          "sourceId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "category",
+          "scope",
+          "region",
+          "trend",
+          "assessedOn",
+          "publishedOn",
+          "criteria",
+          "sourceId"
+        ]
+      },
+      "StatusSectionDto": {
+        "type": "object",
+        "properties": {
+          "assessments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssessmentDto"
+            }
+          },
+          "notAssessed": {
+            "type": "boolean",
+            "description": "Explicitly marked \"Not assessed\" by an editor"
+          }
+        },
+        "required": [
+          "assessments",
+          "notAssessed"
+        ]
+      },
+      "EstimateDto": {
+        "type": "object",
+        "properties": {
+          "scope": {
+            "type": "string",
+            "enum": [
+              "global",
+              "regional"
+            ]
+          },
+          "region": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RegionLinkDto"
+              }
+            ]
+          },
+          "context": {
+            "type": "string",
+            "enum": [
+              "wild",
+              "captive"
+            ]
+          },
+          "basis": {
+            "type": "string",
+            "enum": [
+              "mature_individuals",
+              "breeding_pairs",
+              "individuals",
+              "other"
+            ]
+          },
+          "form": {
+            "type": "string",
+            "enum": [
+              "exact",
+              "range",
+              "at_least",
+              "at_most",
+              "qualitative",
+              "unknown"
+            ]
+          },
+          "pointValue": {
+            "type": "string",
+            "nullable": true,
+            "description": "Counts are decimal strings (bigint). null is \"not stated\", never zero."
+          },
+          "minValue": {
+            "type": "string",
+            "nullable": true
+          },
+          "maxValue": {
+            "type": "string",
+            "nullable": true
+          },
+          "qualitativeText": {
+            "type": "string",
+            "nullable": true
+          },
+          "referenceStart": {
+            "type": "string",
+            "nullable": true
+          },
+          "referenceEnd": {
+            "type": "string",
+            "nullable": true
+          },
+          "method": {
+            "type": "string",
+            "nullable": true
+          },
+          "uncertaintyNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "sourceId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "scope",
+          "region",
+          "context",
+          "basis",
+          "form",
+          "pointValue",
+          "minValue",
+          "maxValue",
+          "qualitativeText",
+          "referenceStart",
+          "referenceEnd",
+          "method",
+          "uncertaintyNote",
+          "sourceId"
+        ]
+      },
+      "PopulationSectionDto": {
+        "type": "object",
+        "properties": {
+          "estimates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EstimateDto"
+            }
+          },
+          "unknown": {
+            "type": "boolean",
+            "description": "Explicitly marked \"Unknown\" by an editor"
+          },
+          "unknownNote": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "estimates",
+          "unknown",
+          "unknownNote"
+        ]
+      },
+      "PresenceDto": {
+        "type": "object",
+        "properties": {
+          "region": {
+            "$ref": "#/components/schemas/RegionLinkDto"
+          },
+          "presence": {
+            "type": "string",
+            "enum": [
+              "extant",
+              "probably_extant",
+              "possibly_extant",
+              "possibly_extinct",
+              "extinct",
+              "presence_uncertain"
+            ]
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "native",
+              "reintroduced",
+              "introduced",
+              "vagrant",
+              "origin_uncertain"
+            ]
+          },
+          "seasonality": {
+            "type": "string",
+            "enum": [
+              "resident",
+              "breeding",
+              "non_breeding",
+              "passage",
+              "seasonal_uncertain"
+            ]
+          },
+          "sourceId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "region",
+          "presence",
+          "origin",
+          "seasonality",
+          "sourceId"
+        ]
+      },
+      "HabitatDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "suitability": {
+            "type": "string",
+            "nullable": true
+          },
+          "seasonality": {
+            "type": "string",
+            "enum": [
+              "resident",
+              "breeding",
+              "non_breeding",
+              "passage",
+              "seasonal_uncertain"
+            ],
+            "nullable": true
+          },
+          "sourceId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "suitability",
+          "seasonality",
+          "sourceId"
+        ]
+      },
+      "RangeValueDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "number",
+            "nullable": true
+          },
+          "min": {
+            "type": "number",
+            "nullable": true
+          },
+          "max": {
+            "type": "number",
+            "nullable": true
+          },
+          "unit": {
+            "type": "string"
+          },
+          "context": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "label",
+          "value",
+          "min",
+          "max",
+          "unit",
+          "context"
+        ]
+      },
+      "ClimateDto": {
+        "type": "object",
+        "properties": {
+          "narrative": {
+            "type": "string",
+            "nullable": true
+          },
+          "ranges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RangeValueDto"
+            }
+          }
+        },
+        "required": [
+          "narrative",
+          "ranges"
+        ]
+      },
+      "GeographySectionDto": {
+        "type": "object",
+        "properties": {
+          "environments": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "terrestrial",
+                "freshwater",
+                "marine",
+                "brackish",
+                "subterranean",
+                "aerial"
+              ]
+            }
+          },
+          "locationWithheld": {
+            "type": "boolean",
+            "description": "True when the species is location-sensitive and its regions are withheld"
+          },
+          "regions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PresenceDto"
+            }
+          },
+          "habitats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HabitatDto"
+            }
+          },
+          "climate": {
+            "$ref": "#/components/schemas/ClimateDto"
+          }
+        },
+        "required": [
+          "environments",
+          "locationWithheld",
+          "regions",
+          "habitats",
+          "climate"
+        ]
+      },
+      "DietSectionDto": {
+        "type": "object",
+        "properties": {
+          "narrative": {
+            "type": "string",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "context": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "narrative",
+          "tags",
+          "context"
+        ]
+      },
+      "ThreatDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "nullable": true
+          },
+          "timing": {
+            "type": "string",
+            "nullable": true
+          },
+          "sourceId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "severity",
+          "timing",
+          "sourceId"
+        ]
+      },
+      "ThreatsSectionDto": {
+        "type": "object",
+        "properties": {
+          "threats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ThreatDto"
+            }
+          },
+          "conservationActions": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "threats",
+          "conservationActions"
+        ]
+      },
+      "BiologySectionDto": {
+        "type": "object",
+        "properties": {
+          "narrative": {
+            "type": "string",
+            "nullable": true
+          },
+          "measurements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RangeValueDto"
+            }
+          }
+        },
+        "required": [
+          "narrative",
+          "measurements"
+        ]
+      },
+      "SupportLinkDto": {
+        "type": "object",
+        "properties": {
+          "organizationName": {
+            "type": "string"
+          },
+          "organizationWebsite": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "domain": {
+            "type": "string",
+            "description": "Destination domain, shown next to the link"
+          },
+          "actionType": {
+            "type": "string",
+            "enum": [
+              "donate",
+              "volunteer",
+              "adopt",
+              "learn",
+              "advocate",
+              "other"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "contextNote": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "organizationName",
+          "organizationWebsite",
+          "url",
+          "domain",
+          "actionType",
+          "description",
+          "contextNote"
+        ]
+      },
+      "MediaDto": {
+        "type": "object",
+        "properties": {
+          "storageKey": {
+            "type": "string"
+          },
+          "width": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "primary",
+              "gallery"
+            ]
+          },
+          "altText": {
+            "type": "string"
+          },
+          "caption": {
+            "type": "string",
+            "nullable": true
+          },
+          "credit": {
+            "type": "string",
+            "description": "Credit as recorded when this revision was saved"
+          },
+          "license": {
+            "type": "string",
+            "description": "Licence as recorded when this revision was saved"
+          },
+          "sourceUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "storageKey",
+          "width",
+          "height",
+          "role",
+          "altText",
+          "caption",
+          "credit",
+          "license",
+          "sourceUrl"
+        ]
+      },
+      "SourceRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "publisher": {
+            "type": "string",
+            "nullable": true
+          },
+          "authors": {
+            "type": "string",
+            "nullable": true
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "doi": {
+            "type": "string",
+            "nullable": true
+          },
+          "publishedOn": {
+            "type": "string",
+            "nullable": true,
+            "description": "Source publication date"
+          },
+          "accessedOn": {
+            "type": "string",
+            "nullable": true,
+            "description": "Date the source was accessed (import date)"
+          },
+          "license": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "publisher",
+          "authors",
+          "url",
+          "doi",
+          "publishedOn",
+          "accessedOn",
+          "license"
+        ]
+      },
+      "CitationDto": {
+        "type": "object",
+        "properties": {
+          "sectionKey": {
+            "type": "string"
+          },
+          "sourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "locator": {
+            "type": "string",
+            "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "sectionKey",
+          "sourceId",
+          "locator",
+          "note"
+        ]
+      },
+      "ReviewDto": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "number"
+          },
+          "publishedAt": {
+            "type": "string"
+          },
+          "reviewedAt": {
+            "type": "string",
+            "description": "Editorial review date"
+          },
+          "reviewerRole": {
+            "type": "string",
+            "enum": [
+              "editor",
+              "admin"
+            ],
+            "nullable": true,
+            "description": "Role of the reviewer. Names are never published."
+          },
+          "selfReviewed": {
+            "type": "boolean",
+            "description": "True when the author published their own revision. Never presented as independent review."
+          }
+        },
+        "required": [
+          "version",
+          "publishedAt",
+          "reviewedAt",
+          "reviewerRole",
+          "selfReviewed"
+        ]
+      },
+      "SpeciesProfileDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "scientificName": {
+            "type": "string"
+          },
+          "rank": {
+            "type": "string",
+            "enum": [
+              "species",
+              "subspecies"
+            ]
+          },
+          "displayGroup": {
+            "type": "string",
+            "enum": [
+              "mammal",
+              "bird",
+              "reptile",
+              "amphibian",
+              "fish",
+              "insect",
+              "arachnid",
+              "mollusc",
+              "crustacean",
+              "coral",
+              "other_invertebrate"
+            ]
+          },
+          "commonName": {
+            "type": "string",
+            "nullable": true,
+            "description": "Preferred English common name"
+          },
+          "commonNames": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NameDto"
+            }
+          },
+          "synonyms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NameDto"
+            }
+          },
+          "taxonomy": {
+            "$ref": "#/components/schemas/TaxonomyDto"
+          },
+          "overview": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/StatusSectionDto"
+          },
+          "population": {
+            "$ref": "#/components/schemas/PopulationSectionDto"
+          },
+          "geography": {
+            "$ref": "#/components/schemas/GeographySectionDto"
+          },
+          "diet": {
+            "$ref": "#/components/schemas/DietSectionDto"
+          },
+          "threats": {
+            "$ref": "#/components/schemas/ThreatsSectionDto"
+          },
+          "biology": {
+            "$ref": "#/components/schemas/BiologySectionDto"
+          },
+          "support": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SupportLinkDto"
+            }
+          },
+          "media": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaDto"
+            }
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SourceRefDto"
+            }
+          },
+          "citations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CitationDto"
+            }
+          },
+          "review": {
+            "$ref": "#/components/schemas/ReviewDto"
+          }
+        },
+        "required": [
+          "slug",
+          "scientificName",
+          "rank",
+          "displayGroup",
+          "commonName",
+          "commonNames",
+          "synonyms",
+          "taxonomy",
+          "overview",
+          "status",
+          "population",
+          "geography",
+          "diet",
+          "threats",
+          "biology",
+          "support",
+          "media",
+          "sources",
+          "citations",
+          "review"
         ]
       }
     }

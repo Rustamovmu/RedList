@@ -58,3 +58,9 @@ erDiagram
 
 ## Regions
 `npm run db:seed:regions` loads 177 countries and 29 ocean/sea/bay areas from Natural Earth 1:110m (public domain). It upserts by slug and is idempotent.
+
+## M1 notes
+- No schema change was needed (DECISIONS D-013). The integrity triggers from `0002_integrity.sql` are what make drafts safe: child rows can only change while their revision is a `draft`.
+- **Public read path:** `src/catalogue/published-species.repository.ts` takes the revision id only from `species.published_revision_id` and keys every child query by it. The draft-leakage test in `test/integration/publication.spec.ts` guards this.
+- **Staff read/write path:** `src/editorial/revision-content.repository.ts` loads or replaces one revision's child rows by id. It is never used for public output.
+- **Publish** locks the `species` row `FOR UPDATE`, which serializes concurrent publishes of the same species (D-012).

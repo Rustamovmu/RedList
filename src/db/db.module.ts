@@ -7,6 +7,9 @@ import { loadConfig } from '../config';
 export const PG_POOL = Symbol('PG_POOL');
 export const DB = Symbol('DB');
 export type Db = NodePgDatabase<typeof schema>;
+/** A transaction handle. Repository methods that must run inside a caller's transaction take this. */
+export type Tx = Parameters<Parameters<Db['transaction']>[0]>[0];
+export type DbOrTx = Db | Tx;
 
 /** Inject with @Inject(DB) private readonly db: Db */
 export const InjectDb = () => Inject(DB);

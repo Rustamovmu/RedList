@@ -1,5 +1,81 @@
 # Completed tasks
 
+## 2026-11-21: M1 Working species slice
+**Scope:** staff sign-in, the draft → submit → publish workflow with checklist and optimistic concurrency, the public profile with all eight sections, attribution snapshots and revalidation. Decisions: D-010 to D-013.
+
+**Backend:**
+- `identity`:
+  - argon2id passwords
+  - hashed opaque session tokens, with a 12-hour idle and 7-day absolute limit, revocable
+  - `StaffGuard`: session, then Origin and double-submit CSRF on mutations, then role
+  - login throttle per IP plus per-email lockout with backoff
+  - `POST /staff/auth/login`, `POST /staff/auth/logout`, `GET /staff/auth/me`
+- `editorial`:
+  - versioned zod schema for editorial JSONB (v1, migration hook, served in OpenAPI)
+  - staff routes for species, identifiers, drafts, revisions (save, submit, publish, request changes), sources and reference lists
+  - publication checklist (PLAN §7), enforced at submit and at publish
+  - one-transaction publish with the species row locked; 409 `PUBLISH_CONFLICT` when the base changed; 409 `STALE_DRAFT` on save
+  - media credit and licence snapshots; audit events; revalidation of `species:<slug>` and `catalogue` after commit
+- `catalogue`: `GET /api/v1/species/:slug`, through `PublishedSpeciesRepository` only. Location-sensitive species (`hide_regions`) return no regions.
+- Error filter maps database integrity errors to 422/409 with the shared error shape.
+- CLIs:
+  - `npm run admin:create`: from env; refuses duplicates and weak or placeholder passwords
+  - `npm run db:seed:fixtures`: five SYNTHETIC species covering every PLAN §7 fixture case except the antimeridian range polygon (needs the M3 GeoRepository; Fiji presence is used instead), published through the real workflow; refuses `NODE_ENV=production`
+- New dependency: `argon2` 0.45. Its install script is blocked by npm's allow-scripts, but its prebuilt binary loads (verified).
+- `openapi.json` re-exported; frontend `src/contracts/api.d.ts` regenerated. No hand-written API types.
+
+**Frontend:**
+- `/species/[slug]`: server-rendered with cache tag `species:<slug>`, in-page nav (sticky on mobile), and the eight sections in PLAN order. Shows explicit "Unknown", "Not assessed" and "Not yet documented" states, numbered citations linking to "How do we know?", and the reviewer role with self-review disclosure. Shows the neutral no-photo state for now.
+- `/admin`: sign-in, species list, new species, identifiers, revisions, a validated-JSON draft editor with source and reference-id panels, checklist, and Submit / Publish / Request changes by role (D-011). Not indexed by search engines.
+- `src/lib/api.ts` now takes path params; `src/lib/staff-api.ts` is the typed browser client and sends `x-csrf-token`.
+
+**Commands run, with results** (macOS arm64, Docker PostGIS 16.4 / 3.4, Node 24.19):
+| Command | Result |
+|---|---|
+| backend `npm run typecheck` / `lint` / `build` | pass / pass / pass |
+| backend `npm test` | **69/69 pass**, 5 suites: auth (14), publication (17), unit (22), database integrity (13), health (3) |
+| frontend `npm run typecheck` / `lint` / `build` | pass / pass / pass |
+| `npm run db:seed:fixtures` ×2 (dev DB) | 5 created, then 0 created and 5 skipped |
+| `npm run admin:create` | created; second run refused (exists); placeholder password refused |
+
+**Gate tests** (all in `test/integration/`):
+- draft edit leaves the public profile unchanged until publish (`publication.spec.ts`)
+- the new revision is visible after publish
+- every staff route answers 401 without a session (enumerated from the OpenAPI document)
+- mutations without CSRF, with a mismatched token, or from a foreign Origin get 403
+- an editor gets 403 on publish
+- two concurrent publishes give exactly one 200 and one 409 `PUBLISH_CONFLICT`
+- population CHECK constraints reject incoherent estimates both in SQL and through the API (422 `INTEGRITY_RULE`)
+
+**Manual walkthrough** (curl through the Next.js proxy, isolated copy on :3100/:4100 against the dev DB):
+| Step | Result |
+|---|---|
+| `GET /species/fictus-captivus` | 200, all 8 section headings present; wild and captive estimates separate |
+| unknown slug | 404 |
+| `fictus-occultus` | "Locations are withheld…" |
+| `fictus-exemplaris` | "Unknown does not mean zero" |
+| sign-in | wrong password 401; correct 200 with cookie |
+| mutation without CSRF / from a foreign Origin | 403 / 403 |
+| new species | 404 before publish; submit while incomplete 422; save, submit, publish 200; page shows "ONE" |
+| draft v2 saved | page still "ONE"; stale save 409 |
+| v2 published | page shows "TWO" (tag revalidation worked) |
+| re-publishing v1 | 409 |
+| logout | 200; `/me` then 401 |
+| layout, via Chrome DevTools device emulation | at 360px and 1280px, `scrollWidth` equals viewport width on three profiles and `/admin` (no horizontal overflow). A plain `--window-size=360` screenshot is misleading on macOS because Chrome enforces a wider minimum window. |
+
+**Dev database state left behind:** five `fictus-*` fixtures plus `fictus-walkthrough` (all synthetic), and two staff users without usable logins: `fixtures@example.invalid` (no password) and `walkthrough-admin@example.invalid` (disabled; password discarded). Wipe with `docker compose down -v` if you want a clean database.
+
+**Known gaps:**
+- Admin draft editing is JSON, not the form editor with live preview and diff (D-011).
+- Photos are not shown: media serving and upload are M4. Credits and licences already flow through.
+- Staff invites and staff management moved to M4 (ARCHITECTURE).
+- Login throttle is in memory (D-010).
+- No IUCN habitat or threat lists in production yet (licence pending); fixtures use synthetic `fx-*` codes.
+- No range polygons yet, so no antimeridian range fixture: M3.
+- No Playwright tests yet: they start in M2 per PLAN §12.
+
+**Next:** M2, Discover and compare (docs/CLAUDE_TASKS.md).
+
 ## 2026-11-21: Docs and config consistency pass (no milestone; M1 not started)
 **Scope:** Fixed the mismatches between the docs and the repo, and moved the agent workflow from Codex to Claude Code (DECISIONS D-008, D-009). No application code changed.
 

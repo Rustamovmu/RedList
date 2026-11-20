@@ -1,0 +1,201 @@
+import { ApiProperty } from '@nestjs/swagger';
+import * as s from '../db/schema';
+
+type Enum<T extends { enumValues: readonly string[] }> = T['enumValues'][number];
+const N = { nullable: true, type: String } as const;
+
+export class SourceRefDto {
+  @ApiProperty({ format: 'uuid' }) id!: string;
+  @ApiProperty() title!: string;
+  @ApiProperty(N) publisher!: string | null;
+  @ApiProperty(N) authors!: string | null;
+  @ApiProperty(N) url!: string | null;
+  @ApiProperty(N) doi!: string | null;
+  @ApiProperty({ ...N, description: 'Source publication date' }) publishedOn!: string | null;
+  @ApiProperty({ ...N, description: 'Date the source was accessed (import date)' }) accessedOn!: string | null;
+  @ApiProperty(N) license!: string | null;
+}
+
+export class CitationDto {
+  @ApiProperty() sectionKey!: string;
+  @ApiProperty({ format: 'uuid' }) sourceId!: string;
+  @ApiProperty(N) locator!: string | null;
+  @ApiProperty(N) note!: string | null;
+}
+
+export class RegionLinkDto {
+  @ApiProperty() slug!: string;
+  @ApiProperty() name!: string;
+  @ApiProperty({ enum: s.regionType.enumValues }) type!: Enum<typeof s.regionType>;
+}
+
+export class AssessmentDto {
+  @ApiProperty({ enum: s.iucnCategory.enumValues }) category!: Enum<typeof s.iucnCategory>;
+  @ApiProperty({ enum: s.assessmentScope.enumValues }) scope!: Enum<typeof s.assessmentScope>;
+  @ApiProperty({ type: RegionLinkDto, nullable: true }) region!: RegionLinkDto | null;
+  @ApiProperty({ enum: s.populationTrend.enumValues }) trend!: Enum<typeof s.populationTrend>;
+  @ApiProperty(N) assessedOn!: string | null;
+  @ApiProperty(N) publishedOn!: string | null;
+  @ApiProperty(N) criteria!: string | null;
+  @ApiProperty({ format: 'uuid' }) sourceId!: string;
+}
+
+export class EstimateDto {
+  @ApiProperty({ enum: s.assessmentScope.enumValues }) scope!: Enum<typeof s.assessmentScope>;
+  @ApiProperty({ type: RegionLinkDto, nullable: true }) region!: RegionLinkDto | null;
+  @ApiProperty({ enum: s.populationContext.enumValues }) context!: Enum<typeof s.populationContext>;
+  @ApiProperty({ enum: s.populationBasis.enumValues }) basis!: Enum<typeof s.populationBasis>;
+  @ApiProperty({ enum: s.estimateForm.enumValues }) form!: Enum<typeof s.estimateForm>;
+  @ApiProperty({ ...N, description: 'Counts are decimal strings (bigint). null is "not stated", never zero.' }) pointValue!: string | null;
+  @ApiProperty(N) minValue!: string | null;
+  @ApiProperty(N) maxValue!: string | null;
+  @ApiProperty(N) qualitativeText!: string | null;
+  @ApiProperty(N) referenceStart!: string | null;
+  @ApiProperty(N) referenceEnd!: string | null;
+  @ApiProperty(N) method!: string | null;
+  @ApiProperty(N) uncertaintyNote!: string | null;
+  @ApiProperty({ format: 'uuid' }) sourceId!: string;
+}
+
+export class PresenceDto {
+  @ApiProperty({ type: RegionLinkDto }) region!: RegionLinkDto;
+  @ApiProperty({ enum: s.presence.enumValues }) presence!: Enum<typeof s.presence>;
+  @ApiProperty({ enum: s.origin.enumValues }) origin!: Enum<typeof s.origin>;
+  @ApiProperty({ enum: s.seasonality.enumValues }) seasonality!: Enum<typeof s.seasonality>;
+  @ApiProperty({ format: 'uuid' }) sourceId!: string;
+}
+
+export class HabitatDto {
+  @ApiProperty() code!: string;
+  @ApiProperty() name!: string;
+  @ApiProperty(N) suitability!: string | null;
+  @ApiProperty({ enum: s.seasonality.enumValues, nullable: true }) seasonality!: Enum<typeof s.seasonality> | null;
+  @ApiProperty({ format: 'uuid' }) sourceId!: string;
+}
+
+export class ThreatDto {
+  @ApiProperty() code!: string;
+  @ApiProperty() name!: string;
+  @ApiProperty(N) severity!: string | null;
+  @ApiProperty(N) timing!: string | null;
+  @ApiProperty({ format: 'uuid' }) sourceId!: string;
+}
+
+export class RangeValueDto {
+  @ApiProperty() label!: string;
+  @ApiProperty({ nullable: true, type: Number }) value!: number | null;
+  @ApiProperty({ nullable: true, type: Number }) min!: number | null;
+  @ApiProperty({ nullable: true, type: Number }) max!: number | null;
+  @ApiProperty() unit!: string;
+  @ApiProperty(N) context!: string | null;
+}
+
+export class MediaDto {
+  @ApiProperty() storageKey!: string;
+  @ApiProperty() width!: number;
+  @ApiProperty() height!: number;
+  @ApiProperty({ enum: ['primary', 'gallery'] }) role!: string;
+  @ApiProperty() altText!: string;
+  @ApiProperty(N) caption!: string | null;
+  @ApiProperty({ description: 'Credit as recorded when this revision was saved' }) credit!: string;
+  @ApiProperty({ description: 'Licence as recorded when this revision was saved' }) license!: string;
+  @ApiProperty(N) sourceUrl!: string | null;
+}
+
+export class SupportLinkDto {
+  @ApiProperty() organizationName!: string;
+  @ApiProperty() organizationWebsite!: string;
+  @ApiProperty() url!: string;
+  @ApiProperty({ description: 'Destination domain, shown next to the link' }) domain!: string;
+  @ApiProperty({ enum: s.supportActionType.enumValues }) actionType!: Enum<typeof s.supportActionType>;
+  @ApiProperty() description!: string;
+  @ApiProperty(N) contextNote!: string | null;
+}
+
+export class NameDto {
+  @ApiProperty() language!: string;
+  @ApiProperty() name!: string;
+}
+
+export class TaxonomyDto {
+  @ApiProperty(N) kingdom!: string | null;
+  @ApiProperty(N) phylum!: string | null;
+  @ApiProperty(N) class!: string | null;
+  @ApiProperty(N) order!: string | null;
+  @ApiProperty(N) family!: string | null;
+  @ApiProperty(N) genus!: string | null;
+}
+
+export class StatusSectionDto {
+  @ApiProperty({ type: [AssessmentDto] }) assessments!: AssessmentDto[];
+  @ApiProperty({ description: 'Explicitly marked "Not assessed" by an editor' }) notAssessed!: boolean;
+}
+
+export class PopulationSectionDto {
+  @ApiProperty({ type: [EstimateDto] }) estimates!: EstimateDto[];
+  @ApiProperty({ description: 'Explicitly marked "Unknown" by an editor' }) unknown!: boolean;
+  @ApiProperty(N) unknownNote!: string | null;
+}
+
+export class ClimateDto {
+  @ApiProperty(N) narrative!: string | null;
+  @ApiProperty({ type: [RangeValueDto] }) ranges!: RangeValueDto[];
+}
+
+export class GeographySectionDto {
+  @ApiProperty({ enum: s.environment.enumValues, isArray: true }) environments!: Array<Enum<typeof s.environment>>;
+  @ApiProperty({ description: 'True when the species is location-sensitive and its regions are withheld' }) locationWithheld!: boolean;
+  @ApiProperty({ type: [PresenceDto] }) regions!: PresenceDto[];
+  @ApiProperty({ type: [HabitatDto] }) habitats!: HabitatDto[];
+  @ApiProperty({ type: ClimateDto }) climate!: ClimateDto;
+}
+
+export class DietSectionDto {
+  @ApiProperty(N) narrative!: string | null;
+  @ApiProperty({ type: [String] }) tags!: string[];
+  @ApiProperty(N) context!: string | null;
+}
+
+export class ThreatsSectionDto {
+  @ApiProperty({ type: [ThreatDto] }) threats!: ThreatDto[];
+  @ApiProperty(N) conservationActions!: string | null;
+}
+
+export class BiologySectionDto {
+  @ApiProperty(N) narrative!: string | null;
+  @ApiProperty({ type: [RangeValueDto] }) measurements!: RangeValueDto[];
+}
+
+export class ReviewDto {
+  @ApiProperty() version!: number;
+  @ApiProperty() publishedAt!: string;
+  @ApiProperty({ description: 'Editorial review date' }) reviewedAt!: string;
+  @ApiProperty({ enum: ['editor', 'admin'], nullable: true, description: 'Role of the reviewer. Names are never published.' })
+  reviewerRole!: 'editor' | 'admin' | null;
+  @ApiProperty({ description: 'True when the author published their own revision. Never presented as independent review.' })
+  selfReviewed!: boolean;
+}
+
+/** The public species profile. Built only from the published revision. */
+export class SpeciesProfileDto {
+  @ApiProperty() slug!: string;
+  @ApiProperty() scientificName!: string;
+  @ApiProperty({ enum: s.taxonRank.enumValues }) rank!: Enum<typeof s.taxonRank>;
+  @ApiProperty({ enum: s.displayGroup.enumValues }) displayGroup!: Enum<typeof s.displayGroup>;
+  @ApiProperty({ ...N, description: 'Preferred English common name' }) commonName!: string | null;
+  @ApiProperty({ type: [NameDto] }) commonNames!: NameDto[];
+  @ApiProperty({ type: [NameDto] }) synonyms!: NameDto[];
+  @ApiProperty({ type: TaxonomyDto }) taxonomy!: TaxonomyDto;
+  @ApiProperty(N) overview!: string | null;
+  @ApiProperty({ type: StatusSectionDto }) status!: StatusSectionDto;
+  @ApiProperty({ type: PopulationSectionDto }) population!: PopulationSectionDto;
+  @ApiProperty({ type: GeographySectionDto }) geography!: GeographySectionDto;
+  @ApiProperty({ type: DietSectionDto }) diet!: DietSectionDto;
+  @ApiProperty({ type: ThreatsSectionDto }) threats!: ThreatsSectionDto;
+  @ApiProperty({ type: BiologySectionDto }) biology!: BiologySectionDto;
+  @ApiProperty({ type: [SupportLinkDto] }) support!: SupportLinkDto[];
+  @ApiProperty({ type: [MediaDto] }) media!: MediaDto[];
+  @ApiProperty({ type: [SourceRefDto] }) sources!: SourceRefDto[];
+  @ApiProperty({ type: [CitationDto] }) citations!: CitationDto[];
+  @ApiProperty({ type: ReviewDto }) review!: ReviewDto;
+}

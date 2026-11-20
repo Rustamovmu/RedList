@@ -12,6 +12,9 @@ export async function createApp(): Promise<INestApplication> {
   installBigIntJson();
   const app = await NestFactory.create(AppModule, { logger: process.env.NODE_ENV === 'test' ? false : ['error', 'warn', 'log'] });
   app.setGlobalPrefix('api/v1');
+  // Behind the Next.js rewrite (dev) or Nginx (prod) on the same host: trust loopback proxies so req.ip
+  // is the real client address for login rate limiting.
+  (app.getHttpAdapter().getInstance() as { set: (k: string, v: unknown) => void }).set('trust proxy', 'loopback');
   app.use(requestId);
   app.use(helmet());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
@@ -23,8 +26,9 @@ export async function createApp(): Promise<INestApplication> {
 export function buildOpenApi(app: INestApplication): OpenAPIObject {
   const config = new DocumentBuilder()
     .setTitle('Wildward API')
-    .setDescription('Public catalogue and staff editorial API (R1). Population counts are strings (bigint).')
+    .setDescription('Public catalogue and staff editorial API (R1). Population counts are strings (bigint). Staff routes need the session cookie; mutations also need Origin and x-csrf-token.')
     .setVersion('0.1.0')
+    .addCookieAuth('ww_session')
     .build();
   return SwaggerModule.createDocument(app, config);
 }
