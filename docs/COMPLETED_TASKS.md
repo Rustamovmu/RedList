@@ -1,5 +1,66 @@
 # Completed tasks
 
+## 2026-11-21: M2 Discover and compare
+**Scope:** public list API with search, filters, sort and paging; filter counts; compare; related species; Explore, home and compare pages; first Playwright suite. Decisions: D-014, D-015.
+
+**Backend:**
+- `GET /api/v1/species`:
+  - `q`: prefix search over common names, synonyms and scientific name
+  - filters `group`, `environment`, `category`, `region`, `habitat`, `trend` (OR within a filter, AND across)
+  - `sort` by name, status or reviewed; there is no population sort
+  - `page`, and `pageSize` up to 48 (400 above)
+- `GET /api/v1/filters`: option counts, the catalogue total and the threatened count.
+- `GET /api/v1/compare?species=a,b,c`:
+  - 1 to 3 species (400 otherwise); 404 lists the missing slugs
+  - returns the same profile DTOs as the profile endpoint, plus a population comparability statement (`same_basis`, `not_directly_comparable` or `unknown`)
+- Profiles now include `related` (up to 4 species by shared group, threats or non-sensitive regions).
+- Every query starts from one `PUBLISHED` SQL fragment (species joined to its published revision only). Location-sensitive species never match a region filter, are not counted in region facets, and are never related by region.
+- Fixtures: a synthetic synonym (*Fictus antiquus*). *Fictus occultus* now counts all individuals, so compare has a "different units" case.
+- `npm run e2e:prepare`: wipes and reloads `wild_e2e`, refusing other names. `npm run e2e:api` serves it for Playwright.
+- Found while building: drizzle's `sql` template expands a bare JS array into `($1, $2)`. Array filters use `sql.param()` (comment in `catalogue-sql.ts`).
+
+**Frontend:**
+- `/species`:
+  - GET form, so the URL holds everything and Back, Forward and shared links work
+  - filter sidebar on desktop and a drawer on mobile (Escape closes; focus moves in and back)
+  - chips that each remove one filter, plus "Reset all"
+  - empty and error states, and pagination
+- `/`: typographic hero with search, then "in this catalogue" counts, browse by group, environment and place, threatened species, and how we source facts. No hero photo, because none is licensed yet. The page renders per request, so a build never bakes in an API outage.
+- `/compare`:
+  - a table on desktop and stacked cards on mobile
+  - rows: status (with date and scope), population (with unit, context, scope and year), group, habitats, diet, where it lives, threats
+  - the comparability statement is always shown, with explicit Unknown and "Not directly comparable"
+  - no score, no winner, no chart
+- Profile: "Add to compare" (max 3, explains when full) and a Related species section.
+- Shared `SpeciesCard`, showing group, names, status badge with year or "Not assessed", and one context line.
+- Accessibility fix: the hero Search button used dark text on moss (about 3.9:1, below AA). It is now forest on paper.
+
+**Commands run, with results** (macOS arm64, Docker PostGIS 16.4 / 3.4, Node 24.19, Chrome stable):
+| Command | Result |
+|---|---|
+| backend `npm run typecheck` / `lint` / `build` | pass / pass / pass |
+| backend `npm test` | **90/90 pass**, 7 suites. New: catalogue (16), compare unit (5). Earlier suites unchanged. |
+| backend `e2e:prepare` against `wild` | refused (as designed) |
+| backend `e2e:prepare` against `wild_e2e` | 5 synthetic species loaded |
+| frontend `npm run typecheck` / `lint` / `build` | pass / pass / pass |
+| frontend `npm run test:e2e` | **10/10 pass** (5 tests × desktop 1280 and mobile 360) |
+
+**Gate evidence:**
+- Playwright, at desktop and 360px: search → filter (Land) → profile → add → Back restores URL, results and the checked box → ×3 → compare → Back → Back restores the filtered list.
+- Compare renders "Not directly comparable" for mixed units (mature individuals vs all individuals) and when a population is unknown; qualitative figures stay as words; "Not assessed" and withheld locations are shown.
+- No horizontal overflow (`scrollWidth ≤ clientWidth`) on `/`, `/species`, two profiles and `/compare`, at 360px and 1280px.
+- Screenshots of Explore, the mobile drawer, compare and home were checked by eye.
+
+**Known gaps:**
+- Filter counts are catalogue-wide, not narrowed by the other active filters.
+- No photos on cards or hero (M4).
+- `/map`, `/about` and the region pages are still 404 (M3, or unassigned).
+- The JSON admin editor is unchanged (D-011).
+- Query plans were measured on 5 rows only (DATABASE.md); re-check at catalogue scale in M4.
+- No CI yet (backlog).
+
+**Next:** M3, Geography and support (docs/CLAUDE_TASKS.md).
+
 ## 2026-11-21: M1 Working species slice
 **Scope:** staff sign-in, the draft → submit → publish workflow with checklist and optimistic concurrency, the public profile with all eight sections, attribution snapshots and revalidation. Decisions: D-010 to D-013.
 

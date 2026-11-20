@@ -20,6 +20,8 @@
     "db:seed:regions": "ts-node --transpile-only src/cli/seed-regions.ts",
     "db:seed:fixtures": "ts-node --transpile-only src/cli/seed-fixtures.ts",
     "admin:create": "ts-node --transpile-only src/cli/admin-create.ts",
+    "e2e:prepare": "ts-node --transpile-only src/cli/e2e-prepare.ts",
+    "e2e:api": "npm run e2e:prepare && ts-node --transpile-only src/main.ts",
     "openapi:export": "ts-node --transpile-only src/cli/export-openapi.ts",
     "test": "jest --config jest.config.js --runInBand"
   },

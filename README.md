@@ -5,7 +5,7 @@ The backend for **Wildward**, a wildlife discovery and conservation site: *under
 Stack: NestJS 11 · Drizzle ORM · PostgreSQL 16 + PostGIS 3.4 · Node 22.
 The web app lives in the sibling folder `../RedList-frontend`.
 
-**Status:** M0 foundation and M1 (species slice: staff login, draft → submit → publish, public profile) are complete. See `docs/COMPLETED_TASKS.md`. Spec: `docs/PLAN.md`. Agent rules: `AGENTS.md` (loaded by Claude Code through `CLAUDE.md`). Milestone prompts: `docs/CLAUDE_TASKS.md`.
+**Status:** M0 foundation, M1 (species slice: staff login, draft → submit → publish, public profile) and M2 (Explore, filters, compare, home) are complete. See `docs/COMPLETED_TASKS.md`. Spec: `docs/PLAN.md`. Agent rules: `AGENTS.md` (loaded by Claude Code through `CLAUDE.md`). Milestone prompts: `docs/CLAUDE_TASKS.md`.
 
 ## Run locally (macOS)
 

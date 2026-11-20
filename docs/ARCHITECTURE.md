@@ -24,10 +24,10 @@ flowchart LR
 
 | Route | Purpose (PLAN §4) | Status |
 |---|---|---|
-| `/` | Home: hero, search, browse by group and environment, curated threatened species, "in this catalogue" stats | **done** as a temporary system-check page; M2 replaces it |
-| `/species` | Explore: search, filters, sort and page held in the URL; mobile filter drawer | M2 |
-| `/species/[slug]` | Profile: the eight questions, from "What is it?" to "How do we know?" | **done** (M1): all eight sections with Unknown states. Still to come: photos (M4 media serving), map (M3), related species and add to compare (M2) |
-| `/compare?species=a,b,c` | Compare up to 3, with no scores and no mixed units | M2 |
+| `/` | Home: hero, search, browse by group and environment, threatened species, places, "in this catalogue" stats | **done** (M2). No hero photo until licensed media exists (M4) |
+| `/species` | Explore: search, filters, sort and page held in the URL; mobile filter drawer, chips, reset, empty and error states | **done** (M2) |
+| `/species/[slug]` | Profile: the eight questions, from "What is it?" to "How do we know?" | **done** (M1, M2): eight sections, Add to compare, related species. Still to come: photos (M4), map (M3), support links admin (M3) |
+| `/compare?species=a,b,c` | Compare up to 3, with no scores and no mixed units; table on desktop, stacked on mobile | **done** (M2) |
 | `/map` | Map plus synced list, legend, labelled layer types; still works when tiles fail | M3 |
 | `/regions/[slug]` | Country, sea or ocean page with region-aware filters | M3 |
 | `/support` | Directory of reviewed support links, plus the published review criteria | M3 |
@@ -60,9 +60,9 @@ Navigation: Explore · Map · Compare · About. The support directory is linked 
 |---|---|
 | `GET /health/live`, `GET /health/ready` | **done** |
 | `GET /species/:slug` | **done** (M1) |
-| `GET /species` (q, filters, sort, page, pageSize ≤ 48) | M2 |
-| `GET /filters` | M2 |
-| `GET /compare?species=a,b,c` (max 3, 400 otherwise) | M2 |
+| `GET /species` (q, filters, sort, page, pageSize ≤ 48) | **done** (M2) |
+| `GET /filters` | **done** (M2) |
+| `GET /compare?species=a,b,c` (max 3, 400 otherwise) | **done** (M2) |
 | `GET /regions/:slug` | M3 |
 | `GET /map?bbox&group&category` (antimeridian-aware, capped) | M3 |
 | `GET /support` | M3 |
@@ -82,7 +82,7 @@ Swagger UI: `/api/docs` (non-production only).
 | `cli` | migrate, seed-regions, export-openapi, admin-create, seed-fixtures | **done**; import and links:check M4 |
 | `identity` | staff sessions, CSRF + Origin guard, roles, login throttle | **done** (M1) |
 | `editorial` | revisions, editorial zod schema, checklist, publish transaction, audit, revalidation, sources | **done** (M1) |
-| `catalogue` | `PublishedSpeciesRepository` (the only public read path); profile done in M1; list, filters, compare M2 | partly done |
+| `catalogue` | `PublishedSpeciesRepository` plus the `PUBLISHED` SQL fragment in `catalogue-sql.ts` (the only public read path): profile, list, filters, related, compare | **done** (M1, M2) |
 | `geography` | regions, map, `GeoRepository` (the only home of spatial SQL) | M3 |
 | `support-directory` | organizations, support links | M3 |
 | `media` | uploads, `StorageAdapter`, variants, review | M4 |

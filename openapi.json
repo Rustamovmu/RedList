@@ -716,6 +716,131 @@
         ]
       }
     },
+    "/api/v1/species": {
+      "get": {
+        "operationId": "SpeciesController_list",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Search common names, scientific names and synonyms (prefix match per word)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "group",
+            "required": false,
+            "in": "query",
+            "description": "Animal group: mammal, bird, reptile, amphibian, fish, insect, arachnid, mollusc, crustacean, coral, other_invertebrate. Comma-separated; any of the values matches.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "environment",
+            "required": false,
+            "in": "query",
+            "description": "Environment: terrestrial, freshwater, marine, brackish, subterranean, aerial. Comma-separated; any of the values matches.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "description": "IUCN category of the headline (global, most recent) assessment. Comma-separated; any of the values matches.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "region",
+            "required": false,
+            "in": "query",
+            "description": "Country, sea or ocean slug. Location-sensitive species never match.. Comma-separated; any of the values matches.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "habitat",
+            "required": false,
+            "in": "query",
+            "description": "Habitat code. Comma-separated; any of the values matches.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "trend",
+            "required": false,
+            "in": "query",
+            "description": "Population trend of the headline assessment. Comma-separated; any of the values matches.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "description": "name, status (most threatened first; DD, NE and unassessed last), reviewed (newest first)",
+            "schema": {
+              "default": "name",
+              "type": "string",
+              "enum": [
+                "name",
+                "status",
+                "reviewed"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 48,
+              "default": 24,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpeciesListDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid filter value or pageSize above 48"
+          }
+        },
+        "tags": [
+          "catalogue"
+        ]
+      }
+    },
     "/api/v1/species/{slug}": {
       "get": {
         "operationId": "SpeciesController_profile",
@@ -742,6 +867,64 @@
           },
           "404": {
             "description": "No published species with this slug"
+          }
+        },
+        "tags": [
+          "catalogue"
+        ]
+      }
+    },
+    "/api/v1/filters": {
+      "get": {
+        "operationId": "SpeciesController_filters",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FiltersDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "catalogue"
+        ]
+      }
+    },
+    "/api/v1/compare": {
+      "get": {
+        "operationId": "SpeciesController_compare",
+        "parameters": [
+          {
+            "name": "species",
+            "required": false,
+            "in": "query",
+            "description": "1 to 3 species slugs, comma-separated. Duplicates are ignored.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompareDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Not 1 to 3 distinct valid slugs"
+          },
+          "404": {
+            "description": "A slug is not a published species"
           }
         },
         "tags": [
@@ -2417,6 +2600,191 @@
           "supportLinks"
         ]
       },
+      "CardStatusDto": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": [
+              "EX",
+              "EW",
+              "CR",
+              "EN",
+              "VU",
+              "NT",
+              "LC",
+              "DD",
+              "NE"
+            ]
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "global",
+              "regional"
+            ]
+          },
+          "assessedOn": {
+            "type": "string",
+            "nullable": true
+          },
+          "trend": {
+            "type": "string",
+            "enum": [
+              "increasing",
+              "decreasing",
+              "stable",
+              "unknown"
+            ]
+          }
+        },
+        "required": [
+          "category",
+          "scope",
+          "assessedOn",
+          "trend"
+        ]
+      },
+      "CardImageDto": {
+        "type": "object",
+        "properties": {
+          "storageKey": {
+            "type": "string"
+          },
+          "altText": {
+            "type": "string"
+          },
+          "credit": {
+            "type": "string"
+          },
+          "license": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "storageKey",
+          "altText",
+          "credit",
+          "license"
+        ]
+      },
+      "SpeciesCardDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "scientificName": {
+            "type": "string"
+          },
+          "commonName": {
+            "type": "string",
+            "nullable": true
+          },
+          "displayGroup": {
+            "type": "string",
+            "enum": [
+              "mammal",
+              "bird",
+              "reptile",
+              "amphibian",
+              "fish",
+              "insect",
+              "arachnid",
+              "mollusc",
+              "crustacean",
+              "coral",
+              "other_invertebrate"
+            ]
+          },
+          "status": {
+            "nullable": true,
+            "description": "Headline assessment: global if there is one, else regional; most recent first",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CardStatusDto"
+              }
+            ]
+          },
+          "notAssessed": {
+            "type": "boolean"
+          },
+          "environments": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "terrestrial",
+                "freshwater",
+                "marine",
+                "brackish",
+                "subterranean",
+                "aerial"
+              ]
+            }
+          },
+          "regionCount": {
+            "type": "number",
+            "nullable": true,
+            "description": "Number of countries, seas and oceans; null when locations are withheld"
+          },
+          "locationWithheld": {
+            "type": "boolean"
+          },
+          "image": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CardImageDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "slug",
+          "scientificName",
+          "commonName",
+          "displayGroup",
+          "status",
+          "notAssessed",
+          "environments",
+          "regionCount",
+          "locationWithheld",
+          "image"
+        ]
+      },
+      "SpeciesListDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SpeciesCardDto"
+            }
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          },
+          "totalPages": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "total",
+          "totalPages"
+        ]
+      },
       "NameDto": {
         "type": "object",
         "properties": {
@@ -3296,6 +3664,13 @@
           },
           "review": {
             "$ref": "#/components/schemas/ReviewDto"
+          },
+          "related": {
+            "description": "Up to 4 published species sharing group, threats or (non-sensitive) regions",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SpeciesCardDto"
+            }
           }
         },
         "required": [
@@ -3318,7 +3693,182 @@
           "media",
           "sources",
           "citations",
-          "review"
+          "review",
+          "related"
+        ]
+      },
+      "FacetDto": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "value",
+          "count"
+        ]
+      },
+      "RegionFacetDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "country",
+              "ocean",
+              "sea",
+              "other"
+            ]
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "slug",
+          "name",
+          "type",
+          "count"
+        ]
+      },
+      "HabitatFacetDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "count"
+        ]
+      },
+      "FiltersDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number",
+            "description": "Published species in this catalogue"
+          },
+          "threatened": {
+            "type": "number",
+            "description": "Published species whose headline category is CR, EN or VU"
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FacetDto"
+            }
+          },
+          "environments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FacetDto"
+            }
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FacetDto"
+            }
+          },
+          "trends": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FacetDto"
+            }
+          },
+          "regions": {
+            "description": "Location-sensitive species are not counted",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RegionFacetDto"
+            }
+          },
+          "habitats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HabitatFacetDto"
+            }
+          }
+        },
+        "required": [
+          "total",
+          "threatened",
+          "groups",
+          "environments",
+          "categories",
+          "trends",
+          "regions",
+          "habitats"
+        ]
+      },
+      "PopulationComparisonDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "same_basis",
+              "not_directly_comparable",
+              "unknown"
+            ],
+            "description": "same_basis: every species has a wild, global, numeric estimate in one shared unit. Values are still never combined or scored."
+          },
+          "message": {
+            "type": "string"
+          },
+          "basis": {
+            "type": "string",
+            "enum": [
+              "mature_individuals",
+              "breeding_pairs",
+              "individuals",
+              "other"
+            ],
+            "nullable": true
+          }
+        },
+        "required": [
+          "status",
+          "message",
+          "basis"
+        ]
+      },
+      "CompareDto": {
+        "type": "object",
+        "properties": {
+          "species": {
+            "description": "In the requested order",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SpeciesProfileDto"
+            }
+          },
+          "population": {
+            "$ref": "#/components/schemas/PopulationComparisonDto"
+          }
+        },
+        "required": [
+          "species",
+          "population"
         ]
       }
     }

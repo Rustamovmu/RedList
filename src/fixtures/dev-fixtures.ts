@@ -4,7 +4,8 @@
  * (the CLI refuses when NODE_ENV=production). Real regions are referenced only so the geography UI has data.
  *
  * Coverage required by PLAN §7: unknown population, a regional assessment, a wild/captive split, breeding
- * pairs, multiple estimates, a marine species, a sensitive generalized species. (An antimeridian *range*
+ * pairs, multiple estimates, a marine species, a sensitive generalized species, and estimates in different units
+ * (Fictus occultus counts all individuals, the others mature individuals) so compare shows "not directly comparable". (An antimeridian *range*
  * polygon needs the M3 GeoRepository; Fiji presence below exercises the antimeridian region instead.)
  */
 import type { Editorial } from '../editorial/editorial-schema';
@@ -30,6 +31,8 @@ export type FixtureSpecies = {
   slug: string;
   scientificName: string;
   commonName: string;
+  /** Synthetic synonyms, to exercise synonym search. */
+  synonyms?: string[];
   displayGroup: 'mammal' | 'bird' | 'reptile' | 'amphibian' | 'fish';
   sensitivity?: 'none' | 'generalize_country' | 'hide_regions';
   environments: Array<'terrestrial' | 'freshwater' | 'marine' | 'brackish'>;
@@ -68,6 +71,7 @@ export const FIXTURE_SPECIES: FixtureSpecies[] = [
     slug: 'fictus-regionalis',
     scientificName: 'Fictus regionalis',
     commonName: 'Regional example bird (fixture)',
+    synonyms: ['Fictus antiquus'],
     displayGroup: 'bird',
     environments: ['terrestrial', 'freshwater'],
     editorial: {
@@ -131,7 +135,7 @@ export const FIXTURE_SPECIES: FixtureSpecies[] = [
       status: { notAssessed: true },
     },
     assessments: [],
-    estimates: [{ scope: 'global', context: 'wild', basis: 'mature_individuals', form: 'at_most', maxValue: '1000', referenceStart: '2021-01-01', referenceEnd: '2021-12-31' }],
+    estimates: [{ scope: 'global', context: 'wild', basis: 'individuals', form: 'at_most', maxValue: '1000', referenceStart: '2021-01-01', referenceEnd: '2021-12-31' }],
     regions: [{ slug: 'peru' }],
     habitats: ['fx-wetland'],
     threats: ['fx-collection'],

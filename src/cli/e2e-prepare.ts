@@ -1,0 +1,46 @@
+/**
+ * Prepares the end-to-end test database used by the frontend's Playwright suite:
+ * creates it if needed, WIPES it, applies migrations, loads regions and the SYNTHETIC fixtures.
+ *
+ *   DATABASE_URL=postgresql://wild:wild@localhost:5433/wild_e2e npm run e2e:prepare
+ *
+ * Refuses any database whose name does not contain "e2e", so it can never wipe dev or production data.
+ */
+import { config } from 'dotenv';
+config({ quiet: true });
+import { NestFactory } from '@nestjs/core';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { migrate } from 'drizzle-orm/node-postgres/migrator';
+import path from 'node:path';
+import { Client, Pool } from 'pg';
+import { AppModule } from '../app.module';
+import { seedFixtures } from './seed-fixtures';
+import { seedRegions } from './seed-regions';
+
+async function main() {
+  const url = new URL(process.env.DATABASE_URL ?? '');
+  const dbName = url.pathname.slice(1);
+  if (!/e2e/.test(dbName) || !/^[a-z0-9_]+$/.test(dbName)) throw new Error(`Refusing to prepare "${dbName}": the database name must contain "e2e"`);
+
+  const admin = new Client({ connectionString: Object.assign(new URL(url), { pathname: '/postgres' }).toString() });
+  await admin.connect();
+  const exists = await admin.query('SELECT 1 FROM pg_database WHERE datname = $1', [dbName]);
+  if (!exists.rowCount) await admin.query(`CREATE DATABASE ${dbName}`); // name validated above
+  await admin.end();
+
+  const pool = new Pool({ connectionString: url.toString() });
+  await pool.query('DROP SCHEMA IF EXISTS public CASCADE; DROP SCHEMA IF EXISTS drizzle CASCADE; CREATE SCHEMA public;');
+  await migrate(drizzle(pool), { migrationsFolder: path.resolve(__dirname, '../../drizzle') });
+  await seedRegions(pool);
+  await pool.end();
+
+  const app = await NestFactory.createApplicationContext(AppModule, { logger: ['error'] });
+  const r = await seedFixtures(app);
+  await app.close();
+  console.log(`e2e database ${dbName} ready: ${r.created.length} synthetic species`);
+}
+
+main().catch((e) => {
+  console.error(e instanceof Error ? e.message : e);
+  process.exit(1);
+});

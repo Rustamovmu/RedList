@@ -198,4 +198,89 @@ export class SpeciesProfileDto {
   @ApiProperty({ type: [SourceRefDto] }) sources!: SourceRefDto[];
   @ApiProperty({ type: [CitationDto] }) citations!: CitationDto[];
   @ApiProperty({ type: ReviewDto }) review!: ReviewDto;
+  @ApiProperty({ type: () => [SpeciesCardDto], description: 'Up to 4 published species sharing group, threats or (non-sensitive) regions' })
+  related!: SpeciesCardDto[];
+}
+
+// ---------- M2: list, filters, compare, related ----------
+
+export class CardStatusDto {
+  @ApiProperty({ enum: s.iucnCategory.enumValues }) category!: Enum<typeof s.iucnCategory>;
+  @ApiProperty({ enum: s.assessmentScope.enumValues }) scope!: Enum<typeof s.assessmentScope>;
+  @ApiProperty(N) assessedOn!: string | null;
+  @ApiProperty({ enum: s.populationTrend.enumValues }) trend!: Enum<typeof s.populationTrend>;
+}
+
+export class CardImageDto {
+  @ApiProperty() storageKey!: string;
+  @ApiProperty() altText!: string;
+  @ApiProperty() credit!: string;
+  @ApiProperty() license!: string;
+}
+
+/** A species in a list. Built from the published revision only. */
+export class SpeciesCardDto {
+  @ApiProperty() slug!: string;
+  @ApiProperty() scientificName!: string;
+  @ApiProperty(N) commonName!: string | null;
+  @ApiProperty({ enum: s.displayGroup.enumValues }) displayGroup!: Enum<typeof s.displayGroup>;
+  @ApiProperty({ type: CardStatusDto, nullable: true, description: 'Headline assessment: global if there is one, else regional; most recent first' })
+  status!: CardStatusDto | null;
+  @ApiProperty() notAssessed!: boolean;
+  @ApiProperty({ enum: s.environment.enumValues, isArray: true }) environments!: Array<Enum<typeof s.environment>>;
+  @ApiProperty({ nullable: true, type: Number, description: 'Number of countries, seas and oceans; null when locations are withheld' })
+  regionCount!: number | null;
+  @ApiProperty() locationWithheld!: boolean;
+  @ApiProperty({ type: CardImageDto, nullable: true }) image!: CardImageDto | null;
+}
+
+export class SpeciesListDto {
+  @ApiProperty({ type: [SpeciesCardDto] }) items!: SpeciesCardDto[];
+  @ApiProperty() page!: number;
+  @ApiProperty() pageSize!: number;
+  @ApiProperty() total!: number;
+  @ApiProperty() totalPages!: number;
+}
+
+export class FacetDto {
+  @ApiProperty() value!: string;
+  @ApiProperty() count!: number;
+}
+export class RegionFacetDto {
+  @ApiProperty() slug!: string;
+  @ApiProperty() name!: string;
+  @ApiProperty({ enum: s.regionType.enumValues }) type!: Enum<typeof s.regionType>;
+  @ApiProperty() count!: number;
+}
+export class HabitatFacetDto {
+  @ApiProperty() code!: string;
+  @ApiProperty() name!: string;
+  @ApiProperty() count!: number;
+}
+
+/** Filter options with counts of published species. Counts describe this catalogue, never global totals. */
+export class FiltersDto {
+  @ApiProperty({ description: 'Published species in this catalogue' }) total!: number;
+  @ApiProperty({ description: 'Published species whose headline category is CR, EN or VU' }) threatened!: number;
+  @ApiProperty({ type: [FacetDto] }) groups!: FacetDto[];
+  @ApiProperty({ type: [FacetDto] }) environments!: FacetDto[];
+  @ApiProperty({ type: [FacetDto] }) categories!: FacetDto[];
+  @ApiProperty({ type: [FacetDto] }) trends!: FacetDto[];
+  @ApiProperty({ type: [RegionFacetDto], description: 'Location-sensitive species are not counted' }) regions!: RegionFacetDto[];
+  @ApiProperty({ type: [HabitatFacetDto] }) habitats!: HabitatFacetDto[];
+}
+
+export class PopulationComparisonDto {
+  @ApiProperty({
+    enum: ['same_basis', 'not_directly_comparable', 'unknown'],
+    description: 'same_basis: every species has a wild, global, numeric estimate in one shared unit. Values are still never combined or scored.',
+  })
+  status!: 'same_basis' | 'not_directly_comparable' | 'unknown';
+  @ApiProperty() message!: string;
+  @ApiProperty({ enum: s.populationBasis.enumValues, nullable: true }) basis!: Enum<typeof s.populationBasis> | null;
+}
+
+export class CompareDto {
+  @ApiProperty({ type: [SpeciesProfileDto], description: 'In the requested order' }) species!: SpeciesProfileDto[];
+  @ApiProperty({ type: PopulationComparisonDto }) population!: PopulationComparisonDto;
 }

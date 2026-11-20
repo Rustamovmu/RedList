@@ -21,6 +21,7 @@ npm run db:migrate          # apply SQL migrations in drizzle/
 npm run db:seed:regions     # Natural Earth countries + oceans (idempotent)
 npm run db:seed:fixtures    # SYNTHETIC dev species, published through the real workflow (never in production)
 npm run admin:create        # first admin from ADMIN_EMAIL / ADMIN_NAME / ADMIN_PASSWORD
+npm run e2e:prepare         # wipe + reload the wild_e2e database (used by the frontend's test:e2e)
 npm run dev                 # API on :4000, Swagger UI at /api/docs
 npm run db:generate         # after editing src/db/schema.ts: generate a migration
 npm run openapi:export      # write openapi.json for the frontend
@@ -31,6 +32,7 @@ Frontend (`RedList-frontend/`):
 npm install
 npm run contracts:generate  # types from ../RedList-backent/openapi.json
 npm run dev                 # web on :3000, proxies /api/v1 to the API
+npm run test:e2e            # Playwright: own stack on :4110/:3110 + wild_e2e, installed Chrome, desktop + 360px
 npm run typecheck && npm run lint && npm run build
 ```
 

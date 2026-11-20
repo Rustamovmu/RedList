@@ -98,3 +98,22 @@ White text on each IUCN badge colour measures 4.9:1 to 21:1, so all pass WCAG AA
 **Context:** The M0 schema already had every column M1 needed (`staff_sessions.csrf_token`, `species_revisions.self_reviewed`, snapshots, and so on).
 **Decision:** No new migration. PLAN §6 lists `staff_sessions.ip_hash`; it is not used, because no feature reads it and storing it would add personal data without a purpose.
 **Consequences:** Add it in a migration if session review by IP is ever needed.
+
+## D-014 Catalogue rules the plan left open (2026-11-21, M2)
+- **Headline assessment:** a species' badge and its category and trend filters use one assessment: the global one if it exists (else regional), newest first. A regional VU never makes a globally LC species "VU" in filters.
+- **Severity sort:** EX, EW, CR, EN, VU, NT, LC, then DD, NE, then unassessed. DD and NE come after LC because they are unranked, not because they are low risk. They are always labelled, never grouped with LC.
+- **Filters:** values within one filter are OR, different filters are AND (`group=bird,fish&environment=marine`). Search is a per-word prefix match over common names, synonyms and the scientific name, using PostgreSQL full-text search (`simple` config, the existing GIN index). Only letters and digits reach `to_tsquery`.
+- **Location-sensitive species** (`hide_regions`) never match a region filter, are not counted in region facets, and are never related to other species by shared region. Otherwise, filtering by place would reveal where they live.
+- **Related species:** a score of shared group (1), plus shared threats, plus shared regions (when neither species is sensitive). Score must be > 0; top 4.
+- **Compare comparability** is decided by the API (`comparePopulations`) and shown as text. Only wild, global, numeric estimates count. "Same basis" requires one shared unit other than `other`. Values are never added, divided, ranked or charted.
+- **Compare selection:** the URL (`/compare?species=a,b,c`) is the source of truth. While browsing, picks are kept in `localStorage` (slugs only, max 3). Duplicates in the URL are ignored.
+- **Cache tags:** list, filters, home and compare use `catalogue`. Profiles use `species:<slug>` plus `catalogue`, because related species change when others are published.
+- **Card context line** = environments plus the number of countries and seas, or "locations withheld".
+
+## D-015 End-to-end test stack (2026-11-21, M2)
+**Context:** The Playwright suite needs deterministic data and must not disturb a developer's running dev servers or dev database.
+**Decision:**
+- `npm run test:e2e` (frontend) starts its own stack. The API runs on :4110 via `ts-node` (not `dist/`, which a dev watcher may own) against `wild_e2e`, which `npm run e2e:prepare` wipes and refills with regions plus the synthetic fixtures; it refuses any database name without "e2e". The web app is built into `.next-e2e` (`NEXT_DIST_DIR`) and served on :3110.
+- Tests use the installed Google Chrome (`channel: 'chrome'`), so no browser download is needed.
+- Projects: `desktop` (1280×800) and `mobile-360` (360×740).
+**Consequences:** The suite needs Docker PostGIS on :5433 and Chrome installed. CI (backlog) will need `npx playwright install chromium` and a `channel` override. `next start` prints a harmless warning about `output: standalone`.

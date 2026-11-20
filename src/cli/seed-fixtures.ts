@@ -66,7 +66,10 @@ export async function seedFixtures(app: INestApplicationContext): Promise<{ crea
       expectedUpdatedAt: draft.updatedAt,
       displayGroup: f.displayGroup,
       editorial: f.editorial as Record<string, unknown>,
-      names: [{ language: 'en', name: f.commonName, nameType: 'common', preferred: true }],
+      names: [
+        { language: 'en', name: f.commonName, nameType: 'common', preferred: true },
+        ...(f.synonyms ?? []).map((name) => ({ language: 'la', name, nameType: 'synonym' as const, preferred: false })),
+      ],
       environments: f.environments,
       assessments: f.assessments.map(({ region, ...a }) => ({ ...a, sourceId: source.id, regionId: regionId(region) })),
       populationEstimates: f.estimates.map(({ region, ...e }) => ({ ...e, sourceId: source.id, regionId: regionId(region) })),

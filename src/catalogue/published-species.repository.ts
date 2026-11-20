@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { and, asc, eq, inArray, isNull } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { Db, InjectDb } from '../db/db.module';
 import * as s from '../db/schema';
 import { CURRENT_EDITORIAL_VERSION, Editorial, parseEditorial } from '../editorial/editorial-schema';
-import { RangeValueDto, RegionLinkDto, SpeciesProfileDto } from './dto';
+import { countCards, DISPLAY_NAME, HEADLINE, ListFilters, PUBLISHED, selectCards, SEVERITY } from './catalogue-sql';
+import { FacetDto, FiltersDto, HabitatFacetDto, RangeValueDto, RegionFacetDto, RegionLinkDto, SpeciesCardDto, SpeciesListDto, SpeciesProfileDto } from './dto';
+import { MAX_PAGE_SIZE } from './list-query.dto';
 
 const region = (r: { slug: string | null; name: string | null; type: RegionLinkDto['type'] | null }): RegionLinkDto | null =>
   r.slug && r.name && r.type ? { slug: r.slug, name: r.name, type: r.type } : null;
@@ -117,7 +119,10 @@ export class PublishedSpeciesRepository {
     const common = names.filter((n) => n.nameType === 'common');
     const preferred = common.find((n) => n.preferred && n.language === 'en') ?? common.find((n) => n.language === 'en') ?? null;
 
+    const related = await this.related(sp.id, sp.locationSensitivity === 'hide_regions');
+
     return {
+      related,
       slug: sp.slug,
       scientificName: sp.acceptedScientificName,
       rank: sp.rank,
@@ -183,5 +188,74 @@ export class PublishedSpeciesRepository {
         selfReviewed: rev.selfReviewed,
       },
     };
+  }
+
+  // ---------- M2: lists, filters, related ----------
+
+  async list(f: ListFilters & { sort?: 'name' | 'status' | 'reviewed'; page?: number; pageSize?: number }): Promise<SpeciesListDto> {
+    const page = f.page ?? 1;
+    const pageSize = Math.min(f.pageSize ?? 24, MAX_PAGE_SIZE);
+    const order =
+      f.sort === 'status' ? sql`${SEVERITY}, ${DISPLAY_NAME}` : f.sort === 'reviewed' ? sql`p.published_at DESC NULLS LAST` : DISPLAY_NAME;
+    const [items, total] = await Promise.all([selectCards(this.db, f, order, pageSize, (page - 1) * pageSize), countCards(this.db, f)]);
+    return { items, page, pageSize, total, totalPages: Math.max(1, Math.ceil(total / pageSize)) };
+  }
+
+  async filters(): Promise<FiltersDto> {
+    const q = <T>(body: ReturnType<typeof sql>) => this.db.execute<T & Record<string, unknown>>(sql`WITH p AS (${PUBLISHED}) ${body}`).then((r) => r.rows);
+    const [totals, groups, envs, cats, trends, regions, habitats] = await Promise.all([
+      q<{ total: number; threatened: number }>(sql`
+        SELECT count(*)::int AS total, count(*) FILTER (WHERE ha.category IN ('CR','EN','VU'))::int AS threatened FROM p ${HEADLINE}`),
+      q<{ value: string; count: number }>(sql`SELECT p.display_group::text AS value, count(*)::int AS count FROM p GROUP BY 1`),
+      q<{ value: string; count: number }>(sql`
+        SELECT e.environment::text AS value, count(*)::int AS count FROM p JOIN species_environments e ON e.revision_id = p.revision_id GROUP BY 1`),
+      q<{ value: string; count: number }>(sql`SELECT ha.category::text AS value, count(*)::int AS count FROM p ${HEADLINE} WHERE ha.category IS NOT NULL GROUP BY 1`),
+      q<{ value: string; count: number }>(sql`SELECT ha.trend::text AS value, count(*)::int AS count FROM p ${HEADLINE} WHERE ha.trend IS NOT NULL GROUP BY 1`),
+      q<RegionFacetDto>(sql`
+        SELECT rg.slug, rg.name, rg.type::text AS type, count(DISTINCT p.species_id)::int AS count
+        FROM p JOIN species_regions sr ON sr.revision_id = p.revision_id JOIN regions rg ON rg.id = sr.region_id
+        WHERE p.location_sensitivity <> 'hide_regions'
+        GROUP BY rg.slug, rg.name, rg.type ORDER BY rg.name`),
+      q<HabitatFacetDto>(sql`
+        SELECT h.code, h.name, count(DISTINCT p.species_id)::int AS count
+        FROM p JOIN species_habitats sh ON sh.revision_id = p.revision_id JOIN habitats h ON h.id = sh.habitat_id
+        GROUP BY h.code, h.name ORDER BY h.code`),
+    ]);
+    const facet = (values: readonly string[], rows: Array<{ value: string; count: number }>): FacetDto[] =>
+      values.map((value) => ({ value, count: rows.find((r) => r.value === value)?.count ?? 0 }));
+    return {
+      total: totals[0].total,
+      threatened: totals[0].threatened,
+      groups: facet(s.displayGroup.enumValues, groups),
+      environments: facet(s.environment.enumValues, envs),
+      categories: facet(s.iucnCategory.enumValues, cats),
+      trends: facet(s.populationTrend.enumValues, trends),
+      regions: regions.map((r) => ({ slug: r.slug, name: r.name, type: r.type, count: r.count })),
+      habitats: habitats.map((h) => ({ code: h.code, name: h.name, count: h.count })),
+    };
+  }
+
+  /**
+   * Up to 4 published species that share the group, threats or regions with this one, most shared first.
+   * Regions are ignored when either species is location-sensitive, so "related" never hints at where it lives.
+   */
+  async related(speciesId: string, sensitive: boolean, limit = 4): Promise<SpeciesCardDto[]> {
+    const res = await this.db.execute<{ species_id: string }>(sql`
+      WITH p AS (${PUBLISHED}), me AS (SELECT * FROM p WHERE p.species_id = ${speciesId}),
+      scored AS (
+        SELECT o.species_id, o.slug,
+            (o.display_group = me.display_group)::int
+          + (SELECT count(*) FROM species_threats a JOIN species_threats b ON a.threat_id = b.threat_id
+             WHERE a.revision_id = me.revision_id AND b.revision_id = o.revision_id)
+          + CASE WHEN ${sensitive} OR o.location_sensitivity = 'hide_regions' THEN 0 ELSE
+              (SELECT count(*) FROM species_regions a JOIN species_regions b ON a.region_id = b.region_id
+               WHERE a.revision_id = me.revision_id AND b.revision_id = o.revision_id) END AS score
+        FROM p o, me WHERE o.species_id <> me.species_id
+      )
+      SELECT species_id FROM scored WHERE score > 0 ORDER BY score DESC, slug LIMIT ${limit}`);
+    const ids = res.rows.map((r) => r.species_id);
+    if (!ids.length) return [];
+    // Keep the score order from above.
+    return selectCards(this.db, { speciesIds: ids }, sql`array_position(${sql.param(ids)}::uuid[], p.species_id)`, limit, 0);
   }
 }

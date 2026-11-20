@@ -64,3 +64,17 @@ erDiagram
 - **Public read path:** `src/catalogue/published-species.repository.ts` takes the revision id only from `species.published_revision_id` and keys every child query by it. The draft-leakage test in `test/integration/publication.spec.ts` guards this.
 - **Staff read/write path:** `src/editorial/revision-content.repository.ts` loads or replaces one revision's child rows by id. It is never used for public output.
 - **Publish** locks the `species` row `FOR UPDATE`, which serializes concurrent publishes of the same species (D-012).
+
+## M2 query plans
+Every public list query is built from the `PUBLISHED` fragment in `src/catalogue/catalogue-sql.ts`: species joined to its published revision. Per-species details come from LATERAL lookups keyed by `revision_id`.
+
+`EXPLAIN (ANALYZE)` of `GET /species?q=fictus&environment=terrestrial&category=CR,EN&sort=status` on `wild_e2e` (5 species, 2026-11-21), abridged:
+```
+Limit → Sort (severity, name, slug) → Nested Loop Semi Join
+  Hash Join species ⋈ species_revisions            (Seq Scan: 5 rows)
+  LATERAL common name   → Index Scan species_names_uq (revision_id, name_type)
+  LATERAL headline      → Bitmap Index Scan assessments_revision_idx
+  LATERAL primary image → Bitmap Index Scan revision_media_uq
+  EXISTS environment    → Bitmap Heap Scan species_environments
+```
+**Honest limit:** with 5 rows the planner prefers sequential scans on `species` and `species_revisions`, so this plan says nothing about behaviour at scale. What it does show is that every per-species lookup uses a `revision_id` index. The name search uses `species_names_fts` (GIN) when it is selective enough. Re-check this with the real catalogue (M4) and record p95 with test conditions (PLAN §11).
