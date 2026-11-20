@@ -57,3 +57,4 @@ If you run out of time or context, append a **CHECKPOINT** entry to `docs/COMPLE
 - Schema changes: edit `src/db/schema.ts`, run `npm run db:generate`, and review the SQL. Integrity rules the ORM cannot express go in a custom migration (`npx drizzle-kit generate --custom`). Never use `drizzle-kit push` against shared or production databases.
 - Validate every external input (HTTP, import files, editorial JSONB) at the boundary.
 - Commit messages describe the change and the milestone, e.g. `M1: publish transaction + draft leakage test`.
+- **The owner commits, not the agent.** At the end of every milestone or task, suggest one short commit message for each repo that changed (backend and/or frontend), and do not run `git commit` yourself.
