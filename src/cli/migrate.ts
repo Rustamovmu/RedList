@@ -1,6 +1,6 @@
 /** Apply SQL migrations in ./drizzle. Safe for production: no destructive push. */
-import { config } from 'dotenv';
-config({ quiet: true });
+import { loadDotEnv } from '../common/load-env';
+loadDotEnv();
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { Pool } from 'pg';

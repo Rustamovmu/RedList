@@ -1,0 +1,15 @@
+node_modules
+dist
+storage
+import-reports
+coverage
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+.git
+.claude
+.agents
+test
+backups
+deploy/.env.prod

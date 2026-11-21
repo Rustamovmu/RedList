@@ -1,5 +1,5 @@
-import { config } from 'dotenv';
-config({ quiet: true });
+import { loadDotEnv } from './common/load-env';
+loadDotEnv();
 import { INestApplication, Logger } from '@nestjs/common';
 import { SwaggerModule } from '@nestjs/swagger';
 import { Pool } from 'pg';

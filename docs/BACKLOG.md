@@ -20,7 +20,10 @@
 
 ## Technical follow-ups
 - CSV import format (R1 imports JSON only, DECISIONS D-023)
-- S3-compatible `StorageAdapter` (M5 deployment work, D-022)
+- S3-compatible `StorageAdapter` (D-022; not built in M5, media is a local volume backed up by scripts/backup.sh)
 - Upgrade NestJS 11 → 12 in its own task
 - Rename `RedList-backent` → `RedList-backend`
-- CI pipeline (GitHub Actions) running typecheck, lint, tests against a PostGIS service, and build
+- CI pipeline (GitHub Actions) running typecheck, lint, the contracts drift check, tests against a PostGIS service, build and the Playwright suite (PLAN §13). Check the free-minutes terms for the repo's visibility first.
+- CSP without `style-src 'unsafe-inline'`: move the map legend swatches to classes and nonce-tag `next/image` styles (D-029)
+- Load test the API under concurrent requests and re-measure query plans at a few hundred species (DATABASE.md M5)
+- Move the login throttle to PostgreSQL if the API ever runs as more than one process (D-010)

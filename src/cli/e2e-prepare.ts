@@ -6,8 +6,8 @@
  *
  * Refuses any database whose name does not contain "e2e", so it can never wipe dev or production data.
  */
-import { config } from 'dotenv';
-config({ quiet: true });
+import { loadDotEnv } from '../common/load-env';
+loadDotEnv();
 import { NestFactory } from '@nestjs/core';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';

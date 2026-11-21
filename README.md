@@ -5,14 +5,19 @@ The backend for **Wildward**, a wildlife discovery and conservation site: *under
 Stack: NestJS 11 · Drizzle ORM · PostgreSQL 16 + PostGIS 3.4 · Node 22.
 The web app lives in the sibling folder `../RedList-frontend`.
 
-**Status:** M0 foundation, M1 (species slice: staff login, draft → submit → publish, public profile), M2 (Explore, filters, compare, home), M3 (map, region pages, range maps, support directory) and M4 (media upload and review, import CLI, rollback, link checker, catalogue validation, a 3-species real pilot) are complete. See `docs/COMPLETED_TASKS.md`. Spec: `docs/PLAN.md`. Agent rules: `AGENTS.md` (loaded by Claude Code through `CLAUDE.md`). Milestone prompts: `docs/CLAUDE_TASKS.md`.
+**Status:** R1 milestones M0–M5 are complete (M5: accessibility, CSP, production stack, backups, docs). Nothing is deployed publicly; that needs the owner's separate go-ahead. The real catalogue has 43 species with checked sources. See `docs/COMPLETED_TASKS.md`. Spec: `docs/PLAN.md`. Agent rules: `AGENTS.md` (loaded by Claude Code through `CLAUDE.md`). Milestone prompts: `docs/CLAUDE_TASKS.md`.
 
 ## Run locally (macOS)
 
-You need Node 22+ and **either** Docker Desktop **or** Postgres.app (which bundles PostGIS).
+You need Node 22+ and **either** Docker Desktop **or** Postgres.app (which bundles PostGIS). Clone both repos side by side:
+```bash
+git clone <backend repo url> RedList-backent
+git clone <frontend repo url> RedList-frontend
+cd RedList-backent
+```
 
 ```bash
-cp .env.example .env
+cp .env.example .env        # then set REVALIDATE_SECRET (openssl rand -hex 32), and the same value in the frontend's .env.local
 npm install
 
 # Database: option A, Docker (port 5433; .env.example is already set up for this)
@@ -30,6 +35,10 @@ npm run dev                 # http://localhost:4000/api/v1/health/ready
                             # Swagger UI: http://localhost:4000/api/docs
 ```
 
+Real content (optional): `npm run import -- catalogue/batch-1.json --apply` creates drafts with checked sources and photos. Approve the images in `/admin/media`, then review and publish the drafts (docs/ADMIN_GUIDE.md).
+
+Then start the web app: see `../RedList-frontend/README.md`.
+
 ## Tests
 
 Integration tests run against a **separate** real PostGIS database and wipe it on every run.
@@ -39,6 +48,17 @@ Integration tests run against a **separate** real PostGIS database and wipe it o
 # with Postgres.app: psql -c "CREATE DATABASE wild_test OWNER wild"
 cp .env.test.example .env.test   # adjust port 5433/5432; MEDIA_DIR must contain "test" (wiped by the tests)
 npm test
+```
+The frontend's `npm run test:e2e` needs Docker PostGIS on port 5433 and Google Chrome; it creates and wipes its own `wild_e2e` database. Everything about tests is in `docs/TESTING.md`.
+
+## Production
+
+Docker Compose with PostGIS on a private network, the API, the web app and Nginx, plus backup and restore scripts. Read `docs/DEPLOYMENT.md` first.
+```bash
+cp deploy/.env.prod.example deploy/.env.prod     # fill in; never commit it
+./deploy/compose.sh up -d --build --wait
+scripts/backup.sh                                 # PostgreSQL + media → BACKUP_DIR (copy it off the host)
+scripts/restore.sh <backup-dir> --yes             # destructive; see the runbook
 ```
 
 ## Everyday commands
@@ -54,6 +74,8 @@ npm test
 | `npm run import -- <file.json> --dry-run` / `--apply` / `--apply --reconcile` | import species content into drafts (never publishes); Markdown report in `import-reports/` |
 | `npm run links:check` | record the HTTP status of every support link; failures are listed, nothing is disabled |
 | `npm run validate:catalogue` | quality report over everything published (citations, image licences, no drafts, compare units) |
+| `./deploy/compose.sh …` | docker compose for the production stack (project name, file and env file added) |
+| `scripts/backup.sh` / `scripts/restore.sh <dir> --yes` | back up or restore PostgreSQL and media of the production stack |
 
 ## Layout
 
@@ -72,11 +94,14 @@ src/quality/            validate:catalogue
 catalogue/              real-catalogue import files (sources checked, see notes in each file)
 src/fixtures/           SYNTHETIC dev fixtures
 src/cli/                migrate, seed-regions, seed-fixtures, admin-create, export-openapi, e2e-prepare, import, links-check, validate-catalogue
-scripts/                setup-local-db.sh (Postgres.app), check-db.cjs (connection test)
+scripts/                setup-local-db.sh (Postgres.app), check-db.cjs (connection test), backup.sh, restore.sh
+deploy/                 production compose, compose.sh wrapper, .env.prod.example, nginx/ (http.conf, https.conf)
+Dockerfile              production API image (compiled JS, runs as node)
 test/integration/       PostGIS integration tests (auth, publication, catalogue, geography, support, integrity, health, content-ops, import, quality)
-test/unit/              editorial schema, checklist, licences, throttle, compare, bbox, safe-fetch and image sniffing
+test/unit/              editorial schema, checklist, licences, throttle, compare, bbox, safe-fetch, image sniffing, security headers
 data/natural-earth/     public-domain boundaries
-docs/                   PLAN, ARCHITECTURE, DECISIONS, DATABASE, DATA_SOURCES, BACKLOG, COMPLETED_TASKS, CLAUDE_TASKS
+docs/                   PLAN, ARCHITECTURE, DATABASE, DATA_SOURCES, METHODOLOGY, ADMIN_GUIDE, DEPLOYMENT, TESTING,
+                        DECISIONS, COMPLETED_TASKS, BACKLOG, CLAUDE_TASKS
 AGENTS.md, CLAUDE.md    rules for the coding agent (CLAUDE.md imports AGENTS.md)
 ```
 

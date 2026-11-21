@@ -13,6 +13,13 @@ const EnvSchema = z.object({
   MEDIA_MAX_BYTES: z.coerce.number().int().positive().max(50_000_000).default(15_000_000),
   // Optional contact (URL or address) appended to the User-Agent of outbound fetches (import downloads, link checker).
   FETCH_CONTACT: z.string().max(200).optional(),
+  // Express "trust proxy" (M5, DECISIONS D-030). Loopback covers the Next.js dev rewrite. In the production compose
+  // stack Nginx sits on the private Docker network, so it is "loopback, uniquelocal". Nginx overwrites
+  // X-Forwarded-For with the real client address, so a client cannot spoof it.
+  TRUST_PROXY: z
+    .string()
+    .regex(/^(loopback|linklocal|uniquelocal)(\s*,\s*(loopback|linklocal|uniquelocal))*$/, 'use loopback, linklocal and/or uniquelocal')
+    .default('loopback'),
   COOKIE_SECURE: z
     .enum(['true', 'false'])
     .default('false')

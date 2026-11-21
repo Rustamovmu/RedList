@@ -2,8 +2,8 @@
  * npm run validate:catalogue: the PLAN §11 quality report over everything that is published.
  * Prints a Markdown report and exits 1 if any check fails.
  */
-import { config } from 'dotenv';
-config({ quiet: true });
+import { loadDotEnv } from '../common/load-env';
+loadDotEnv();
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../app.module';
 import { validateCatalogue, validationMarkdown } from '../quality/validate-catalogue';

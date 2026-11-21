@@ -3,8 +3,8 @@
  * Failures are listed for an admin to review in /admin/support. No link is ever disabled automatically.
  * Exit code 0 even when links fail (the check itself succeeded); 1 only if the check could not run.
  */
-import { config } from 'dotenv';
-config({ quiet: true });
+import { loadDotEnv } from '../common/load-env';
+loadDotEnv();
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import { loadConfig } from '../config';

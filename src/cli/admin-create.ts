@@ -6,8 +6,8 @@
  * (or set them in .env). Refuses to overwrite an existing account and rejects weak or placeholder
  * passwords, so there is never a default production password. Prints the new user's id only.
  */
-import { config } from 'dotenv';
-config({ quiet: true });
+import { loadDotEnv } from '../common/load-env';
+loadDotEnv();
 import { Pool } from 'pg';
 import { hashPassword, passwordPolicyError } from '../identity/password';
 

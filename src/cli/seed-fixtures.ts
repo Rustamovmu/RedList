@@ -6,8 +6,8 @@
  *
  * Idempotent: species that already exist are skipped. Refuses to run when NODE_ENV=production.
  */
-import { config } from 'dotenv';
-config({ quiet: true });
+import { loadDotEnv } from '../common/load-env';
+loadDotEnv();
 import { INestApplicationContext } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { eq, inArray } from 'drizzle-orm';

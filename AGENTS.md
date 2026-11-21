@@ -29,13 +29,16 @@ npm run dev                 # API on :4000, Swagger UI at /api/docs
 npm run db:generate         # after editing src/db/schema.ts: generate a migration
 npm run openapi:export      # write openapi.json for the frontend
 npm run typecheck && npm run lint && npm test && npm run build   # tests need .env.test (copy .env.test.example)
+./deploy/compose.sh up -d --build --wait   # production stack (needs deploy/.env.prod; docs/DEPLOYMENT.md)
+scripts/backup.sh                         # PostgreSQL + media of the production stack → BACKUP_DIR
+scripts/restore.sh <backup-dir> --yes     # DESTRUCTIVE restore of the production stack
 ```
 Frontend (`RedList-frontend/`):
 ```
 npm install
 npm run contracts:generate  # types from ../RedList-backent/openapi.json
 npm run dev                 # web on :3000, proxies /api/v1 to the API
-npm run test:e2e            # Playwright: own stack on :4110/:3110 + wild_e2e, installed Chrome, desktop + 360px
+npm run test:e2e            # Playwright: own stack on :4110/:3110 + wild_e2e, installed Chrome, desktop + 360px; includes axe, CSP and keyboard checks
 npm run typecheck && npm run lint && npm run build
 ```
 

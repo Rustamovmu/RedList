@@ -1,0 +1,112 @@
+# Production stack (PLAN §13, M5): PostGIS + API + web + Nginx. See docs/DEPLOYMENT.md.
+# Run it through ./deploy/compose.sh, which adds the project name, this file and deploy/.env.prod.
+#
+# Networks:
+#   db_net   internal only: db, migrate, api. The database has no published port and no route to the internet.
+#   app_net  internal only: api, web, nginx. The web app reaches the API, and Nginx reaches both.
+#   edge     ordinary bridge: nginx (its published port is the only way in) and api (outbound HTTPS for
+#            links:check and import downloads).
+# Only Nginx publishes a port, bound to HTTP_BIND:HTTP_PORT (127.0.0.1:8080 by default).
+services:
+  db:
+    image: imresamu/postgis:16-3.4 # multi-arch, DECISIONS D-003
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?set in deploy/.env.prod}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in deploy/.env.prod}
+      POSTGRES_DB: ${POSTGRES_DB:?set in deploy/.env.prod}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks: [db_net]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    security_opt: [no-new-privileges:true]
+
+  # One-shot: applies SQL migrations, then exits. The API starts only after it succeeds.
+  migrate:
+    build: { context: .., dockerfile: Dockerfile }
+    image: ${COMPOSE_PROJECT_NAME:-wildward}-api
+    command: ["node", "dist/cli/migrate.js"]
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    depends_on:
+      db: { condition: service_healthy }
+    networks: [db_net]
+    restart: "no"
+    security_opt: [no-new-privileges:true]
+
+  api:
+    image: ${COMPOSE_PROJECT_NAME:-wildward}-api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "4000"
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      WEB_ORIGIN: ${SITE_URL:?set in deploy/.env.prod}
+      WEB_REVALIDATE_URL: http://web:3000/api/revalidate
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET:?set in deploy/.env.prod}
+      MEDIA_DIR: /data/media
+      MEDIA_MAX_BYTES: ${MEDIA_MAX_BYTES:-15000000}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      TRUST_PROXY: loopback,uniquelocal
+      FETCH_CONTACT: ${FETCH_CONTACT:-}
+    volumes:
+      - media:/data/media
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    networks: [db_net, app_net, edge]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+
+  web:
+    build:
+      context: ../../RedList-frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SITE_URL: ${SITE_URL}
+        NEXT_PUBLIC_CONTACT_URL: ${CONTACT_URL:-}
+        API_INTERNAL_URL: http://api:4000
+    image: ${COMPOSE_PROJECT_NAME:-wildward}-web
+    restart: unless-stopped
+    environment:
+      API_INTERNAL_URL: http://api:4000
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET}
+    depends_on:
+      api: { condition: service_healthy }
+    networks: [app_net]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+
+  nginx:
+    image: nginx:1.30.7-alpine
+    restart: unless-stopped
+    ports:
+      - "${HTTP_BIND:-127.0.0.1}:${HTTP_PORT:-8080}:80"
+      # With TLS in this container (NGINX_SITE_CONF=./nginx/https.conf), also publish 443:
+      # - "${HTTPS_BIND:-0.0.0.0}:${HTTPS_PORT:-443}:443"
+    volumes:
+      - ./nginx:/etc/nginx/wildward:ro
+      - ${NGINX_SITE_CONF:-./nginx/http.conf}:/etc/nginx/conf.d/default.conf:ro
+      # - ${TLS_CERT_DIR:-/etc/letsencrypt}:/etc/letsencrypt:ro
+    depends_on:
+      web: { condition: service_healthy }
+      api: { condition: service_healthy }
+    networks: [app_net, edge]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/nginx-health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    security_opt: [no-new-privileges:true]
+
+networks:
+  db_net: { internal: true }
+  app_net: { internal: true }
+  edge: {}
+
+volumes:
+  db_data:
+  media:

@@ -1,5 +1,152 @@
 # Completed tasks
 
+## 2026-11-21: M5 Release verification (final R1 report)
+**Scope:**
+- accessibility pass: axe plus a keyboard-only walkthrough
+- security headers and a nonce-based CSP
+- production Docker stack with a private database network, Nginx and health checks
+- backup and restore scripts for PostgreSQL and media, with a backup → wipe → restore rehearsal
+- the PLAN §13 documents
+- a fresh-clone check of both repos
+
+SEO (metadata, sitemap, robots, canonical URLs, JSON-LD) was already done before M5 (D-028), and the suite re-verified it. Decisions: D-029 to D-031. **Nothing was deployed publicly.**
+
+### What changed
+**Frontend:**
+- `src/proxy.ts`: a CSP with a per-request nonce (`script-src 'self' 'nonce-…' 'strict-dynamic'`). The root layout calls `connection()`, so every page renders per request.
+- `next.config.ts`: adds `Cross-Origin-Opener-Policy` and a tighter `Permissions-Policy`.
+- **Accessibility fixes found by axe:**
+  - status badge year and scope text used `opacity-90`, which fell below AA contrast
+  - citation markers `[n]` and region links on profiles were under the 24 px target size (WCAG 2.5.8)
+- `e2e/release.spec.ts` (new):
+  - axe on 18 core pages
+  - CSP checks, including the map rendering under the policy
+  - a keyboard-only journey
+- `Dockerfile` (standalone output) and `.dockerignore`.
+- `.env.example`:
+  - **it held a 64-hex `REVALIDATE_SECRET` that equals the owner's local `.env.local`**; now a placeholder
+  - `API_INTERNAL_URL` port 4010 → 4000, which the README needs
+- New dev dependency `@axe-core/playwright` 4.14.0 (MPL-2.0, free).
+
+**Backend:**
+- `apiHelmetOptions()`: in production a deny-all CSP and `X-Frame-Options: DENY`; HSTS is removed from the API (Nginx owns it).
+- `TRUST_PROXY` setting (keywords only, validated).
+- `src/common/load-env.ts` replaces every direct dotenv call (D-031).
+- `Dockerfile`, `.dockerignore`.
+- `deploy/`: `docker-compose.prod.yml`, `compose.sh`, `.env.prod.example`, `nginx/` (`http.conf`, `https.conf`, shared snippets).
+- `scripts/backup.sh` and `scripts/restore.sh`.
+- `test/unit/security-headers.spec.ts` (8 tests).
+
+**Docs:**
+- new: `DEPLOYMENT.md` (with the restore runbook and migration rollback limits), `TESTING.md`, `ADMIN_GUIDE.md`, `METHODOLOGY.md`
+- updated: README (both repos), AGENTS.md commands, ARCHITECTURE, DATABASE (M5 measurements), DECISIONS, BACKLOG, CLAUDE_TASKS
+- every PLAN §13 document now exists: README, ARCHITECTURE, DATABASE, DATA_SOURCES, METHODOLOGY, ADMIN_GUIDE, DEPLOYMENT, TESTING, DECISIONS, COMPLETED_TASKS, BACKLOG, `.env.example` (plus `deploy/.env.prod.example`)
+
+### Commands run, with results
+Environment: macOS arm64, Docker Desktop 29.9.3, Node 24.19, Chrome stable.
+
+**In the working repos:**
+| Command | Result |
+|---|---|
+| backend `npm run typecheck` / `lint` / `build` | pass / pass / pass |
+| backend `npm test` | **241/241 pass**, 15 suites |
+| frontend `npm run typecheck` / `lint` | pass / pass |
+| frontend `npm run test:e2e` (includes `npm run build`) | **42/42 pass** (21 tests × desktop and 360px) |
+| first `release.spec.ts` run | failed, as intended: axe found serious contrast and target-size violations on 7 pages; fixed, then 6/6 pass |
+
+**Production stack** (throwaway project `wildward-rehearsal` on `127.0.0.1:8088`, random secrets never printed):
+| Command | Result |
+|---|---|
+| `./deploy/compose.sh build`, then `up -d --wait` | the first try failed: `migrate` could not read `drizzle/meta`, which is `0700` in the working copy. Fixed with `COPY --chmod=755`. A second issue was a wrong Nginx mount path. After both fixes, db, api, web and nginx were healthy and migrate exited 0. |
+| network checks | `db_net` and `app_net` internal; db has no published port and no DNS or route out; the web container cannot resolve `db`; the api reaches it; only nginx publishes a port |
+| through Nginx | `/`, `/species`, health, robots, sitemap 200; `/api/docs` and `/api/revalidate` 404; page CSP with nonce; API deny-all CSP; basemap gzip 573 kB → 198 kB |
+| `nginx -t` with `https.conf` and a throwaway self-signed certificate | syntax ok (not tested with a real certificate) |
+| content | in the container: `seed-regions` (177 + 29) and `admin-create`. Imported `catalogue/pilot.json` (45 changes) and `batch-1.json` (562). Over HTTP through Nginx: no CSRF → 403, foreign Origin → 403; 41 images approved and 43 drafts published (rehearsal data only, deleted afterwards). The first publish attempt hit Nginx's 429 at 20 r/s; the limits were raised and images exempted (D-030). |
+| `validate-catalogue.js` in the container | **PASS**: 43 species, 64 numeric claims, 41 images, 903 compare pairs |
+
+**Backup → wipe → restore rehearsal:**
+| Step | Result |
+|---|---|
+| `scripts/backup.sh` | 2 s; `db.dump` 0.7 MB and `media.tar.gz` 15 MB, both verified; manifest: 43 published, 43 revisions, 41 media, 206 regions, 2 staff users, 474 audit events, 156 WebP files |
+| `./deploy/compose.sh down -v` | both volumes removed; the fresh stack had 0 species and 0 files, and the snow leopard profile gave 404 |
+| `scripts/restore.sh <dir>` without `--yes` | refused, exit 2 |
+| `scripts/restore.sh <dir> --yes` | 30 s; checksums OK; every count equal to the manifest |
+| after the restore | all services healthy; `validate-catalogue` PASS; `/species/panthera-uncia` renders and its photo is 200 `image/webp`; the API lists 43; staff login 200 |
+| second restore | added `ANALYZE` after seeing the planner estimate 1 row per table; a re-run gave correct statistics (43 rows) and identical counts |
+| teardown | rehearsal stack and volumes removed, `deploy/.env.rehearsal` deleted. The backup stays in this session's scratchpad. |
+
+**Measurements:** p50/p95/p99 for 9 public endpoints on the 43-species catalogue. Every p95 is ≤ 10.1 ms, single client and no load. Conditions are in DATABASE.md "M5 measurements". This is not a load test.
+
+**Fresh-clone check:**
+- **Method:** `git clone` of both repos into the scratchpad, plus this session's uncommitted files, so it matches the commit the owner will make. Set up from the READMEs only.
+- **Deviations:** a separate `wild_fresh` database, and ports 4020/3020, because 3000 and 4000 were already in use on this machine.
+
+| Step | Result |
+|---|---|
+| backend: `npm install`, `db:up`, `db:migrate`, `db:check`, `db:seed:regions`, `db:seed:fixtures`, `admin:create`, `typecheck`, `lint`, `build` | all pass |
+| backend `npm test`, first run | **51 failed**: the clone's `.env` leaked into the tests (D-031) |
+| backend `npm test` after the fix | **241/241** |
+| backend `openapi:export` | no drift |
+| frontend: `npm install`, `contracts:generate` (no drift), `typecheck`, `lint`, `build` | all pass |
+| `npm start` / `next start` | every page 200; fixture species listed |
+| frontend `npm run test:e2e` from the clone | **42/42** |
+| cleanup | `wild_fresh` dropped |
+
+### Working features (R1)
+- **Public site:**
+  - home, Explore (search, filters, URL state), profiles (eight sections, Unknown states, citations, photo credits), compare (up to 3, no scores, "Not directly comparable")
+  - map (list first, works without tiles), region pages, support directory
+  - about, methodology, sources, privacy and terms pages
+  - sitemap, robots, Open Graph, JSON-LD
+- **Staff area:**
+  - sign-in with sessions, CSRF, Origin checks and throttling
+  - draft → submit → publish with the checklist and optimistic concurrency
+  - rollback, source edits, media upload and review, support directory admin
+- **Tools:** import CLI (idempotent, `--reconcile`), `links:check`, `validate:catalogue`.
+- **Operations:** production compose, Nginx, health checks, CSP and headers, backup and restore (rehearsed).
+- **Accessibility:** axe finds no serious or critical violations on 18 core pages, and the core journey works by keyboard, at desktop and 360px.
+
+### Remaining issues
+- **Owner actions:**
+  - rotate the local `REVALIDATE_SECRET`. The old value is in the frontend repo's git history; it only ever protected local revalidation, but never reuse it.
+  - confirm the `/support` review criteria (D-018) and the privacy and terms wording (D-028)
+  - decide whether to name an operator
+- **Content:**
+  - the status of all 43 species comes second-hand from Wikidata (D-027)
+  - some population figures come from Wikipedia
+  - trend is Unknown everywhere
+  - Replace these with checked primary sources before any launch.
+- **Untested or missing:**
+  - TLS has not served real traffic (only `nginx -t`)
+  - no CI; every result above was run by hand
+  - no admin end-to-end tests
+  - no screen-reader or zoom pass by a person (TESTING.md "Manual checks")
+  - no load test
+- **Known limits:**
+  - styles allow `'unsafe-inline'` (D-029)
+  - the login throttle is in memory, which is fine with one API process
+  - media lives on a local volume only (no S3 adapter)
+- **Not built (open in ARCHITECTURE):** the form-based draft editor (D-011), staff invites and management, a screen for the audit log.
+- **Editorial JSONB:** the migration hook exists, but there is no v2 yet, so the migration path itself is untested (TESTING.md).
+- The local `dist/` was rebuilt; restart any dev API that runs from `dist/` (for example the one on :4010).
+
+### Unavailable data or integrations
+| Data | Status |
+|---|---|
+| IUCN Red List pages and API | not read by the agent (`robots.txt` disallows it; 403); permission pending |
+| IUCN habitat and threat classification lists, IUCN range polygons | licences pending, so empty in production |
+| Marine Regions | licence pending, not imported (D-020) |
+| Paid services (tile providers, storage, monitoring) | none used; the owner's rule is free and legal only |
+
+### Recommended next milestone
+- **Before R2, an R1 launch-readiness task:**
+  1. replace the second-hand status citations with hand-checked IUCN citations
+  2. add a CI pipeline (BACKLOG)
+  3. run the manual screen-reader pass and user tasks with 3–5 testers (PLAN §11)
+  4. have the owner review the legal and policy texts
+- **Only after that,** and with the owner's explicit authorization: a public deployment on a host following DEPLOYMENT.md.
+- **R2** (accounts, collections) starts only when the owner explicitly asks (PLAN §12).
+
 ## 2026-11-21: Real catalogue batch 1 (40 species, owner request, after M4)
 **Scope:** 40 more real species, gathered and published the same way as the pilot (`catalogue/batch-1.json`, photos in `catalogue/media/`).
 - **Sources per species:**

@@ -106,4 +106,32 @@ Both spatial lookups use their GiST index. As in M2, 6 rows say nothing about sc
 - **Rejected images** are filtered out of public reads (`ne(review_state, 'rejected')` in the profile, `<> 'rejected'` in the card lateral), without touching revisions.
 - **Rollback** needed no change: old published revisions stay `published`, so the pointer trigger accepts them (D-024).
 
-**Query plans:** not re-measured. The dev catalogue has 6 published synthetic species and 3 real pilot species still in draft, which says nothing more about scale than the M2/M3 plans did. Re-measure when the catalogue reaches 20–30 profiles.
+**Query plans:** not re-measured. The dev catalogue has 6 published synthetic species and 3 real pilot species still in draft, which says nothing more about scale than the M2/M3 plans did. Re-measure when the catalogue reaches 20–30 profiles (done in M5, below).
+
+## M5 measurements (2026-11-21)
+**Conditions:**
+- the production compose stack on a MacBook: Docker Desktop, linux/aarch64, 12 CPUs, 8 GB given to Docker
+- PostGIS 16.4 / 3.4
+- the **real catalogue**: 43 published species (pilot plus batch 1), 41 images, 206 regions
+- requests sent from inside the API container to `127.0.0.1:4000`, so no Nginx and no network: 20 warm-up requests, then 200 sequential ones per endpoint
+- one client, no concurrent load; **this is not a load test**
+
+| Endpoint | p50 ms | p95 ms | p99 ms |
+|---|---|---|---|
+| `/api/v1/species?pageSize=24` | 1.9 | 2.4 | 4.6 |
+| `/api/v1/species?q=pan&pageSize=24` | 1.3 | 1.7 | 2.0 |
+| `/api/v1/species?environment=terrestrial&category=CR&category=EN&sort=status&pageSize=24` | 2.0 | 2.5 | 3.8 |
+| `/api/v1/species?group=bird&page=2&pageSize=12` | 1.2 | 1.8 | 3.2 |
+| `/api/v1/filters` | 1.1 | 2.0 | 2.8 |
+| `/api/v1/species/panthera-uncia` | 3.7 | 5.1 | 7.2 |
+| `/api/v1/compare?species=…` (3 species) | 7.2 | 10.1 | 14.5 |
+| `/api/v1/map?bbox=-180,-90,180,90` | 4.0 | 6.8 | 9.8 |
+| `/api/v1/map?bbox=60,20,110,50` | 1.4 | 2.3 | 3.2 |
+
+**Query plans** (`auto_explain` with `log_analyze` on the throwaway rehearsal database):
+- the filtered list query ran in about 1 ms
+- the planner still chose sequential scans on `species` and `species_revisions`, because 43 rows fit in one page; per-species lookups (names, headline assessment, primary image) run as small LATERAL subplans
+
+**Honest limit:** 43 rows still say nothing about behaviour at thousands of species. Re-measure at a few hundred profiles, and under concurrent load, before claiming any capacity.
+
+**Found during the restore rehearsal:** `pg_restore` brings no planner statistics. Until autovacuum ran, every table was estimated at 1 row. `scripts/restore.sh` now runs `ANALYZE` (D-030).

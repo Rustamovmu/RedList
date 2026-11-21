@@ -8,8 +8,8 @@
  * The spatial SQL lives in GeoRepository (upsertRegion), like all spatial SQL (AGENTS.md).
  * Natural Earth already splits shapes at the antimeridian.
  */
-import { config } from 'dotenv';
-config({ quiet: true });
+import { loadDotEnv } from '../common/load-env';
+loadDotEnv();
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { Pool } from 'pg';

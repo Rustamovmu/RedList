@@ -8,8 +8,8 @@
  * A Markdown change report is written to import-reports/. Nothing is ever submitted or published:
  * staff review the drafts (and approve any new images) in /admin.
  */
-import { config } from 'dotenv';
-config({ quiet: true });
+import { loadDotEnv } from '../common/load-env';
+loadDotEnv();
 import { NestFactory } from '@nestjs/core';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, resolve } from 'node:path';

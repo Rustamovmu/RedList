@@ -1,6 +1,6 @@
 /** Writes openapi.json. The frontend generates its types from this file (npm run contracts:generate there). */
-import { config } from 'dotenv';
-config({ quiet: true });
+import { loadDotEnv } from '../common/load-env';
+loadDotEnv();
 import { writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { buildOpenApi, createApp } from '../bootstrap';

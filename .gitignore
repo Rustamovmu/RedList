@@ -10,3 +10,8 @@ storage/
 .claude/skills
 .agents/skills
 import-reports/
+
+# Production env and local backups
+deploy/.env.prod
+deploy/.env.rehearsal
+backups/

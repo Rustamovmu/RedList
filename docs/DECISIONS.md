@@ -272,3 +272,65 @@ White text on each IUCN badge colour measures 4.9:1 to 21:1, so all pass WCAG AA
   - Open Graph and Twitter tags on every page; profiles use their licensed primary photo at 1280 px from our own API.
   - JSON-LD: `Taxon` (with `parentTaxon` genus, alternate names, image) and `BreadcrumbList` on profiles; `WebSite` with a `SearchAction` on the home page. `jsonLd()` escapes `<`.
 **Consequences:** before a public launch, the owner should review the privacy and terms wording and decide whether to name an operator. `NEXT_PUBLIC_SITE_URL` must be the real origin in production, or canonical, sitemap and Open Graph URLs point at localhost.
+
+## D-029 Security headers and Content Security Policy (2026-11-21, M5)
+**Context:** PLAN §12 M5 asks for security headers and a CSP. Next.js injects inline scripts, so a strict policy needs a per-request nonce, and nonces need pages rendered per request.
+**Decision:**
+- **Pages:**
+  - `src/proxy.ts` (Next 16's replacement for middleware) sets the CSP with a fresh nonce on every page request
+  - `script-src 'self' 'nonce-…' 'strict-dynamic'`, with no `'unsafe-inline'`; `'unsafe-eval'` only in `next dev`
+  - `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, `frame-ancestors 'none'`
+  - `connect-src 'self'`, because the browser only talks to our own `/api/v1`
+  - `img-src 'self' blob: data:` and `worker-src 'self' blob:`, for MapLibre's sprites and worker
+- **Rendering:** the root layout calls `connection()`, so every page renders per request and gets the nonce. API data is still cached by tag, so this costs a render, not an API call. JSON-LD `<script type="application/ld+json">` blocks are data, not scripts, so they need no nonce.
+- **Styles allow `'unsafe-inline'`:** the map legend swatches and `next/image` use style attributes. Injected styles cannot run code. Removing this would mean nonce-tagging every style or moving those styles into classes; it is a backlog item, not an R1 blocker.
+- **Other page headers** (`next.config.ts`): `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` (geolocation self only, for "Near me"), `Cross-Origin-Opener-Policy: same-origin`, and no `X-Powered-By`.
+- **API** (Helmet, `apiHelmetOptions`):
+  - in production, `default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'`, because the API serves JSON and WebP only
+  - outside production, Helmet's default CSP, so Swagger UI works
+  - `X-Frame-Options: DENY`
+- **HSTS is set by Nginx only,** where TLS ends. Helmet's default (one year with `includeSubDomains`) is turned off, so the max-age can start short and grow.
+**Consequences:**
+- `e2e/release.spec.ts` fails if any page lacks the nonce policy, if a server-rendered script lacks the nonce, or if any CSP violation fires, including on the map.
+- A future third-party script needs an explicit policy change.
+- Statically generated pages would break under this policy. Keep `connection()` in the root layout, or move to a hash-based policy.
+
+## D-030 Production stack (2026-11-21, M5)
+**Context:** PLAN §13 asks for a production compose with a private database network, Nginx, health checks, and backups of PostgreSQL and media stored apart from the app host.
+**Decision:**
+- **Layout:** `deploy/docker-compose.prod.yml`, run through `deploy/compose.sh`, which always passes `-p <project>`, the file and `deploy/.env.prod`.
+- **Networks:**
+  - `db_net` and `app_net` are `internal: true`
+  - the database is only on `db_net`, has no published port and no route out
+  - the API is also on `edge`, for `links:check` and import downloads
+  - only Nginx publishes a port, `127.0.0.1:8080` by default
+- **Migrations:** a one-shot `migrate` service runs before the API (`service_completed_successfully`), so a failed migration stops a deploy before new code serves traffic.
+- **Images:**
+  - **API:** `node:22-bookworm-slim`, compiled JS only (`dist/cli/*.js` replace ts-node), production dependencies only, runs as `node`
+  - **Web:** Next.js standalone output, with `NEXT_PUBLIC_SITE_URL` as a build argument (it is inlined)
+  - **Both:** `cap_drop: ALL` and `no-new-privileges`
+  - **Copies:** `COPY --chmod=755` for drizzle, data, catalogue and src, so the image never depends on the permissions of the working copy it was built from. A 0700 `drizzle/meta` made the first build's migrate step fail.
+- **`TRUST_PROXY`:** new environment setting, default `loopback`; the stack uses `loopback,uniquelocal`. Only those keywords are accepted: never `true`, `*` or arbitrary ranges. Nginx overwrites `X-Forwarded-For` with the client address, so the login throttle cannot be fooled.
+- **Nginx (1.30.7, the stable branch on 2026-11-21):**
+  - routing: `/api/v1` → API, the rest → web
+  - `/api/revalidate` and `/api/docs` give 404 from outside
+  - rate limits: login 10/min; the API 30 r/s with a burst of 120; images unlimited. The first limit (20 r/s, burst 60) throttled a scripted publish in the rehearsal, and would also have hit a classroom loading cards behind one address.
+  - gzip; 16 MB uploads; `http.conf` (TLS in front) or `https.conf` (TLS here, HSTS)
+- **Backups:**
+  - `pg_dump -Fc` inside the db container, so the client always matches the server, plus a tar of the media volume read by a throwaway container with a read-only mount
+  - a manifest with sha256 sums and row counts; retention by count
+  - optional `rsync` off the host (no paid storage)
+- **Restore:**
+  - drops and recreates the database from `template0`
+  - runs `pg_restore --exit-on-error`, then `ANALYZE`. Without `ANALYZE` the rehearsal's planner guessed 1 row per table.
+  - empties and refills the media volume
+  - force-recreates api, web and nginx, so the Next.js data cache cannot serve pre-restore pages
+**Consequences:**
+- A new import file needs an image rebuild, or `docker compose cp`.
+- Media is local to the host (no S3 adapter, BACKLOG), so off-host copies of backups matter.
+- Runbook and limits: `docs/DEPLOYMENT.md`.
+
+## D-031 Tests never read the developer's .env (2026-11-21, M5)
+**Context:** The fresh-clone check failed 51 integration tests. Ten modules (the server and every CLI) call `dotenv.config()` when imported, and test files import some CLIs. With `.env.test` silent on a setting, the developer's `.env` filled it in: a non-default `WEB_ORIGIN` made every staff login 403. A dev `WEB_REVALIDATE_URL` could also have sent revalidation calls from tests to a running dev web server. The owner's own `.env` happened to match the test defaults, which hid the problem.
+**Decision:** `src/common/load-env.ts` `loadDotEnv()` replaces every direct `config()` call and does nothing when `NODE_ENV=test`. `test/setup-env.ts` still loads `.env.test` with `override`. A unit test checks that a `.env` in the working directory is ignored under tests.
+**Consequences:** Every test setting must be in `.env.test` or have a default in `src/config.ts`.

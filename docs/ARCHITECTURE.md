@@ -16,6 +16,8 @@ flowchart LR
   A -.->|"POST /api/revalidate + secret, after publish / rollback / archive"| W
 ```
 
+- **Production:** Nginx in front of the same two apps, on private Docker networks, with the database reachable only by the API. See the diagram in `DEPLOYMENT.md`.
+- **Security headers:** the web app sets a nonce CSP per page request (`src/proxy.ts`); the API sets a deny-all CSP in production; Nginx sets HSTS (DECISIONS D-029).
 - **Contracts:** backend `npm run openapi:export` writes `openapi.json`. Frontend `npm run contracts:generate` writes `src/contracts/api.d.ts`. Types are never written by hand.
 - **Caching:** the web app fetches published data with tags `species:<slug>`, `catalogue` and `region:<slug>`. The API revalidates those tags after each publication change.
 - **Publication boundary:** every public read goes through `species.published_revision_id` (see `DATABASE.md`).
@@ -33,9 +35,10 @@ flowchart LR
 | `/support` | Directory of reviewed support links, plus the published review criteria | **done** (M3). Criteria text needs owner review (D-018) |
 | `/about`, `/methodology`, `/sources`, `/privacy`, `/terms` | Information pages. `/sources` lists every source cited by published content. | **done** (2026-11-21). The about page describes a personal portfolio project; set `NEXT_PUBLIC_CONTACT_URL` for a contact link |
 | `/sitemap.xml`, `/robots.txt` | SEO, published content only | **done** (2026-11-21), plus Open Graph with the licensed photo and schema.org JSON-LD (`Taxon`, `BreadcrumbList`, `WebSite` search) |
+| all pages | Accessibility (axe, keyboard), nonce CSP | **done** (M5): `e2e/release.spec.ts` |
 | not-found, error | Fallback pages | **done** |
 
-Navigation: Explore · Map · Compare · About. The support directory is linked from the footer and from species context. Until their milestones land, nav links go to the 404 page.
+Navigation: Explore · Map · Compare · About. The support directory is linked from the footer and from species context.
 
 ## Staff area (`/admin`, same Next.js app)
 
@@ -92,3 +95,11 @@ Swagger UI: `/api/docs` (non-production only).
 | `import` | import file schema (zod) and the import engine | **done** (M4) |
 | `quality` | `validate:catalogue` checks (PLAN §11) | **done** (M4) |
 | `common/safe-fetch` | SSRF-safe outbound fetcher (D-026) | **done** (M4) |
+
+## Operations (backend repo)
+
+| Piece | Holds | Status |
+|---|---|---|
+| `Dockerfile`, `../RedList-frontend/Dockerfile` | production images | **done** (M5) |
+| `deploy/docker-compose.prod.yml`, `deploy/compose.sh`, `deploy/nginx/` | production stack: private networks, migrate step, health checks, Nginx | **done** (M5, D-030) |
+| `scripts/backup.sh`, `scripts/restore.sh` | PostgreSQL + media backup and restore, rehearsed | **done** (M5) |
