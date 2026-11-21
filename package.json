@@ -25,6 +25,8 @@
     "import": "ts-node --transpile-only src/cli/import.ts",
     "links:check": "ts-node --transpile-only src/cli/links-check.ts",
     "validate:catalogue": "ts-node --transpile-only src/cli/validate-catalogue.ts",
+    "status:sheet": "ts-node --transpile-only src/cli/status-check.ts sheet",
+    "status:import": "ts-node --transpile-only src/cli/status-check.ts import",
     "openapi:export": "ts-node --transpile-only src/cli/export-openapi.ts",
     "test": "jest --config jest.config.js --runInBand"
   },

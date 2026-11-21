@@ -25,6 +25,8 @@ npm run e2e:prepare         # wipe + reload the wild_e2e database and storage/me
 npm run import -- <file.json> --dry-run | --apply [--reconcile]   # content into DRAFTS only; report in import-reports/
 npm run links:check         # record HTTP status of every support link (never disables one)
 npm run validate:catalogue  # PLAN §11 quality report over published content; exit 1 on any failure
+npm run status:sheet        # (re)build docs/launch/status-check.csv for the hand-checked IUCN status; keeps filled-in values
+npm run status:import -- <sheet.csv> --dry-run | --apply   # checked rows into DRAFTS only (D-032); report in import-reports/
 npm run dev                 # API on :4000, Swagger UI at /api/docs
 npm run db:generate         # after editing src/db/schema.ts: generate a migration
 npm run openapi:export      # write openapi.json for the frontend
@@ -33,12 +35,13 @@ npm run typecheck && npm run lint && npm test && npm run build   # tests need .e
 scripts/backup.sh                         # PostgreSQL + media of the production stack → BACKUP_DIR
 scripts/restore.sh <backup-dir> --yes     # DESTRUCTIVE restore of the production stack
 ```
+CI: `.github/workflows/ci.yml` in each repo runs the same commands on GitHub's standard runners (free for public repos, D-033).
 Frontend (`RedList-frontend/`):
 ```
 npm install
 npm run contracts:generate  # types from ../RedList-backent/openapi.json
 npm run dev                 # web on :3000, proxies /api/v1 to the API
-npm run test:e2e            # Playwright: own stack on :4110/:3110 + wild_e2e, installed Chrome, desktop + 360px; includes axe, CSP and keyboard checks
+npm run test:e2e            # Playwright: own stack on :4110/:3110 + wild_e2e, installed Chrome, desktop + 360px; includes axe (public + staff pages), CSP, keyboard and reflow checks
 npm run typecheck && npm run lint && npm run build
 ```
 

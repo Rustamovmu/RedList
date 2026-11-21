@@ -85,14 +85,14 @@ Swagger UI: `/api/docs` (non-production only).
 | `health` | liveness and readiness | **done** |
 | `db` | Drizzle connection and `schema.ts` | **done** |
 | `common` | error shape, request IDs, JSON (bigint as string) | **done** |
-| `cli` | migrate, seed-regions, export-openapi, admin-create, seed-fixtures, e2e-prepare, import, links-check, validate-catalogue | **done** (M4 added the last three) |
+| `cli` | migrate, seed-regions, export-openapi, admin-create, seed-fixtures, e2e-prepare, import, links-check, validate-catalogue, status-check | **done** (M4 added import, links-check and validate-catalogue; R1-L added status-check) |
 | `identity` | staff sessions, CSRF + Origin guard, roles, login throttle | **done** (M1) |
 | `editorial` | revisions, editorial zod schema, checklist, publish transaction, audit, revalidation, sources | **done** (M1) |
 | `catalogue` | `PublishedSpeciesRepository` plus the `PUBLISHED` SQL fragment in `catalogue-sql.ts` (the only public read path): profile, list, filters, related, compare | **done** (M1, M2) |
 | `geography` | regions, map, basemap, `GeoRepository` (the only home of spatial SQL) | **done** (M3) |
 | `support-directory` | organizations, support links, public directory | **done** (M3) |
 | `media` | uploads, `StorageAdapter` (local disk), image pipeline (sharp), review, public and staff serving | **done** (M4) |
-| `import` | import file schema (zod) and the import engine | **done** (M4) |
+| `import` | import file schema (zod) and the import engine; hand-checked IUCN status sheet and its import (`status-check.ts`, D-032) | **done** (M4, R1-L) |
 | `quality` | `validate:catalogue` checks (PLAN §11) | **done** (M4) |
 | `common/safe-fetch` | SSRF-safe outbound fetcher (D-026) | **done** (M4) |
 
@@ -103,3 +103,5 @@ Swagger UI: `/api/docs` (non-production only).
 | `Dockerfile`, `../RedList-frontend/Dockerfile` | production images | **done** (M5) |
 | `deploy/docker-compose.prod.yml`, `deploy/compose.sh`, `deploy/nginx/` | production stack: private networks, migrate step, health checks, Nginx | **done** (M5, D-030) |
 | `scripts/backup.sh`, `scripts/restore.sh` | PostgreSQL + media backup and restore, rehearsed | **done** (M5) |
+| `.github/workflows/ci.yml` (both repos) | CI on standard GitHub-hosted runners (D-033) | **done** (R1-L); first run on the owner's push |
+| `docs/launch/` | launch-readiness sheets and checklists for people to run: STATUS_CHECK, A11Y_MANUAL_CHECK, USER_TASKS, OWNER_REVIEW | **done** (R1-L) |

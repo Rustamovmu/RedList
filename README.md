@@ -49,7 +49,7 @@ Integration tests run against a **separate** real PostGIS database and wipe it o
 cp .env.test.example .env.test   # adjust port 5433/5432; MEDIA_DIR must contain "test" (wiped by the tests)
 npm test
 ```
-The frontend's `npm run test:e2e` needs Docker PostGIS on port 5433 and Google Chrome; it creates and wipes its own `wild_e2e` database. Everything about tests is in `docs/TESTING.md`.
+The frontend's `npm run test:e2e` needs Docker PostGIS on port 5433 and Google Chrome; it creates and wipes its own `wild_e2e` database. Everything about tests is in `docs/TESTING.md`. CI: `.github/workflows/ci.yml` (D-033). Launch-readiness checklists for people to run are in `docs/launch/`.
 
 ## Production
 

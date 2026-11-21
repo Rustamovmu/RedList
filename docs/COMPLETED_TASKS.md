@@ -1,5 +1,84 @@
 # Completed tasks
 
+## 2026-11-21: R1-L Launch readiness
+**Scope:** the R1 launch-readiness task (CLAUDE_TASKS "R1-L"): status-check sheet and import, CI, the manual accessibility checklist, the user-testing script, and the owner review list. **Nothing was deployed or pushed, and no IUCN page was read.** Decisions: D-032 (status check), D-033 (CI).
+
+### What changed
+**Backend:**
+- **Status check** (`src/import/status-check.ts`, `src/cli/status-check.ts`):
+  - `npm run status:sheet` builds `docs/launch/status-check.csv`. It keeps any values already filled in and refreshes the table in `STATUS_CHECK.md`.
+  - `npm run status:import -- <csv> --dry-run | --apply` writes checked rows into **drafts only**, citing "IUCN Red List, checked by hand". The tool never fills in a value.
+- `e2e:prepare` creates an e2e-only admin when `E2E_ADMIN_EMAIL` and `E2E_ADMIN_PASSWORD` are set. This happens only in a database named `*e2e*`.
+- `.github/workflows/ci.yml`: job `checks` (install, typecheck, lint, openapi drift, tests against a PostGIS service, build) and job `e2e` (clones the frontend, runs its contracts drift check and Playwright).
+- New test file `test/integration/status-check.spec.ts`: 9 tests.
+
+**Frontend:**
+- `.github/workflows/ci.yml`: one job. It clones the API, then runs install, typecheck, lint, the contracts drift check, build and Playwright.
+- New `e2e/a11y-extra.spec.ts`:
+  - reflow at 320 and 640 px
+  - axe structure rules
+  - keyboard sign-in, then axe on the five staff pages
+- New `e2e/staff.ts` holds the test-only credentials; `playwright.config.ts` passes them to the e2e API.
+- **Accessibility fix found by the new check:** the scrollable "Reference ids" list in the revision editor could not be reached by keyboard (axe `scrollable-region-focusable`, serious). It now takes focus and has a label.
+- `/privacy`: staff sessions also store session times and the user-agent; the draft text omitted them.
+
+**Docs:**
+- New `docs/launch/`:
+  - `STATUS_CHECK.md` and `status-check.csv`: **43 rows**, one per real published species, all with an IUCN taxon ID. Editions cited: 2022.2 ×34, 2021.3 ×7, 2025.2 ×1, not stated ×1 (emperor penguin). Owner columns are empty.
+  - `A11Y_MANUAL_CHECK.md`, `USER_TASKS.md`, `OWNER_REVIEW.md`
+- Updated: DECISIONS (D-032, D-033), TESTING, ARCHITECTURE, DATA_SOURCES, BACKLOG (CI removed), AGENTS.md commands, both READMEs.
+
+### GitHub free-minutes check (D-033)
+- **Source:** GitHub Docs, "GitHub Actions billing", read 2026-11-21.
+- **Free for public repositories:** standard GitHub-hosted runners are free in public repositories. Larger runners are billed.
+- **Without a payment method,** usage beyond the allowance is blocked, not charged.
+- **Both repositories are public** (public GitHub API, same day).
+- **Result:** no cost, so no need to stop and ask. If a repo becomes private, re-check.
+
+### Commands run, with results
+| Command | Result |
+|---|---|
+| backend `npm run typecheck` / `lint` / `build` | pass / pass / pass |
+| backend `npm test` | **250/250 pass**, 16 suites (241 before + 9 new) |
+| first `status-check.spec.ts` runs | failed twice, both on test setup: an estimate together with `population.unknown` failed the checklist; a raw `pg` date compared as a string. Fixed the tests; then 9/9 |
+| backend `openapi:export` + `git diff --exit-code openapi.json` | no drift |
+| frontend `contracts:generate` + `git diff --exit-code src/contracts/api.d.ts` | no drift |
+| `npm run status:sheet` (local `wild` database; read-only) | 43 rows written, 0 filled in |
+| `npm run validate:catalogue` (local `wild`) | **PASS**: 49 published (43 real + 6 fixtures), 78 cited numeric claims, 41 approved images, 1176 compare pairs |
+| frontend `npm run typecheck` / `lint` | pass / pass |
+| first `a11y-extra.spec.ts` run | 2 pass, 1 fail as intended (the scrollable list above); fixed, then 3/3 |
+| frontend `npm run test:e2e` (full) | **45 passed, 3 skipped**. The skips are by design: `a11y-extra` sets its own viewports and runs only in the desktop project. |
+| **CI rehearsal:** fresh `git clone` of both repos plus this session's uncommitted files, running the workflow commands in order | `npm ci`, typecheck, lint, test (250/250), build: pass (backend). `npm ci`, typecheck, lint, contracts drift, build, `test:e2e` (45 passed, 3 skipped): pass (frontend). The openapi drift step first failed with "DATABASE_URL undefined" because the rehearsal script did not set the job-level `DATABASE_URL` that the workflow sets; re-run with it: pass. |
+| YAML parse of both workflows | ok (backend: 2 jobs; frontend: 1 job) |
+
+**Gate status:**
+- **CI on a pushed branch: not run.** The owner commits and pushes (AGENTS.md), and the agent has no `gh` CLI. The same commands pass in the local rehearsal above.
+- **First real run:** on the owner's push to `develop`. Things that could still differ on GitHub:
+  - pulling `imresamu/postgis:16-3.4` as a service
+  - whether the runner image already has Google Chrome (the step installs it if not)
+- The four launch documents exist, and the gate commands pass.
+
+### Owner actions still open
+1. **Status check:** fill in `docs/launch/status-check.csv` from the IUCN pages. Then run `status:import --dry-run`, then `--apply`. Review and publish each draft.
+2. **Push both repos,** so CI runs for the first time. Report the result; it has not been recorded.
+3. **Run `docs/launch/A11Y_MANUAL_CHECK.md`** (VoiceOver, zoom, reading order). Results are not recorded.
+4. **Run `docs/launch/USER_TASKS.md`** with 3–5 testers. Results are not recorded. Preconditions:
+   - task 5 needs at least one reviewed support link, and the local directory is **empty**
+   - only the hawksbill sea turtle has country rows, so task 3 uses it
+5. **Approve `docs/launch/OWNER_REVIEW.md`:**
+   - the texts: support criteria, privacy, terms, about, methodology, status-check note
+   - operator and contact (`NEXT_PUBLIC_CONTACT_URL`), name, domain and trademark check
+   - jurisdiction and privacy law, log retention, licence of our own text, a corrections route, IUCN terms
+   - rotating `REVALIDATE_SECRET`
+
+### Known gaps
+- 42 of 43 real species have no country or ocean rows, so "where does it live" shows nothing for them. Habitats, threats and ranges are still empty (licences pending).
+- The `iucn_search_url` format is untested, because the agent cannot open iucnredlist.org. The owner pastes the real assessment URL they read.
+- Admin editing and publishing are still not driven end to end in the browser; only accessibility and keyboard sign-in are.
+- Restart any dev API that runs from `dist/`, because it was rebuilt.
+
+**Next:** finish the owner actions above. Public deployment needs separate, explicit authorization. R2 starts only when asked.
+
 ## 2026-11-21: M5 Release verification (final R1 report)
 **Scope:**
 - accessibility pass: axe plus a keyboard-only walkthrough

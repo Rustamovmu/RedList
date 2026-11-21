@@ -8,7 +8,8 @@ What is tested, where, and how to run it. PLAN §13 lists the tests that must ex
 | Unit | `test/unit/` (backend) | nothing external | `npm test` (with the integration tests) |
 | Integration | `test/integration/` (backend) | a real PostGIS database, `wild_test`, wiped on every run | `npm test` |
 | End-to-end | `e2e/` (frontend) | its own stack: API :4110 on `wild_e2e`, web :3110 built into `.next-e2e`, installed Google Chrome, desktop 1280 and mobile 360 | `npm run test:e2e` (frontend) |
-| Accessibility | `e2e/release.spec.ts` (axe-core) | the e2e stack | part of `npm run test:e2e` |
+| Accessibility | `e2e/release.spec.ts`, `e2e/a11y-extra.spec.ts` (axe-core) | the e2e stack | part of `npm run test:e2e` |
+| CI | `.github/workflows/ci.yml` in each repo | GitHub standard runners with a PostGIS service container | on push to `main`/`develop` and on pull requests (D-033) |
 | Quality report | `src/quality/` | any database with published content | `npm run validate:catalogue` |
 | Operations | `scripts/backup.sh`, `scripts/restore.sh` | the production compose stack | rehearsal, see DEPLOYMENT "Restore" |
 
@@ -51,6 +52,7 @@ Also covered:
 - rollback auditing (`content-ops.spec.ts`)
 - profiles rendering with outbound network blocked (`content-ops.spec.ts`, e2e `content.spec.ts`)
 - API security headers and `TRUST_PROXY` (`test/unit/security-headers.spec.ts`)
+- hand-checked IUCN status sheet and import: drafts only, validation, idempotency, skip when submitted (`test/integration/status-check.spec.ts`, D-032)
 
 ## End-to-end suite (`RedList-frontend/e2e/`)
 Every test runs at desktop 1280 × 800 and mobile 360 × 740.
@@ -60,20 +62,16 @@ Every test runs at desktop 1280 × 800 and mobile 360 × 740.
 | `geography.spec.ts` | M3 gate: with basemap tiles blocked, the list and filters still work; layer labels; region pages; antimeridian view |
 | `content.spec.ts` | M4: profiles, home and Explore with every outbound request aborted; photos and credits |
 | `pages.spec.ts` | information pages, canonical URLs, sitemap, robots, JSON-LD |
+| `a11y-extra.spec.ts` | R1-L (desktop project only; sets its own viewports): no horizontal overflow at 320 px and 640 px on 15 pages; axe structure rules (one main, one h1, heading order, landmarks, bypass); keyboard sign-in to `/admin` with the e2e-only admin, then axe on the five staff pages |
 | `release.spec.ts` | M5: **axe** (WCAG 2.0/2.1/2.2 A and AA rules) reports no serious or critical violations on 18 core pages; nonce CSP on every page with no violations and a working map; a **keyboard-only** walkthrough (skip link, nav, search, filter drawer with Escape, checkbox, profile, Add to compare, compare link) with visible focus |
 
 ## Manual checks still worth doing
-axe catches only part of WCAG. Before a public launch, a person should:
-- use the site with VoiceOver (macOS or iOS) and with 200% zoom
-- check reading order on the map page
-- review the colour of the map layers against the legend
-
-The keyboard walkthrough above is automated, but a human pass over the admin pages has not been done.
+axe catches only part of WCAG. Before a public launch, a person runs `docs/launch/A11Y_MANUAL_CHECK.md`: VoiceOver, 200% and 400% zoom, reading order (including the map page), legend colours, and the staff pages. User testing with 3–5 people follows `docs/launch/USER_TASKS.md`. Neither has been run yet; results are recorded only from what a person observed.
 
 ## Performance
 Measured, never estimated (PLAN §11). See DATABASE.md "M5 measurements" for p50/p95/p99 per endpoint and the conditions they were measured under.
 
 ## Not covered
-- **CI:** none yet (BACKLOG). Everything above is run by hand.
-- **Admin pages:** no end-to-end tests, because the e2e stack has no staff login. They are covered by typecheck, lint and the API integration tests.
+- **CI on GitHub:** the workflows exist (D-033) but have not run yet; the first run is on the owner's push.
+- **Admin workflows end to end:** the staff pages are checked for accessibility and keyboard sign-in, but editing, publishing and media review are not driven through the browser. They are covered by the API integration tests.
 - **User research:** none run; PLAN §11 tasks need 3–5 real testers.

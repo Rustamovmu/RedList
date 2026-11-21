@@ -135,3 +135,22 @@ Final report in COMPLETED_TASKS.md:
 
 Do not deploy publicly. Stop.
 ```
+
+## R1-L — Launch readiness (after M5)
+```
+Read AGENTS.md, docs/PLAN.md and docs/COMPLETED_TASKS.md (start with the M5 final report). Do the R1 launch-readiness task only. Do not deploy, and do not start R2.
+
+Do:
+1. Status citations. Every published status currently cites Wikidata (D-027). You may not read IUCN pages (robots.txt disallows the agent).
+   - Write docs/launch/STATUS_CHECK.md: one row per published species with its scientific name, the Wikidata-cited category and edition, the IUCN taxon ID, the IUCN URL, and empty columns for the owner to fill in (checked category, assessment year, trend, date checked).
+   - Add an import path for the owner's filled-in sheet that updates DRAFTS only and cites "IUCN Red List, checked by hand". Never fill in a value yourself.
+2. CI. Add a GitHub Actions workflow to each repo: install, typecheck, lint, the contracts drift check, unit and integration tests against a PostGIS service, build, and the Playwright suite (PLAN §13).
+   - Before writing it, check GitHub's current free-minutes terms for the repos' visibility, and record them in DECISIONS.
+   - If it could cost money, stop and ask.
+3. Accessibility. Write docs/launch/A11Y_MANUAL_CHECK.md: a step-by-step VoiceOver, 200% zoom and reading-order checklist for the core pages and the admin pages, for a person to run. Fix anything automatable that it turns up. Never record results the owner has not reported.
+4. User testing. Write docs/launch/USER_TASKS.md: the PLAN §11 tasks as a script for 3–5 testers, with a results template. Results are never invented.
+5. Policy texts. Write docs/launch/OWNER_REVIEW.md: every text the owner must approve (support criteria D-018, privacy, terms, about, operator name and contact), with file paths and the open questions.
+6. Re-run the full gate: backend typecheck, lint, tests, build; frontend typecheck, lint, test:e2e; validate:catalogue.
+
+Gate: CI passes on a pushed branch (or the reason it cannot run is recorded), the four launch documents exist, and the gate commands pass. Log it in COMPLETED_TASKS.md with the owner actions still open, suggest commit messages, then stop.
+```

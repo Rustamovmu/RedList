@@ -1,0 +1,121 @@
+# CI for the API (PLAN §13): install, typecheck, lint, contracts drift check, unit + integration tests against
+# PostGIS, build, then the Playwright critical suite with the frontend checked out next to this repo.
+# Standard GitHub-hosted runners only: free for public repositories (DECISIONS D-033). No secrets are used.
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FRONTEND_REPO: https://github.com/Rustamovmu/RedList-frontend.git
+
+jobs:
+  checks:
+    name: Typecheck, lint, contracts, tests, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      db:
+        image: imresamu/postgis:16-3.4 # the same image as docker-compose.yml (D-003)
+        env:
+          POSTGRES_USER: wild
+          POSTGRES_PASSWORD: wild
+          POSTGRES_DB: wild_test
+        ports: ['5433:5432']
+        options: >-
+          --health-cmd "pg_isready -U wild -d wild_test"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      DATABASE_URL: postgresql://wild:wild@localhost:5433/wild_test
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - name: Contracts drift check (openapi.json must be committed up to date)
+        run: |
+          npm run openapi:export
+          git diff --exit-code -- openapi.json || { echo "::error::openapi.json is out of date. Run npm run openapi:export and commit it."; exit 1; }
+      - name: Unit and integration tests (real PostGIS)
+        run: |
+          cp .env.test.example .env.test
+          npm test
+      - run: npm run build
+
+  e2e:
+    name: Playwright critical suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: checks
+    services:
+      db:
+        image: imresamu/postgis:16-3.4
+        env:
+          POSTGRES_USER: wild
+          POSTGRES_PASSWORD: wild
+          POSTGRES_DB: wild
+        ports: ['5433:5432']
+        options: >-
+          --health-cmd "pg_isready -U wild -d wild"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          path: RedList-backent
+      - name: Check out the frontend (same branch if it exists, otherwise its default branch)
+        env:
+          BRANCH: ${{ github.head_ref || github.ref_name }}
+        run: |
+          if git ls-remote --exit-code --heads "$FRONTEND_REPO" "$BRANCH" >/dev/null; then
+            git clone --depth 1 --branch "$BRANCH" "$FRONTEND_REPO" RedList-frontend
+          else
+            git clone --depth 1 "$FRONTEND_REPO" RedList-frontend
+          fi
+          git -C RedList-frontend log -1 --format='frontend at %h %s'
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: RedList-backent/.nvmrc
+          cache: npm
+          cache-dependency-path: |
+            RedList-backent/package-lock.json
+            RedList-frontend/package-lock.json
+      - run: npm ci
+        working-directory: RedList-backent
+      - run: npm ci
+        working-directory: RedList-frontend
+      - name: Contracts drift check (frontend types match this API)
+        working-directory: RedList-frontend
+        run: |
+          npm run contracts:generate
+          git diff --exit-code -- src/contracts/api.d.ts || { echo "::error::The frontend's generated API types differ from this openapi.json. Run npm run contracts:generate in the frontend."; exit 1; }
+      - name: Google Chrome (the suite uses channel 'chrome')
+        working-directory: RedList-frontend
+        run: google-chrome --version || npx playwright install --with-deps chrome
+      - name: Playwright (desktop + 360px, axe, CSP, keyboard)
+        working-directory: RedList-frontend
+        env:
+          CI: 'true'
+          E2E_DATABASE_URL: postgresql://wild:wild@localhost:5433/wild_e2e
+        run: npm run test:e2e
+      - name: Keep the failure traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: RedList-frontend/test-results
+          retention-days: 7
+          if-no-files-found: ignore

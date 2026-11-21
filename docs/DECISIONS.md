@@ -334,3 +334,59 @@ White text on each IUCN badge colour measures 4.9:1 to 21:1, so all pass WCAG AA
 **Context:** The fresh-clone check failed 51 integration tests. Ten modules (the server and every CLI) call `dotenv.config()` when imported, and test files import some CLIs. With `.env.test` silent on a setting, the developer's `.env` filled it in: a non-default `WEB_ORIGIN` made every staff login 403. A dev `WEB_REVALIDATE_URL` could also have sent revalidation calls from tests to a running dev web server. The owner's own `.env` happened to match the test defaults, which hid the problem.
 **Decision:** `src/common/load-env.ts` `loadDotEnv()` replaces every direct `config()` call and does nothing when `NODE_ENV=test`. `test/setup-env.ts` still loads `.env.test` with `override`. A unit test checks that a `.env` in the working directory is ignored under tests.
 **Consequences:** Every test setting must be in `.env.test` or have a default in `src/config.ts`.
+
+## D-032 Hand-checked IUCN status through a CSV sheet (2026-11-21, R1 launch readiness)
+**Context:** Every published status cites Wikidata (D-027). The agent may not read IUCN pages, so a person has to check each one. Their findings must reach the catalogue through the normal review workflow, and no value may be filled in by a tool.
+**Decision:**
+- **Sheet:** `npm run status:sheet` writes `docs/launch/status-check.csv`, one row per published, non-archived species, and refreshes the table in `docs/launch/STATUS_CHECK.md`.
+  - The synthetic fixtures are left out (identifier provider `fixture`).
+  - Generated columns: the cited category, its source, the Red List edition named in that source's note, the IUCN taxon ID (the `iucn` identifier, taken from Wikidata P627 in M4), and a search link.
+  - Owner columns: `checked_category`, `date_assessed`, `trend`, `criteria`, `assessment_url`, `date_checked`, `owner_note`.
+  - Rebuilding keeps every owner value, matched by slug. Filled rows of species that are no longer published are kept at the end.
+- **Import:** `npm run status:import -- <csv> --dry-run | --apply`.
+  - A row with no owner values is skipped. A partly filled row, an invalid date, a date in the future, or an assessment URL whose taxon differs from the row's (or the species') IUCN ID stops the whole run.
+  - The CSV parser is a small built-in RFC 4180 reader, so there is no new dependency.
+- **Dates:** a full `date_assessed` (YYYY-MM-DD) is required, because `assessments.assessed_on` is a date. A year alone is refused rather than padded to 1 January.
+- **Effect per checked row:**
+  - The species' open draft, or a new draft copied from the published revision, gets one global assessment with the owner's category, trend, date and criteria. `provider_assessment_id` is the assessment ID from the URL.
+  - Every previous **global** assessment is removed; regional assessments are kept, with estimates re-indexed. An estimate linked to a removed assessment is unlinked and reported.
+  - The new assessment cites a new source: publisher IUCN, the owner's URL, `accessed_on` = date checked, and the note beginning **"IUCN Red List, checked by hand"**. `license` stays empty, because IUCN terms are still pending.
+  - Status-section citations of the removed sources move to the new source. Other sections that still cite the old source are listed in the report and not changed.
+  - A changed category is reported, so the overview text can be checked.
+- **Rules kept from the importer:**
+  - drafts only (never submitted or published)
+  - a species whose latest revision is `submitted` is skipped
+  - one transaction per file; dry-run rolls back
+  - one audit event `status_check.apply` per run with changes
+  - re-running the same sheet changes nothing
+  - Markdown report in `import-reports/`
+- **Catalogue imports:** a later catalogue import treats the changed sections as edited by hand and skips them unless `--reconcile` is given, so a re-run of `batch-1.json` cannot quietly restore the Wikidata status.
+**Consequences:**
+- The owner fills the CSV by hand and reviews each draft in `/admin`.
+- `test/integration/status-check.spec.ts` covers the sheet, validation, dry run, apply, idempotency, update and skip.
+- The search link format was not tested, because the agent cannot open iucnredlist.org.
+
+## D-033 CI on GitHub Actions, standard runners only (2026-11-21, R1 launch readiness)
+**Context:** PLAN §13 asks for CI: install, typecheck, lint, contracts drift check, unit tests, integration tests against PostGIS, build, Playwright. The owner's rule is free and legal only.
+**Free-minutes check (2026-11-21):**
+- **Source:** GitHub Docs, "GitHub Actions billing", https://docs.github.com/en/billing/concepts/product-billing/github-actions (the page shows no last-updated date).
+- **Free for public repositories:** "The use of standard GitHub-hosted runners is free: In public repositories". Such usage "remains free independently and does not reduce the included compute usage".
+- **Billed:** "Larger runners are billed for public repositories."
+- **No payment method:** "usage is blocked once you consume the included compute usage". It is blocked, not charged.
+- **Private repositories on GitHub Free:** $12 of included compute a month, 500 MB of artifact storage, and 10 GB of cache per repository.
+- **Repository visibility, checked through the public GitHub API the same day:** `Rustamovmu/RedList` and `Rustamovmu/RedList-frontend` are both **public**.
+**Decision:**
+- One workflow per repo, `.github/workflows/ci.yml`, on `ubuntu-latest` (a standard runner) only.
+  - Runs on pushes to `main` and `develop`, on pull requests, and by hand.
+  - `permissions: contents: read`, no secrets, and a cancel-in-progress concurrency group.
+- **Backend:**
+  - job `checks`: `npm ci`, typecheck, lint, `openapi:export` + `git diff --exit-code openapi.json`, `npm test` against a PostGIS service container (`imresamu/postgis:16-3.4`, the docker-compose image) on 5433, then build
+  - job `e2e`: clones the frontend next to the backend (the same branch if it exists, otherwise its default branch), checks the frontend's generated types against this `openapi.json`, and runs `npm run test:e2e`
+- **Frontend:** one job. It clones the API the same way, then runs install, typecheck, lint, `contracts:generate` + `git diff --exit-code src/contracts/api.d.ts`, build and `test:e2e`.
+- **Shared steps:**
+  - Chrome: the suite uses `channel: 'chrome'`, so the step uses the runner's Google Chrome, or installs it with `npx playwright install --with-deps chrome` if missing.
+  - Traces are uploaded only on failure and kept 7 days, which keeps artifact storage small.
+**Consequences:**
+- No cost while the repositories stay public and use standard runners. If either repository becomes private, re-check against the $12 monthly allowance, or turn the workflows off.
+- **Not yet run on GitHub:** the owner commits and pushes (AGENTS.md), so the first run happens on the owner's push. The same commands passed locally (COMPLETED_TASKS, R1-L).
+- The e2e stack now creates an e2e-only admin (`E2E_ADMIN_EMAIL` and `E2E_ADMIN_PASSWORD`, set in the frontend's `playwright.config.ts` and `e2e/staff.ts`), only in a database whose name contains `e2e`. With it, `e2e/a11y-extra.spec.ts` checks the staff pages.
