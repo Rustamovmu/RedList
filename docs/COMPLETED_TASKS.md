@@ -1,5 +1,38 @@
 # Completed tasks
 
+## 2026-11-22: Map page list scrolls in its own box on large screens (owner request, D-044)
+
+**What changed (frontend):** `components/map/MapExplorer.tsx`: from `lg` up, the "Species in this view" list scrolls inside a box as tall as the map column (absolutely positioned in its grid cell, `overflow-y-auto`, a thin dark scrollbar, items pinned to the top), and the map column is no longer sticky. The page no longer grows with the list, so the footer and the filters are a few wheel steps away. Below `lg` nothing changed.
+
+**Docs (backend):** D-044 in `DECISIONS.md`.
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| frontend `npm run typecheck`, `npm run lint` | pass / pass |
+| frontend `npm run test:e2e` (Postgres.app `wild_e2e`) | **45 passed, 3 skipped** (as before; includes the map tests and axe on `/map`) |
+| Playwright on `/map` at 1512×862 (dev server, 45 species) | page height 1,951 px, while the list's own content is 22,587 px. Four wheel steps over the legend reach the footer. Three wheel steps over the list scroll the list (scrollTop 1,200) and leave the page at the top |
+
+**Known gaps:** a wheel over the map still zooms the map (MapLibre default), not the page (see D-044).
+
+## 2026-11-22: Rounded wordmark with lime W's (owner request, D-043)
+
+**What changed (frontend):**
+- `package.json`: `@fontsource-variable/quicksand` 5.3.0 (SIL OFL 1.1), imported in `app/layout.tsx`.
+- `globals.css`: a `--font-logo` token (Quicksand, used only for the wordmark).
+- `components/shell/Mark.tsx`: a new `Wordmark` component. The name is set in Quicksand Bold, both W's are lime and the other letters white. `SiteHeader` (1.5rem) and `SiteFooter` (1.875rem) use it in place of the Plus Jakarta Sans text.
+
+**Docs (backend):** D-043 in `DECISIONS.md` (including the font comparison); the font line in `DATA_SOURCES.md`.
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| frontend `npm run typecheck`, `npm run lint`, `npm run build` | pass / pass / pass (Quicksand files emitted under `.next/static/media`) |
+| frontend `npm run test:e2e` (Postgres.app `wild_e2e` via `E2E_DATABASE_URL`) | **45 passed, 3 skipped** (as before; includes CSP and axe on public pages) |
+| Playwright screenshots of the header (home, /about, 360 px) and footer (dev server) | rounded wordmark with lime W's; Quicksand loaded; the home link's name is still "Wildward"; 0 px horizontal overflow at 360 px |
+
+**Known gaps:** the image the owner sent does not name its font. Quicksand is the closest free match found, but its capital "W" is wider than the one in the image.
+
 ## 2026-11-22: Home hero text and search sit lower (owner request)
 
 **What changed (frontend):** `app/page.tsx`: the hero's headline, search box and "Explore all species" button are anchored to the bottom of the hero (`justify-end`), a fixed distance from the bottom instead of being centred. From 1024 px it is `curve − 2rem`: the button reaches into the dip in the middle of the U-shaped curve (the photo runs almost to the bottom there), stays clear of the curve's lime line, and sits beside the caption. From 640 px it is `curve + 3rem` and on phones `curve + 2.75rem`, where the button must stay above the caption. The animals' eyes in the collage now show above the headline. The dark radial shade behind the text moved down with it (centre at 67% instead of 45%).

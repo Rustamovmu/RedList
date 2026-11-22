@@ -25,5 +25,5 @@ Nothing in this file means a permission was granted unless the status says **app
 - IUCN range maps: not requested. The only range polygons in the database are SYNTHETIC development fixtures (`fictus-marinus`, `fictus-generalis`).
 - Marine Regions: not downloaded (pending licence review, D-020).
 - Map: MapLibre GL JS 6.19.0 (BSD-3-Clause), bundled. No tile provider, API key or font server.
-- Fonts: Plus Jakarta Sans via `@fontsource-variable/plus-jakarta-sans` 5.3.0 (SIL Open Font License 1.1; licence file in the package), bundled and served from our own origin. No font server (D-038; replaced Anton, Space Mono and Inter from D-034).
+- Fonts: Plus Jakarta Sans via `@fontsource-variable/plus-jakarta-sans` 5.3.0 (SIL Open Font License 1.1; licence file in the package), bundled and served from our own origin. No font server (D-038; replaced Anton, Space Mono and Inter from D-034). The wordmark only: Quicksand via `@fontsource-variable/quicksand` 5.3.0 (SIL Open Font License 1.1; licence file in the package), bundled and served from our own origin (D-043).
 - Map tiles: none needed in R1 (see DECISIONS D-004).
