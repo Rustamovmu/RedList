@@ -512,3 +512,12 @@ White text on each IUCN badge colour measures 4.9:1 to 21:1, so all pass WCAG AA
 **Context:** on `/map` at `lg` and wider, the map column was sticky and the results list ran down the page, one large card per species (45 cards, about 22,600 px in the dev catalogue). To reach the footer, or to get back to the filters, the owner had to scroll past every card.
 **Decision:** from `lg` up, the list (`ul[data-testid="map-results"]`) scrolls inside a box exactly as tall as the map column. The box is positioned absolutely inside its grid cell, so the map column alone sets the row height. The map column is no longer sticky, because the page is now short. The heading and count stay above the box. Overscroll is left at the default, so when the list reaches either end the wheel carries on to the page. The cards are links, so keyboard users can reach the box, and focusing a card scrolls it into view. Below `lg` the layout is unchanged: one flow, with the list under the map.
 **Consequences:** the `/map` page at 1512 × 862 is 1,951 px tall instead of the length of the whole list. The map itself still zooms on the mouse wheel (MapLibre default), so a scroll that starts over the map zooms it instead of moving the page. That is unchanged. Switching to "Ctrl/⌘ + scroll to zoom" (MapLibre `cooperativeGestures`) would be a separate decision.
+
+## D-045 The leaf mark as the browser tab icon (2026-11-22, owner request)
+**Context:** the site had no favicon (`/favicon.ico` returned 404), so browsers showed a generic globe in the tab. The owner pointed at the map page and asked to "put the logo here".
+**Decision:** the Wildward leaf mark (the original line art in `components/shell/Mark.tsx`) becomes the tab icon, through the Next.js app-router file conventions in `src/app`:
+- `icon.svg`: the mark in lime (`#d9fe8f`) on a black tile with rounded corners. On a light tab bar plain lime lines would almost vanish. The strokes are heavier than in the header mark so they hold at 16 px.
+- `favicon.ico` (16, 32 and 48 px PNGs in one ICO) for browsers and tools that only ask for `/favicon.ico`.
+- `apple-icon.png` (180 × 180, square corners, because iOS rounds them itself) for home-screen shortcuts.
+The PNG and ICO files were rendered once from the SVG with the Playwright that is already a dev dependency, with no new tool. All three are same-origin, so the CSP is unchanged. Only the mark is used, not the wordmark, because the name would be unreadable at 16 px.
+**Consequences:** if the mark changes, update `icon.svg` and render the PNG and ICO again.

@@ -1,5 +1,20 @@
 # Completed tasks
 
+## 2026-11-22: Leaf mark as the tab icon (owner request, D-045)
+
+**What changed (frontend):** new `src/app/icon.svg` (lime mark on a black rounded tile), `src/app/favicon.ico` (16/32/48 px) and `src/app/apple-icon.png` (180 px). Next.js adds the `<link rel="icon">` and `<link rel="apple-touch-icon">` tags to every page. Before this, `/favicon.ico` returned 404 and the tab showed a generic globe.
+
+**Docs (backend):** D-045 in `DECISIONS.md`.
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| frontend `npm run typecheck`, `npm run lint`, `npm run build` | pass / pass / pass (the build includes `/icon.svg`, `/apple-icon.png` and `favicon.ico`) |
+| frontend `npm run test:e2e` (Postgres.app `wild_e2e`) | **45 passed, 3 skipped** (as before) |
+| `curl` on the dev server | `/map` links all three icons. `/favicon.ico`, `/icon.svg` and `/apple-icon.png` return 200 with the right content types |
+
+**Known gaps:** checked only in headless Chrome and with `curl`. The icon in a real browser tab was not seen by the agent (browsers cache favicons, so a hard reload may be needed).
+
 ## 2026-11-22: Map page list scrolls in its own box on large screens (owner request, D-044)
 
 **What changed (frontend):** `components/map/MapExplorer.tsx`: from `lg` up, the "Species in this view" list scrolls inside a box as tall as the map column (absolutely positioned in its grid cell, `overflow-y-auto`, a thin dark scrollbar, items pinned to the top), and the map column is no longer sticky. The page no longer grows with the list, so the footer and the filters are a few wheel steps away. Below `lg` nothing changed.
