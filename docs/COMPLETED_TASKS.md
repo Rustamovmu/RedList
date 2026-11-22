@@ -1,5 +1,110 @@
 # Completed tasks
 
+## 2026-11-22: The owner's collage as the home hero, credit and licence pending (owner request, D-041)
+
+**What changed (frontend):**
+- First the hero became seven vertical strips of catalogue photos, each credited, after the owner asked for "the animals' images in the main hero, no blurred edges". The owner then sent a collage of eight animal faces and asked for "the exact image". The agent found no creator or licence (none in the file, none from a web search) and said so. The owner answered "just put the image".
+- `public/hero/wild-faces.webp`: the collage as WebP (2200 × 900, quality 80, 468 KB), made once with sharp. The original PNG is not stored.
+- `app/page.tsx`: the hero is that one image, sharp and edge to edge (`unoptimized`, `priority`), with the existing scrims. Phones are centred on the spotted cat. The caption reads "Header image: credit and licence pending". The strip code is removed (`HERO_STRIPS`, `STRIP_VISIBILITY`, `stripCredits`), and the threatened fetch is back to 16.
+- `globals.css`: `.strip-in` is renamed `.hero-in` (a 1.1 s fade from a slight zoom; reduced motion turns it off).
+- `e2e/content.spec.ts`: the home check now looks for the hero image and its pending caption, and for the fixture photo and credit on a threatened card. The card is scrolled into view first, because its photo is lazy.
+
+**Docs (backend):** D-041 in `DECISIONS.md`, including the conflict with PLAN §4 ("hero photograph with credit"); a **pending** row in `DATA_SOURCES.md`; open question 9 in `docs/launch/OWNER_REVIEW.md`.
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| frontend `npm run typecheck`, `npm run lint` | pass / pass |
+| frontend `npm run test:e2e` (Postgres.app `wild_e2e` via `E2E_DATABASE_URL`) | first run: 44 passed, 1 failed (360 px: the home card's lazy photo had not loaded), 3 skipped. After scrolling the card into view: **45 passed, 3 skipped** |
+| Playwright screenshots of `/` at 1440×900 and 390×844 | the collage fills the hero without blur. On phones the cat is centred. At 1440 px the lion and owl strips are partly cut off at the sides |
+
+**Known gaps:**
+- **Launch blocker:** the hero image's creator and licence are unknown (D-041). Before a public launch, confirm an allowed licence and credit it, or replace the image.
+- On screens narrower than about 2.4 times the hero's height, the outer strips are cut off at the sides.
+
+## 2026-11-22: Photos on a dark stage, tried and reverted (owner request, D-040)
+
+**What happened:** the owner asked for every animal to look like the bumble bee profile (an animal on a dark background) and chose an edge-fade effect over cut-outs. It was built (a CSS mask, with photo width and height added to card images in the API), and backend tests (251/251) and e2e (45 passed, 3 skipped) passed. After seeing it the owner said "undo it, it is not looking good".
+
+**Reverted:**
+- Backend `src/`, `test/` and `openapi.json` are identical to the last commit (checked with `git diff`).
+- The frontend's generated `api.d.ts` is identical to the last commit.
+- `WholePhoto`, `Photo`, `SpeciesCard`, `GroupTile`, `app/page.tsx` and `globals.css` are back to their D-039 versions.
+
+**Commands run after the revert, with results:**
+| Command | Result |
+|---|---|
+| backend `npm run typecheck`, `npm run openapi:export` | pass; `openapi.json` unchanged from the last commit |
+| frontend `npm run contracts:generate`, `npm run typecheck`, `npm run lint` | contracts unchanged; pass / pass |
+| frontend `npm run test:e2e` (Postgres.app `wild_e2e`) | **45 passed, 3 skipped** (as before) |
+| Playwright screenshots of `/species` and the bald eagle profile at 1512×861 | the D-039 look: whole photos with a blurred fill; 0 px overflow |
+
+## 2026-11-22: Photos shown whole, never cropped (owner request, D-039)
+
+**Problem (owner's screenshots):** the bald eagle and Atlantic puffin cards cut off the birds' heads, because every frame cropped its photo (`object-cover`).
+
+**Frontend:**
+- New `components/WholePhoto.tsx`: the whole photo (`object-contain`) over a blurred, darkened copy of itself that fills the rest of the frame. The photo is downloaded once.
+- Used in `SpeciesCard`, `GroupTile` (photo pinned to the top; the scrim only behind the text), the home hero, the Compare banner (photo on the right, on top on phones), the help panel, the home section photos, and `Photo` without `fit`.
+- The "Where they live" frame is now 4:3.
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| frontend `npm run typecheck` / `npm run lint` | pass / pass |
+| frontend `npm run test:e2e` (Postgres.app `wild_e2e`) | **45 passed, 3 skipped** (as before) |
+| Playwright screenshots of `/species` and `/` at 1512×861 | bald eagle and puffin shown head to feet; 0 px horizontal overflow |
+
+**Known gaps:** portrait photos look narrower in landscape frames, with blurred sides. A per-image focal point would need an editorial field (not R1).
+
+## 2026-11-22: Redesign in the layout of the owner's reference site, keeping our colours (owner request, D-038)
+
+**Request:** seven screenshots of BirdLife DataZone's home page: "keep the colors of our website but make the website look like this one … work on every detail". Only the frontend's look changed. Routes, data, wording rules and the accessibility target are as before. No API change, so no `openapi:export` or `contracts:generate`.
+
+**Frontend (`RedList-frontend`):**
+- **Type:** one family, Plus Jakarta Sans (`@fontsource-variable/plus-jakarta-sans` 5.3.0, OFL, upright and italic), self-hosted. Anton, Space Mono and Inter uninstalled. Sentence-case bold headings; small bold uppercase buttons with a CSS chevron; body weight 450.
+- **`globals.css`:** same colour tokens; new classes `h-hero`, `h-card`, `more`, `go`, `btn-soft`, `btn-dark`, `searchbox` (white box with the button inside), `tag`, `figures`; the load animation is now `rise` on the hero's headline, search and button.
+- **Shell:**
+  - lime announcement bar removed
+  - header: logo; Map, Compare, About as text; Explore as the solid lime button (white on `/species`); the compare counter is an outlined button
+  - footer: brand and statement, three link columns, then the rising lines (D-036) as a thin band above the bottom row. The giant wordmark is gone.
+- **New components:** `PageHeader` (navy title band for inner pages), `shell/Curves.tsx` (hero curve and corner arcs), `shell/Icons.tsx`, `home/StatIcons.tsx` (four original line icons).
+- **Home** (`app/page.tsx`), rebuilt in the reference's order:
+  1. photo hero with the promise as h1, a white search box, "Explore all species" and a curved lower edge with lime arcs
+  2. catalogue numbers: species, threatened, countries/seas/oceans and animal groups, each with an icon and "in this catalogue" wording
+  3. "How we source facts": photo beside text
+  4. three threatened species as article cards
+  5. group photo tiles on navy
+  6. a full-width photo banner for Compare
+  7. "Where they live": environment rows and places beside a photo
+  8. the lime help panel with a curved-edge photo
+  Section photos come from the threatened list and never repeat on the page (`photoPicker`). Each one carries the species name and its credit.
+- **Other pages:**
+  - Explore, Compare, Map, regions, Support, Sources and the four information pages open with the `PageHeader` band; Explore's search is the same white search box, with the sort control beside it
+  - profile: a breadcrumb, sentence-case headings, numbered sections with a hairline, and related species on a navy band
+  - `SpeciesCard` is article-style: photo, status badge as tag, name, context line, credit
+  - `GroupTile`: name, count and "See species" at the lower left; the caption is under the tile
+  - 404, error and the staff area use the new type; the staff JSON editor and image ids keep system monospace
+- `lib/labels.ts`: `GROUP_PLURAL`.
+
+**Backend docs:** D-038 in DECISIONS; PLAN §4 "Style" points to it; DATA_SOURCES lists the new font; STITCH_PROMPT.md is marked as superseded for type and layout.
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| frontend `npm run typecheck` / `npm run lint` | pass / pass |
+| frontend `npm run test:e2e`, `E2E_DATABASE_URL` → Postgres.app `wild_e2e` on 5432 (includes `next build`, axe, CSP, keyboard, reflow, desktop + 360px) | **45 passed, 3 skipped** (skips by design, as before) |
+| Playwright screenshots of the dev site (`:3000`, real catalogue): every public page plus `/admin` and 404 at 1512×861; home at 1280×800, 768 and 360; Explore and a profile at 360; the header at 768, 900, 1024 and 1280 with the compare counter showing | 0 px horizontal overflow everywhere; the header stays one 88 px row from 768 px up |
+| WCAG contrast of the new colour pairs, computed | see D-038 (lowest: muted on navy 6.7:1, placeholder on white 6.0:1) |
+| Reduced motion and focus, Playwright | hero text fully visible at once with `reduce`; the search button shows a black inset ring inside the white box |
+
+**Known gaps:**
+- Checked in headless Chrome only, at device pixel ratio 1; not in Safari or Firefox, or on a Retina screen.
+- The home page shows up to 16 photos. Below the first screen they lazy-load, but the page is heavier than before.
+- Text over photos relies on dark scrims. axe cannot measure contrast over images, so the hero, banner and tiles were checked by eye on the current photos only.
+- Section photos are cropped (`object-cover`) to fixed shapes; a portrait photo in the wide Compare banner can show only part of the animal.
+- Nav order is now Map · Compare · About · Explore (PLAN lists Explore first); recorded in D-038.
+
 ## 2026-11-22: A photo on each home-page group tile (owner request, D-037)
 
 **Backend (`RedList-backent`):**

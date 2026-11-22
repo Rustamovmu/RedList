@@ -40,6 +40,7 @@ Nothing here has been approved yet.
 6. **IUCN terms.** `DATA_SOURCES.md` keeps IUCN as `pending`. The status check records only the category, assessment date, trend and criteria by hand, with a link. Confirm that this use is acceptable to you under the IUCN terms of use (https://www.iucnredlist.org/terms/terms-of-use), which you can read yourself. The agent cannot read them (D-027).
 7. **Second-hand population figures from Wikipedia** (batch 1, 13 species) and the 42 species with no country list. Decide whether these may launch as they are (they are cited and labelled) or must be replaced by primary sources first (M5 report, "Remaining issues").
 8. **Secret rotation (from M5).** Rotate the local `REVALIDATE_SECRET` whose old value is in the frontend's git history, and never reuse it.
+9. **Home hero image (D-041). Launch blocker.** The collage of eight animal faces on the home page (`RedList-frontend/public/hero/wild-faces.webp`) was supplied by you without a source. Its creator and licence are unknown, and the caption says "credit and licence pending". Before a public launch, either find where it came from and confirm an allowed licence (CC0, PDM, CC BY, CC BY-SA, or written permission from the creator), then write the credit into the caption, or replace it.
 
 ## Sign-off
 Approved by: ______ · Date: ______ · Remaining exceptions: ______

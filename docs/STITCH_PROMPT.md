@@ -1,5 +1,7 @@
 # Google Stitch prompt pack: Wildward "Signal" redesign (all screens)
 
+> **Superseded for type and layout by DECISIONS D-038 (2026-11-22).** The palette still applies. Kept as the history of the D-034 look.
+
 ## How to use (read this first, so Stitch does not fail)
 
 1. **New Web project.** If an earlier project kept failing, start a fresh one; failures can stick to one project.

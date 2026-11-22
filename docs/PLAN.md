@@ -83,7 +83,7 @@ RedList-frontend/             (Next.js public site + /admin)
 ## 4. Public experience
 
 ### Style
-The look is the "Signal" style (DECISIONS D-034, which replaced the earlier calm nature-editorial style): black canvas, navy panels, one acid-lime signal colour, condensed uppercase display headlines, monospace UI text, readable body type and large licensed photographs. Conservation-status colours are never the only signal. Each one carries a text label and meets WCAG contrast. Avoid 3D globes, autoplay video, live counters and walls of identical cards. Respect `prefers-reduced-motion`.
+The look keeps the "Signal" palette (DECISIONS D-034: black canvas, navy panels and bands, one acid-lime signal colour) with the layout and type of D-038: one geometric sans (Plus Jakarta Sans) in sentence case, a photo hero with a curved lower edge, photo-led sections, article-style cards and large licensed photographs. Conservation-status colours are never the only signal. Each one carries a text label and meets WCAG contrast. Avoid 3D globes, autoplay video, live counters and walls of identical cards. Respect `prefers-reduced-motion`.
 
 **Accessibility target: WCAG 2.2 AA.** Everything must be keyboard-operable, with visible focus, skip link, semantic landmarks and correct heading order. The map always has an equivalent accessible list.
 
