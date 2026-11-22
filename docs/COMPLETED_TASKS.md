@@ -1,5 +1,17 @@
 # Completed tasks
 
+## 2026-11-22: Home hero text and search sit lower (owner request)
+
+**What changed (frontend):** `app/page.tsx`: the hero's headline, search box and "Explore all species" button are anchored to the bottom of the hero (`justify-end`), a fixed distance from the bottom instead of being centred. From 1024 px it is `curve − 2rem`: the button reaches into the dip in the middle of the U-shaped curve (the photo runs almost to the bottom there), stays clear of the curve's lime line, and sits beside the caption. From 640 px it is `curve + 3rem` and on phones `curve + 2.75rem`, where the button must stay above the caption. The animals' eyes in the collage now show above the headline. The dark radial shade behind the text moved down with it (centre at 67% instead of 45%).
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| frontend `npm run typecheck`, `npm run lint` | pass / pass |
+| Playwright measurements and screenshots of `/` (dev server), after two "lower it a bit more" requests | headline top moved from 185 to 371 px at 1512×862, 230 to 460 px at 1920×960, 205 to 355 px at 390×844. Below 1024 px the button ends above the "Header image" caption (19 px at 768 px, where the two would otherwise be 4 px apart side by side); from 1024 px it sits beside the caption, at least 108 px away, and a 1024×768 screenshot shows it inside the curve's dip without touching the lime line. On phones it ends 15 px above the caption |
+
+**Known gaps:** `npm run test:e2e` was not run. Only spacing classes changed, and the hero check looks for the image and caption, not their position.
+
 ## 2026-11-22: The help panel's photo fills its curve, no blur (owner request, D-042)
 
 **What changed (frontend):** `app/page.tsx`: the lime help panel shows its photo with `object-cover` (anchored at 50% 30%) instead of `WholePhoto`, so the blurred fill around it is gone. The photo column is 28rem on desktop, and the photo area has a fixed height on phones (`h-80`, `sm:h-96`). Other frames are unchanged (D-039).
