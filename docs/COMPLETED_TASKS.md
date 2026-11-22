@@ -1,5 +1,201 @@
 # Completed tasks
 
+## 2026-11-23: Hero typography, larger sizes and lime for each page's promise (owner request, D-054)
+
+**What changed (frontend):**
+- `src/app/globals.css`: larger `h-hero`, `h-page`, `h-section` with tighter tracking. `strong` inside headings and leads is lime.
+- `src/app/page.tsx`: the home headline is three lines with lime verbs (Understand, see, help).
+- `src/components/PageHeader.tsx`: over a photo, the title is larger and the lead white and larger.
+- Lime key phrases in the leads of Explore, Map, Compare, About, Methodology, Privacy, Terms, Support, Sources and region pages. `InfoPage`'s `lead` accepts markup.
+- `src/app/species/[slug]/page.tsx`: the scientific name is lime italic and larger; the common name a step larger.
+- **Docs:** D-054.
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| frontend `npm run typecheck` | pass |
+| frontend `npm run lint` | pass |
+| frontend `npm run test:e2e` with `E2E_DATABASE_URL` → Postgres.app `wild_e2e` on 5432 | **45 passed, 3 skipped** (as before) |
+| Playwright screenshots at 1440 × 900 (home, Explore, Map, Compare, About, Methodology, Support, a profile) and 360 × 740 (home, About, a profile) | larger headings, lime phrases readable over photos and navy. 0 px horizontal overflow at 360 px. The home `h1` text is unchanged ("Understand a species, see where it lives, and find a credible way to help.") |
+| weight 700 vs 800 on the home headline, measured and compared in screenshots | 800 left visible gaps before punctuation (the comma advance is 0.35 em), so 700 stays |
+
+**Known gaps:** none found.
+
+## 2026-11-23: Taller picture headers at full colour (owner request, D-053)
+
+**What changed (frontend):**
+- `src/components/PageHeader.tsx`: with an image the header is at least `max(34rem, 80svh)` tall, with the text anchored at the bottom. The navy wash and the `light` option are removed. Black gradients now cover only the text area (the bottom on phones; the bottom and left from `md`) and a soft band under the nav. The kicker, title and lead get a text shadow.
+- `src/app/map/page.tsx`: `light: true` removed.
+- **Docs:** D-053.
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| frontend `npm run typecheck` | pass |
+| frontend `npm run lint` | pass |
+| frontend `npm run test:e2e` with `E2E_DATABASE_URL` → Postgres.app `wild_e2e` on 5432 | **45 passed, 3 skipped** (as before) |
+| Playwright screenshots at 1440 × 900 (Explore, Map, Compare, About) and 360 × 740 (Map, Compare, About, Explore) | pictures at full colour, headers about 720 px tall on desktop. The first phone pass left the Map lead hard to read over the pale map; the phone gradient now reaches higher, and it reads |
+
+**Known gaps:** the Map lead has less contrast than the others (pale picture); axe cannot check text over images. Upscaling softness shows more on the larger headers.
+
+## 2026-11-23: The photo of turtle hatchlings behind the About page header (owner request, D-052)
+
+**What changed (frontend):**
+- `src/components/InfoPage.tsx`: optional `image` prop, passed to `PageHeader`.
+- `src/app/about/page.tsx`: passes the photo, cropped at `object-[50%_55%]`, with an alt text and the caption "Header image: credit and licence pending".
+- `public/hero/about-turtles.webp`: the owner's photo, converted once with sharp (1280 × 720, quality 82, 68 KB, metadata stripped).
+- The owner first chose a flat illustration (740 × 493), then replaced it with this photo. Its file was deleted.
+- **Docs:** D-052; a pending row in `DATA_SOURCES.md`; open question 13 in `docs/launch/OWNER_REVIEW.md`.
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| frontend `npm run typecheck` | pass |
+| frontend `npm run lint` | pass |
+| frontend `npm run test:e2e` with `E2E_DATABASE_URL` → Postgres.app `wild_e2e` on 5432 | **45 passed, 3 skipped** (as before), with the illustration and again with the photo |
+| Playwright screenshots of `:3000/about` at 1440 × 900, 2200 × 1000 and 360 × 780 | title, lead, nav and caption readable; the hatchlings show in the middle of the band |
+
+**Known gaps:** the photo's creator and licence are unknown (OWNER_REVIEW question 13). On desktop the hatchlings sit partly behind the lead text.
+
+## 2026-11-23: The painting of a robot and animals behind the Compare page header (owner request, D-051)
+
+**What changed (frontend):**
+- `src/app/compare/page.tsx`: passes the picture to `PageHeader`, cropped at `object-[50%_20%]`, with an alt text and the caption "Header image: credit and licence pending".
+- `public/hero/compare-friends.webp`: the owner's picture, converted once with sharp (1260 × 720, quality 82, 121 KB, metadata stripped).
+- **Docs:** D-051; a pending row in `DATA_SOURCES.md`; open question 12 in `docs/launch/OWNER_REVIEW.md`.
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| frontend `npm run typecheck` | pass |
+| frontend `npm run lint` | pass |
+| frontend `npm run test:e2e` with `E2E_DATABASE_URL` → Postgres.app `wild_e2e` on 5432 | **45 passed, 3 skipped** (as before) |
+| Playwright screenshots of `:3000/compare` at 1440 × 900, 2200 × 1000 and 360 × 780 | title, lead, nav and caption readable. Tried with the `light` shade (greyed the colours, dropped) and at a 35 % crop (cut off the bear's head, moved to 20 %) |
+
+**Known gaps:** the picture's creator and licence are unknown (OWNER_REVIEW question 12). It is 1260 px wide, so it is upscaled and a little soft on wide screens.
+
+## 2026-11-23: The illustrated world map behind the Map page header (owner request, D-050)
+
+**What changed (frontend):**
+- `src/app/map/page.tsx`: passes the picture to `PageHeader`, cropped at `object-[50%_45%]`, with an alt text, the `light` flag and the caption "Header image: credit and licence pending".
+- `src/components/PageHeader.tsx`: optional `light` flag on `HeaderImage`, which adds an even 45 % navy shade for bright pictures.
+- `public/hero/world-animals.webp`: the owner's picture, converted once with sharp (2000 × 1400, quality 80, 92 KB, metadata stripped).
+- **Docs:** D-050; a pending row in `DATA_SOURCES.md`; open question 11 in `docs/launch/OWNER_REVIEW.md`.
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| frontend `npm run typecheck` | pass |
+| frontend `npm run lint` | pass |
+| frontend `npm run test:e2e` with `E2E_DATABASE_URL` → Postgres.app `wild_e2e` on 5432 | **45 passed, 3 skipped** (as before) |
+| Playwright screenshots of `:3000/map` at 1440 × 900, 2200 × 1000 and 360 × 780 | title, lead, nav and caption readable; the first try without the extra shade left the nav and caption on the pale right side, so `light` was added |
+
+**Known gaps:** the picture's creator and licence are unknown. It is a launch blocker (OWNER_REVIEW question 11).
+
+## 2026-11-23: The main navigation stays on top of every page (owner request, D-049)
+
+**What changed (frontend):**
+- New `src/components/shell/HeaderBar.tsx`: a sticky header, transparent at the top of the page and solid black with a rule once the page scrolls. `SiteHeader.tsx` wraps its unchanged markup in it.
+- `NavLinks.tsx` and `CompareCounter.tsx`: unchanged in the end. The links look exactly as before, at the owner's request, after other versions were tried (D-049).
+- `src/components/PageHeader.tsx` slides up under the bar like the home hero (`-mt-[var(--nav-h)]`), and its photo gets a dark band at the top.
+- `src/app/globals.css`: `scroll-padding-top: var(--nav-h)` on `html`. `--nav-h` itself is unchanged.
+- Sticky offsets moved below the bar: `species/[slug]/page.tsx` (in-page navigation), `InfoPage.tsx` (contents list), `page.tsx` (places photo).
+- **Docs:** D-049.
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| frontend `npm run typecheck` | pass |
+| frontend `npm run lint` | pass |
+| frontend `npm run test:e2e` with `E2E_DATABASE_URL` → Postgres.app `wild_e2e` on 5432 | intermediate versions: one run failed reflow at 320 px (a one-row phone bar), the others passed. Final version: **45 passed, 3 skipped** |
+| Playwright at 320 px and 360 px on a profile | 0 px horizontal overflow |
+| Playwright screenshots at 1440 px (home at the top, Explore scrolled) and 360 px (Explore) | transparent over the photo at the top, solid once scrolled; links as before |
+
+**Known gaps:** on phones the solid bar is two rows (108 px). Link contrast over photos relies on the scrims (axe cannot check text over images).
+
+## 2026-11-23: The savanna picture behind the Explore species header (owner request, D-048)
+
+**What changed (frontend):**
+- `src/components/PageHeader.tsx`: optional `image` prop. The photo replaces the lime arcs, under a navy scrim (an even wash on phones, a left-to-right fade from `md` up), with a caption at the bottom right. Other pages' headers are unchanged.
+- `src/app/species/page.tsx`: passes the image, cropped low (`object-[50%_80%]`), with an alt text and the caption "Header image: credit and licence pending".
+- `public/hero/savanna.webp`: the owner's picture, converted once with sharp (2400 × 1250, quality 78, 343 KB, metadata stripped).
+- **Docs:** D-048; a pending row in `DATA_SOURCES.md`; open question 10 in `docs/launch/OWNER_REVIEW.md`.
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| frontend `npm run typecheck` | pass |
+| frontend `npm run lint` | pass |
+| frontend `npm run test:e2e` with `E2E_DATABASE_URL` → Postgres.app `wild_e2e` on 5432 (includes `next build`, axe, CSP, reflow) | **45 passed, 3 skipped** (as before). The first try without `E2E_DATABASE_URL` failed at start-up, because the default points at Docker on 5433 |
+| Playwright screenshots of `:3000/species` at 1440 × 900, 2200 × 1000 and 360 × 780 | kicker, title, lead, search and sort readable over the photo; caption shown; no overflow |
+
+**Known gaps:**
+- The image's creator and licence are unknown. It is a launch blocker (OWNER_REVIEW question 10).
+- On very wide screens the lead text runs over the zebra's stripes. The scrim keeps it readable, but it is busier there than on a 1440 px screen.
+
+## 2026-11-22/23: Catalogue batch 2, 40 more species with photos, places, habitats, diet and threats (owner request, D-047)
+
+**What changed:**
+- `catalogue/batch-2.json`: 40 real species, imported as **drafts**.
+  - **By group:** 17 mammals, 8 birds, 4 reptiles, 2 amphibians, 4 fish, and one each of insect, arachnid, mollusc, coral and crustacean.
+  - **Every profile has:** an overview in our own words, GBIF classification, the Wikidata-cited IUCN category, diet, our own habitat and threat codes, countries and/or seas with a cited note, and a cited population figure (21 species) or an explicit "Unknown" with a note (19).
+- `catalogue/media/`: 40 photos **downloaded** from Wikimedia Commons (30 MB folder in total).
+  - **Licences:** 3 public domain (PDM), 37 CC BY or CC BY-SA, each with a named creator.
+  - **Checks:** each licence was re-read at download and compared with the file's embedded copyright fields. The agent looked at every photo on a contact sheet and fixed the alt texts to match.
+- `scripts/publish-drafts.mjs`: new `--approve-media` option (D-047).
+- **Docs:** D-047; the Wikipedia row in `DATA_SOURCES.md`.
+
+**How the facts were checked:**
+- **Countries:** a script showed the sentence where each country appears in the cited revision. Countries mentioned only in passing were left out. One example: the article says pillar coral is *absent* from Panama and Colombia, so they stay off its map.
+- **Descriptions:** every descriptive claim was searched for in the text, and claims the source did not support were removed. For example, the golden frog's adult diet is not in the source, so only the tadpoles' algae diet is stated.
+- **Species dropped while preparing:** giraffe (taxonomy split), olm (taxonomy split) and European eel (no range countries in the article). Spares took their places.
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| GBIF, Wikidata (SPARQL), Wikipedia and Commons APIs, through scratch scripts | 46 candidates gathered. Commons returned 429 for a long stretch; originals were throttled harder than resized copies, so photos narrower than 1280 px were fetched as a 960 px or slightly smaller copy |
+| `npm run import -- catalogue/batch-2.json --dry-run` | 740 changes, 40 species, no notes |
+| `--apply`, then `--apply` again | 740 changes, then **0 changes** |
+| dev database | 40 new drafts, 40 images pending review |
+| `npm run lint` | pass |
+
+**Published (owner said "start preparing them, and publish them"):** `node scripts/publish-drafts.mjs --approve-media --only-file=catalogue/batch-2.json`, as the owner admin, through the staff API (checklist, audit and revalidation ran). Result: 40 published, 40 images approved, 0 failed. The admin password was typed in chat, so the owner should change it.
+| Check | Result |
+|---|---|
+| `npm run validate:catalogue` | **PASS**: 81 published species, 153 cited numeric claims, 81 approved images, 3,240 compare pairs with zero mixed units |
+| `GET :4010/api/v1/species` / `:3000/species` | total 81 / "81 species" |
+| new profiles (`panthera-leo`, `latimeria-chalumnae`, `dendrogyra-cylindrus`) | 200 |
+| Playwright screenshot of `/species/spheniscus-demersus` at 1400 px | photo, credit, licence link and CR badge shown; 0 broken images |
+
+**Known gaps:**
+- All facts are second-hand (Wikidata, Wikipedia revisions). Replace them with primary sources before any public launch.
+- Trend is Unknown everywhere. Climate, measurements and conservation actions are empty.
+- Maps are country and sea level only. Several country lists are partial, and their notes say so.
+- Small places (Comoros, Singapore, Réunion, Mauritius, French Guiana, Cape Verde) are not on our 1:110m map.
+- Three photos are smaller than 1280 px: helmeted hornbill 574 px, Sunda pangolin 799 px and coelacanth 963 px.
+- `npm test` and `typecheck` were not run (no TypeScript changed). Only one new profile was checked in a browser.
+
+## 2026-11-22: Species without a photo archived in the dev catalogue (owner request, D-046)
+
+**What changed (dev database only, no code):** the 8 published species whose published revision has no photo were archived in one SQL transaction, with one `species.archive` audit row each: `acropora-palmata`, `dryococelus-australis` and the synthetic `fictus-captivus`, `fictus-exemplaris`, `fictus-marinus`, `fictus-occultus`, `fictus-regionalis`, `fictus-walkthrough`. The public catalogue went from 49 to 41 species, all with a photo. The frontend cache was revalidated (`catalogue`, `filters`, `map` and the 8 `species:` tags).
+
+**Docs (backend):** D-046 in `DECISIONS.md`.
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| SQL on the dev database (Postgres.app `wild`) | 8 species archived, 8 audit rows; 41 published and not archived, 8 archived |
+| `POST :3000/api/revalidate` | 200, 11 tags revalidated |
+| `GET :4010/api/v1/species` | `total` 41; no card on the first page without `image` |
+| `GET :4010/api/v1/species/fictus-captivus`, `/acropora-palmata` / `/acinonyx-jubatus` | 404 / 404 / 200 |
+| `curl :3000/species` | "41 species"; no "No photo yet" and no fixture names. `/`, `/map`, `/compare` 200 |
+
+**Known gaps:**
+- No typecheck, lint or tests were run, because no code changed. The e2e database is untouched.
+- The pages were checked with `curl`, not in a browser.
+- `catalogue/batch-1.json` still holds the two real photoless profiles (see D-046).
+- `docs/launch/status-check.csv` still lists those two. `npm run status:sheet` would drop them, because it only covers species that are not archived.
+
 ## 2026-11-22: Leaf mark as the tab icon (owner request, D-045)
 
 **What changed (frontend):** new `src/app/icon.svg` (lime mark on a black rounded tile), `src/app/favicon.ico` (16/32/48 px) and `src/app/apple-icon.png` (180 px). Next.js adds the `<link rel="icon">` and `<link rel="apple-touch-icon">` tags to every page. Before this, `/favicon.ico` returned 404 and the tab showed a generic globe.

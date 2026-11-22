@@ -6,9 +6,14 @@
  *   ADMIN_PASSWORD='…' node scripts/publish-drafts.mjs            # do it
  *   ADMIN_PASSWORD='…' node scripts/publish-drafts.mjs --dry-run  # only list what would be published
  *   … --only=slug-a,slug-b                                         # limit to these species
+ *   … --only-file=catalogue/batch-2.json                           # limit to the species in an import file
+ *   node scripts/publish-drafts.mjs …                               # without ADMIN_PASSWORD: asks for it (hidden)
+ *   … --approve-media                                              # also approve the draft's pending images first
  *
+ * --approve-media is an admin review decision: use it only after the images' licences and creators were checked
+ * (for an import, in the import file and its report). It approves only images attached to the drafts it publishes.
  * Reads ADMIN_EMAIL and WEB_ORIGIN from .env. API_URL defaults to http://localhost:4000/api/v1.
- * The password is only read from the environment and never written anywhere.
+ * The password is only read from the environment or the terminal and never written anywhere.
  */
 import { readFileSync } from 'node:fs';
 
@@ -21,12 +26,48 @@ const env = Object.fromEntries(
 const API = process.env.API_URL ?? `http://localhost:${env.PORT ?? 4000}/api/v1`;
 const ORIGIN = process.env.WEB_ORIGIN ?? env.WEB_ORIGIN;
 const EMAIL = process.env.ADMIN_EMAIL ?? env.ADMIN_EMAIL;
-const PASSWORD = process.env.ADMIN_PASSWORD;
 const DRY = process.argv.includes('--dry-run');
-const ONLY = process.argv.find((a) => a.startsWith('--only='))?.slice(7).split(',');
+const fromFile = process.argv.find((a) => a.startsWith('--only-file='))?.slice(12);
+const ONLY = fromFile
+  ? JSON.parse(readFileSync(fromFile, 'utf8')).species.map((s) => s.slug)
+  : process.argv.find((a) => a.startsWith('--only='))?.slice(7).split(',');
+const APPROVE = process.argv.includes('--approve-media');
+
+/** Reads the password from the terminal without echoing it. */
+function askHidden(prompt) {
+  return new Promise((resolve, reject) => {
+    const { stdin, stdout } = process;
+    if (!stdin.isTTY) return reject(new Error('no terminal to ask for the password'));
+    stdout.write(prompt);
+    stdin.setRawMode(true);
+    stdin.resume();
+    stdin.setEncoding('utf8');
+    let value = '';
+    const onData = (ch) => {
+      if (ch === '\r' || ch === '\n' || ch === '\u0004') {
+        stdin.setRawMode(false);
+        stdin.pause();
+        stdin.off('data', onData);
+        stdout.write('\n');
+        resolve(value);
+      } else if (ch === '\u0003') {
+        stdin.setRawMode(false);
+        process.exit(130);
+      } else if (ch === '\u007f') value = value.slice(0, -1);
+      else value += ch;
+    };
+    stdin.on('data', onData);
+  });
+}
+
+let PASSWORD = process.env.ADMIN_PASSWORD;
 if (!PASSWORD) {
-  console.error('Set ADMIN_PASSWORD in the environment (it is not stored anywhere).');
-  process.exit(1);
+  try {
+    PASSWORD = await askHidden(`Admin password for ${EMAIL}: `);
+  } catch {
+    console.error('Set ADMIN_PASSWORD in the environment, or run this in a terminal to be asked for it (it is not stored anywhere).');
+    process.exit(1);
+  }
 }
 
 let cookie = '';
@@ -48,6 +89,7 @@ csrf = login.json.csrfToken;
 
 const species = (await call('GET', '/staff/species')).json;
 let published = 0;
+let approved = 0;
 const failed = [];
 for (const s of species) {
   const newest = [...s.revisions].sort((a, b) => b.version - a.version)[0];
@@ -56,6 +98,15 @@ for (const s of species) {
   console.log(`${DRY ? 'would publish' : 'publishing'} ${s.slug} v${newest.version}`);
   if (DRY) continue;
   try {
+    if (APPROVE) {
+      const rev = (await call('GET', `/staff/revisions/${newest.id}`)).json;
+      for (const m of rev.content.media) {
+        const asset = (await call('GET', `/staff/media/${m.mediaId}`)).json;
+        if (asset.reviewState !== 'pending') continue;
+        await call('POST', `/staff/media/${m.mediaId}/approve`);
+        approved++;
+      }
+    }
     if (newest.state === 'draft') await call('POST', `/staff/revisions/${newest.id}/submit`);
     await call('POST', `/staff/revisions/${newest.id}/publish`);
     published++;
@@ -64,6 +115,6 @@ for (const s of species) {
   }
 }
 await call('POST', '/staff/auth/logout').catch(() => {});
-console.log(DRY ? 'dry run: nothing changed' : `published ${published}; failed ${failed.length}`);
+console.log(DRY ? 'dry run: nothing changed' : `published ${published}; images approved ${approved}; failed ${failed.length}`);
 for (const f of failed) console.log('  ' + f);
 if (failed.length) process.exitCode = 1;

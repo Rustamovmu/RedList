@@ -521,3 +521,132 @@ White text on each IUCN badge colour measures 4.9:1 to 21:1, so all pass WCAG AA
 - `apple-icon.png` (180 × 180, square corners, because iOS rounds them itself) for home-screen shortcuts.
 The PNG and ICO files were rendered once from the SVG with the Playwright that is already a dev dependency, with no new tool. All three are same-origin, so the CSP is unchanged. Only the mark is used, not the wordmark, because the name would be unreadable at 16 px.
 **Consequences:** if the mark changes, update `icon.svg` and render the PNG and ICO again.
+
+## D-046 Species without a photo are archived in the dev catalogue (2026-11-22, owner request)
+**Context:** on `/species` the owner saw "No photo yet" tiles and asked to "remove all of the species that doesn't have image". In the dev database 8 of the 49 published species had no photo on their published revision: the two real profiles Elkhorn coral (*Acropora palmata*) and Lord Howe Island stick insect (*Dryococelus australis*), for which no allow-listed Commons file names a creator, and the six synthetic `fictus-*` fixtures.
+**Decision:**
+- The 8 species are **archived** (`species.archived_at` set) and not deleted. Every public query starts from `PUBLISHED` in `catalogue-sql.ts` (or `findProfileBySlug`), which skips archived species, so they disappear from the list, the filter counts, the map, Compare, the home page and the sitemap, and their profiles return 404. Their revisions, sources and audit history are kept.
+- There is no archive endpoint yet, so the change was made with one SQL transaction on the dev database. It wrote one `species.archive` row per species to `audit_events` (actor empty, summary names the owner request).
+- The rule stays as it is in the code: the neutral no-photo state of PLAN §11 still exists, and no filter hides species without a photo. Showing only species with photos is a content choice, not a code rule.
+**Consequences:**
+- To bring a species back: `UPDATE species SET archived_at = NULL WHERE slug = '…'`, then revalidate `catalogue`, `filters`, `map` and `species:<slug>`.
+- Only the dev database changed. The e2e database (`wild_e2e`) and the fixture seed are unchanged, so the e2e tests that use `fictus-*` profiles still work.
+- The two real profiles are still in `catalogue/batch-1.json`. A fresh database that imports and publishes that file will show them again with "No photo yet", unless they are archived there too or a licensed photo is found.
+
+## D-047 Catalogue batch 2: 40 species with photos, places, habitats, diet and threats (2026-11-22, owner request)
+**Context:** the owner asked for "40 more species with proper image, proper information … maps, locations, habitats, everything", and then for every image to be downloaded rather than linked.
+**Decision:**
+- **The same pipeline as batch 1**, in `catalogue/batch-2.json`, imported as drafts:
+  - GBIF Backbone for the accepted name, classification and synonyms. Synonyms that are only a letter or two away from the accepted name are left out, because GBIF lists misspellings.
+  - Wikidata P141 for the IUCN category, cited second-hand with the edition its statement references. Trend stays Unknown.
+- **One English Wikipedia revision per species** is the source for range countries and seas, habitats, diet, threats and any population figure. Facts are restated in our own words and no text is copied. Batch 1 used web search with no fixed source list for these sections. A single revision per species is easier to check again, and its licence is known (CC BY-SA 4.0). Before writing a country, the agent checked that the article names it in context. Places the article only mentions in passing (fossils, zoos, research projects) were left out. Where the list is partial, the geography citation's note says so.
+- **Photos:** one per species from Wikimedia Commons, downloaded into `catalogue/media/` and imported from that file, not linked.
+  - The licence was read from the Commons API when the file was downloaded, and the file's embedded copyright fields were compared with it.
+  - Only CC0, public domain (stored as PDM), CC BY and CC BY-SA files with a named creator were used.
+  - Where the Wikidata image failed these checks or was small, another Commons file was chosen.
+- **Species dropped while preparing, with the reason:**
+  - The giraffe: Wikidata's VU covers the giraffe as one species, but its item and article are now the narrower "northern giraffe".
+  - The olm: the article now splits *Proteus* into nine species.
+  - The European eel: the article names no range countries.
+  - Spares took their places.
+- **Maps:** country- and sea-level presence only (region rows), as in batch 1. No range polygons. Seasonality (breeding / non-breeding) and status (extinct, possibly extinct, reintroduced) are set where the article states them.
+- **Publishing:** `scripts/publish-drafts.mjs` gains `--approve-media`. It approves the pending images attached to the drafts it publishes, through the normal admin API, so one command reviews and publishes the batch. Approval stays an admin decision, made by whoever runs the command with the admin password.
+**Consequences:**
+- Every batch-2 profile has a photo, countries or seas, habitats, threats, diet and either a cited population figure or an explicit "Unknown" with a note. Climate, measurements and conservation actions are still empty.
+- All facts are second-hand (Wikidata, Wikipedia). Replace them with primary sources before any public launch, as for batch 1.
+
+## D-048 The owner's savanna picture behind the Explore species header, credit and licence pending (2026-11-23, owner request)
+**Context:** the Explore species page (`/species`) had a plain navy header with thin lime arcs. The owner sent a 6146 × 3202 picture of savanna animals in front of a snow-capped mountain and asked to "put the image behind this hero". It is a composite: animals photographed separately were placed together. The file carries no creator, copyright or licence metadata. Its look suggests a commercial stock image, but that is not verified. As with D-041, the licence cannot be checked.
+**Decision:**
+- `PageHeader` gains an optional `image` prop. With it, the photo fills the band in place of the lime arcs. A navy scrim (`panel`) keeps the text readable. On phones it is an even 75 % wash. From `md` up it fades from 95 % on the text side to clear on the right. A dark gradient at the bottom carries the caption. The entrance is the home hero's `.hero-in` (off with reduced motion). Without `image`, every other page's header is unchanged.
+- Only `/species` passes an image. The file is converted once to WebP (2400 × 1250, quality 78, 343 KB, metadata stripped) and served from our own domain as `public/hero/savanna.webp`, `unoptimized` like the home hero. It is not catalogue media and the original PNG is not stored.
+- The crop is anchored low (`object-[50%_80%]`), so the animals fill the short band rather than the sky.
+- The caption says "Header image: credit and licence pending". It names no creator or licence, because none is known (AGENTS.md rule 4).
+**Conflict with the plan:** as for D-041, the image licence allow-list (CC0, PDM, CC BY, CC BY-SA) is not met until the source is known. It is recorded as a pending row in `DATA_SOURCES.md` and as a launch blocker in `docs/launch/OWNER_REVIEW.md` (open question 10). If it turns out to be a paid stock image, the owner's "costs no money" rule also rules it out unless a licence was already bought.
+**Consequences:** removing the photo means dropping `image={HEADER_IMAGE}` from `src/app/species/page.tsx`; the arcs come back on their own.
+
+## D-049 The main navigation stays on top of every page (2026-11-23, owner request)
+**Context:** the owner asked to "make the navigation clear in every page. Main navigation on the top." Before this change the nav row scrolled away with the page, so on long pages (a species profile is several screens) there was no way to reach another section without scrolling back up. Several versions were tried with the owner the same day:
+- a solid black bar with four equal text links (Explore · Map · Compare · About) and the compare count folded into Compare;
+- then, after the owner sent a reference screenshot of a travel site ("like this"), a bar that is transparent over the hero and solid once the page scrolls, with bold centred links;
+- the owner asked for the links back on the right ("put these wherever they were before");
+- then for the links themselves to look as before ("keep them the same"): Map, Compare and About as text, and Explore as the lime button.
+**Decision:**
+- The links, the Explore button and the compare counter are exactly as committed before this change (`NavLinks.tsx`, `CompareCounter.tsx` unchanged), as is the header layout, including two rows on phones.
+- The header is now sticky (`HeaderBar`, a small client component). At the top of a page it is transparent, so the page's opening photo or navy band runs behind it. Once the page scrolls more than 8 px it turns solid black with a rule under it (a 200 ms colour transition, none with reduced motion).
+- The home hero (as before) and now `PageHeader` too slide up under the bar by `--nav-h` and add it to their top padding. Every inner page uses `PageHeader`, so they all open the same way. Species profiles and staff pages start on the black canvas, where the transparent bar looks solid. When `PageHeader` has a photo (D-048), a dark band at its top keeps the links readable.
+- `--nav-h` is unchanged (6.75rem on phones, 5.5rem from `md`). `html` has `scroll-padding-top: var(--nav-h)`, so anchor jumps land below the bar. The sticky elements below it are offset by `--nav-h`: the profile's "On this page" bar on phones and its side list from `md`, the info pages' contents list, and the home page's places photo.
+**Consequences:**
+- On phones the solid bar is two rows (108 px). On a phone profile, the bar and the "On this page" bar together take about 150 px of a 740 px screen. A one-row phone bar was tried and dropped, because the owner wanted the links kept as they were.
+- PLAN §4 lists the navigation as Explore · Map · Compare · About; the bar still shows Explore last, as a button, as it has since D-038.
+- The links' contrast over a photo depends on the scrims; axe cannot measure text over images.
+
+## D-050 The owner's illustrated world map behind the Map page header, credit and licence pending (2026-11-23, owner request)
+**Context:** the Map page (`/map`) had the plain navy header with lime arcs. The owner sent a 2000 × 1400 illustration of a world map with drawings of animals on each continent and in the oceans, on a pale grey and beige ground, and asked to put it "behind this hero page". The file carries no creator, copyright or licence metadata. As with D-041 and D-048, the licence cannot be checked.
+**Decision:**
+- The Map page passes the picture to `PageHeader` the same way as D-048. It is converted once to WebP (2000 × 1400, quality 80, 92 KB, metadata stripped) and served as `public/hero/world-animals.webp`, `unoptimized`. It is not catalogue media and the original PNG is not stored.
+- The crop is centred a little above the middle (`object-[50%_45%]`), so Europe, Africa and Asia fill the band.
+- The picture is much brighter than the site's photos, so `HeaderImage` gains an optional `light` flag. It adds an even 45 % navy shade over the whole picture, under the usual scrims. Without it, the pale right side glared against the dark page and the nav links and caption sat on near-white. Only the Map page sets it; the savanna header (D-048) is unchanged.
+- The caption says "Header image: credit and licence pending". It names no creator or licence, because none is known (AGENTS.md rule 4).
+**Conflict with the plan:** as for D-041 and D-048, the image licence allow-list is not met until the source is known. It is recorded as a pending row in `DATA_SOURCES.md` and as a launch blocker in `docs/launch/OWNER_REVIEW.md` (open question 11).
+**Consequences:** removing the picture means dropping `image={HEADER_IMAGE}` from `src/app/map/page.tsx`; the arcs come back on their own.
+
+## D-051 The owner's painting of a robot and animals behind the Compare page header, credit and licence pending (2026-11-23, owner request)
+**Context:** the Compare page (`/compare`) had the plain navy header with lime arcs. The owner sent a 1260 × 720 painting of a robot facing a crow, a small striped animal, a zebra and a polar bear in an autumn forest, and asked to put it in the "compare page hero". The file carries no creator, copyright or licence metadata. Its style suggests it may be AI-generated, but that is not verified. If it is, the generator's terms decide how it may be used. As with D-041, D-048 and D-050, the licence cannot be checked.
+**Decision:**
+- The Compare page passes the picture to `PageHeader` the same way as D-048. It is converted once to WebP at its own size (1260 × 720, quality 82, 121 KB, metadata stripped) and served as `public/hero/compare-friends.webp`, `unoptimized`. The original PNG is not stored.
+- The picture is small for a full-width band, so it is upscaled on wide screens. The painted style hides most of the softness.
+- The crop is anchored high (`object-[50%_20%]`), so the robot's, the zebra's and the bear's heads stay in the band.
+- The extra `light` shade (D-050) was tried and dropped: it greyed out the painting's orange and teal, and the usual scrims already keep the nav, title and caption readable.
+- The caption says "Header image: credit and licence pending".
+**Conflict with the plan:** the image licence allow-list is not met until the source is known. It is recorded as a pending row in `DATA_SOURCES.md` and as a launch blocker in `docs/launch/OWNER_REVIEW.md` (open question 12).
+**Consequences:** removing the picture means dropping `image={HEADER_IMAGE}` from `src/app/compare/page.tsx`; the arcs come back on their own.
+
+## D-052 The owner's photo of turtle hatchlings behind the About page header, credit and licence pending (2026-11-23, owner request)
+**Context:** the About page (`/about`) had the plain navy header with lime arcs. The owner first sent a 740 × 493 flat illustration of animals around a pool and asked to put it on the About page "as hero page". After seeing it, the owner sent a 1280 × 720 photo instead: two cupped hands holding a handful of sea turtle hatchlings above deep blue water ("put this instead of the previous image"). Neither file carries creator, copyright or licence metadata. As with D-041, D-048, D-050 and D-051, the licence cannot be checked.
+**Decision:**
+- `InfoPage` gains an optional `image` prop that it passes to `PageHeader`. Only the About page sets it; Methodology, Privacy and Terms are unchanged.
+- The photo is converted once to WebP at its own size (1280 × 720, quality 82, 68 KB, metadata stripped) and served as `public/hero/about-turtles.webp`, `unoptimized`. The original PNG is not stored. The illustration's file (`about-wild.webp`) is deleted and nothing refers to it.
+- The crop is a little below the middle (`object-[50%_55%]`), so the hatchlings and hands fill the band. On desktop they sit in the middle, partly behind the lead text, under the navy scrim.
+- The alt text says "sea turtle hatchlings" and names no species, because the species has not been identified from a source.
+- The caption says "Header image: credit and licence pending".
+**Conflict with the plan:** the image licence allow-list is not met until the source is known. It is recorded as a pending row in `DATA_SOURCES.md` and as a launch blocker in `docs/launch/OWNER_REVIEW.md` (open question 13).
+**Consequences:**
+- At 1280 px wide the photo is slightly upscaled on screens wider than that.
+- Removing it means dropping `image={HEADER_IMAGE}` from `src/app/about/page.tsx`; the arcs come back on their own.
+
+## D-053 Picture headers are tall, at full colour, with no wash over the picture (2026-11-23, owner request)
+**Context:** the owner asked to "make each of the pages of like hero section bigger in length and do not blur the pictures behind the hero". No CSS blur was applied to these pictures. What made them look hazy was the navy scrim from D-048 (95 % → 75 % on the text side, an even 75 % on phones) and, on the Map page, the extra 45 % `light` shade from D-050. The headers were also short (about 425 px on a 1440 × 900 screen), so most of each picture was cropped away.
+**Decision:**
+- A `PageHeader` with an image is a tall hero: at least `max(34rem, 80svh)`, with the kicker, title, lead and any form anchored at the bottom, like the home hero. Headers without an image (Methodology, Privacy, Terms, Sources, Support, regions) keep their navy band and size.
+- The navy scrim and the `light` option are removed. Only the text area darkens, with black gradients:
+  - from the bottom on every screen (on phones up to 55 % of the height, and lightly to the top, because the text covers most of the band there);
+  - from the left from `md` up, clearing by 65 % of the width;
+  - a soft band at the top for the main navigation.
+- The kicker, title and lead carry a soft text shadow. The form fields under them do not.
+- The pictures and their crops are unchanged (D-048, D-050, D-051, D-052).
+**Consequences:**
+- On the Explore species page the results start below the first screen on a laptop. The search box is in the hero, so it is still the first thing in view.
+- The Map page's pale picture relies on the gradients and shadow alone. Its lead text is readable at 1440 px and on a 360 px phone, but it has less contrast than over the darker pictures. axe cannot measure text over images.
+- Small pictures are larger now, so their softness from upscaling shows more (the Compare painting is 1260 px and the About photo 1280 px wide).
+
+## D-054 Hero typography: larger display sizes and lime for each page's promise (2026-11-23, owner request)
+**Context:** the owner asked to "work on the design of text of each page", give it "some color style", and make "some parts of the font size bigger". The headings were modest (the home headline at most 3.5rem, page titles at most 3.75rem), and every lead was one grey paragraph.
+**Decision:**
+- **One colour rule:** lime marks what a page promises, in a `<strong>`, and nothing else. It is not used for decoration, and the nine status colours are not used for it, because they carry meaning.
+  - Home: the headline is set as the three things the site does, one per line from `md` up, with the verbs in lime: *Understand* a species, / *see* where it lives, / and find a credible way to *help*. Spans keep the spaces, so the accessible name is unchanged.
+  - About: the same three verbs in lime in its lead.
+  - Explore species: the species count. Map: its first sentence, and "Country-level presence" (the label shown on the map). Compare: "no overall score". Methodology: "tied to a source you can check". Privacy: "without an account" and "we do not track you". Terms: "educational portfolio project". Support: "independent organizations" and "referral, not a donation". Sources: "with the date we read it". Region pages: "how they occur here".
+  - Species profiles: the scientific name is lime italic (it was grey), a step larger.
+- **Sizes:**
+  - `h-hero` is now clamp(2.5rem, 5.4vw, 5rem) (was 3.5rem at most).
+  - `h-page` is clamp(2.75rem, 6vw, 5.25rem) (was 3.75rem), and clamp(3rem, 7.5vw, 6.5rem) over a photo.
+  - `h-section` is clamp(2rem, 3.4vw, 3rem) (was 2.5rem).
+  - Tracking is tighter (−0.035em, −0.03em for sections). The profile's common name is a step larger.
+  - Leads over a photo are white and 1.375rem from `sm`.
+- **Weight:** display text stays at 700. Weight 800 was tried. Plus Jakarta Sans then opens visible gaps before commas and full stops at display sizes.
+- `InfoPage`'s `lead` accepts markup.
+**Consequences:**
+- Every page now has one or two lime phrases in its opening. New pages should follow the same rule: one or two phrases, the page's promise, never a random word.
+- Headings take more room; long titles wrap sooner on phones (checked at 360 px with no overflow).
+
