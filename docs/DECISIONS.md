@@ -650,3 +650,20 @@ The PNG and ICO files were rendered once from the SVG with the Playwright that i
 - Every page now has one or two lime phrases in its opening. New pages should follow the same rule: one or two phrases, the page's promise, never a random word.
 - Headings take more room; long titles wrap sooner on phones (checked at 360 px with no overflow).
 
+
+## D-055 No credit or "pending" text on pictures; photo credits on their own page; no Next.js dev badge (2026-11-23, owner request)
+**Context:** the owner asked to remove the text that is "not related to this project": the lines naming who took a picture, and the "Header image: credit and licence pending" captions. The owner also asked to remove the Next.js logo, the round "N" in the lower left corner. That badge is the Next.js dev-tools button. It appears only under `next dev`, never in a production build. Many catalogue photos are CC BY-SA 3.0 or 4.0, and those licences require crediting the creator, so their credits could not just be deleted. The agent asked how to handle them, and the owner chose to move them to a credits page.
+**Decision:**
+- **Header pictures** (home, Explore, Map, Compare, About): no caption. `HeaderImage.caption` and the home hero's caption are removed.
+- **Catalogue photos:** no credit line under the profile photo, the species cards, the home group tiles or the home photo sections. The home captions keep the species name and its link. `Photo` shows only an optional editorial caption.
+- **Where the credits are now:**
+  - Each profile keeps its "Photographs" list under Sources (credit, licence, source link).
+  - New public page `/credits`, built from the new `GET /api/v1/credits`. It reads through the PUBLISHED set only, uses the revision's credit and licence snapshots, and leaves out rejected images (a takedown, D-022). Grouped by species, with the licence linked to its deed.
+  - The footer links to it on every page, as "Photo credits" in the "About our data" column. The bottom line no longer says "Photos: credited on every image".
+  - `/credits` is in the sitemap. The Terms page and the staff media form now say where credits appear.
+- `next.config.ts`: `devIndicators: false`. Build and runtime errors still open the error overlay in development.
+**Conflict with the plan:** PLAN §4 asks for a "hero photograph with credit" on the home page and a "photo with credit" on profiles. Credits are now on the same profile page (Sources) and on `/credits`, not under each image. CC BY 4.0 and BY-SA 4.0 (§3(a)(2)) allow attribution "in any reasonable manner", including a link to a resource that holds the credit. The 2.0 and 3.0 licences also allow "any reasonable manner". A credits page linked from every page is common practice. It is the owner's call, and it is not legal advice.
+**Consequences:**
+- The five header pictures are still unlicensed launch blockers (OWNER_REVIEW 9–13; `DATA_SOURCES.md`). Removing the caption changes only what the page says, not their status. If one gets a CC BY licence, its credit must be added somewhere, for example on `/credits`.
+- A photo shown on Explore, the home page or the map has its credit one click away (footer → Photo credits), not next to it.
+- Putting credits back under the images means restoring the old `Photo` figcaption and the credit lines in `SpeciesCard`, `GroupTile` and `src/app/page.tsx`.

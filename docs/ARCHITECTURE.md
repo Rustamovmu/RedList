@@ -28,12 +28,13 @@ flowchart LR
 |---|---|---|
 | `/` | Home: hero, search, browse by group and environment, threatened species, places, "in this catalogue" stats | **done** (M2, M4): the hero shows the first threatened species with an approved photo, with credit |
 | `/species` | Explore: search, filters, sort and page held in the URL; mobile filter drawer, chips, reset, empty and error states | **done** (M2) |
-| `/species/[slug]` | Profile: the eight questions, from "What is it?" to "How do we know?" | **done** (M1–M3): eight sections, Add to compare, related species, map with range list and region links, support links, photo with credit and licence (M4) |
+| `/species/[slug]` | Profile: the eight questions, from "What is it?" to "How do we know?" | **done** (M1–M3): eight sections, Add to compare, related species, map with range list and region links, support links, photo (M4); its credit and licence are listed under Sources, not under the photo (D-055) |
 | `/compare?species=a,b,c` | Compare up to 3, with no scores and no mixed units; table on desktop, stacked on mobile | **done** (M2) |
 | `/map` | Map plus synced list, legend, labelled layer types; still works when tiles fail; "Near me" (in-browser only) | **done** (M3) |
 | `/regions/[slug]` | Country, sea or ocean page with region-aware filters | **done** (M3) |
 | `/support` | Directory of reviewed support links, plus the published review criteria | **done** (M3). Criteria text needs owner review (D-018) |
 | `/about`, `/methodology`, `/sources`, `/privacy`, `/terms` | Information pages. `/sources` lists every source cited by published content. | **done** (2026-11-21). The about page describes a personal portfolio project; set `NEXT_PUBLIC_CONTACT_URL` for a contact link |
+| `/credits` | Photo credits: creator, licence (linked to its deed) and source of every photo on a published profile, by species; linked from the footer | **done** (2026-11-23, D-055) |
 | `/sitemap.xml`, `/robots.txt` | SEO, published content only | **done** (2026-11-21), plus Open Graph with the licensed photo and schema.org JSON-LD (`Taxon`, `BreadcrumbList`, `WebSite` search) |
 | all pages | Accessibility (axe, keyboard), nonce CSP | **done** (M5): `e2e/release.spec.ts` |
 | not-found, error | Fallback pages | **done** |
@@ -70,6 +71,7 @@ Navigation: Explore · Map · Compare · About. The support directory is linked 
 | `GET /map?bbox&group&category&species` (antimeridian-aware, capped), `GET /map/basemap` | **done** (M3, D-016) |
 | `GET /support` | **done** (M3) |
 | `GET /sources`, `GET /sitemap` (published content only) | **done** (2026-11-21, D-028) |
+| `GET /credits` (credit, licence and source of every photo on a published profile; rejected images left out) | **done** (2026-11-23, D-055) |
 | Staff: `auth/login`, `auth/logout`, `auth/me`; `species` (list, create, get, identifiers, drafts); `revisions/:id` (get, save, submit, publish, request-changes); `sources` (list, create); `reference` | **done** (M1) |
 | Staff: organizations, support links (list, create, edit, approve, disable) | **done** (M3) |
 | Staff: `media` (list, upload, get, preview, edit, approve, reject), `species/:id/rollback`, `PUT sources/:id` | **done** (M4) |

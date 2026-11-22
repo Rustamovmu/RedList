@@ -10,6 +10,7 @@ import { seedFixtures } from '../../src/cli/seed-fixtures';
 import { seedRegions } from '../../src/cli/seed-regions';
 import { DB, Db } from '../../src/db/db.module';
 import { FIXTURE_SOURCE_TITLE } from '../../src/fixtures/dev-fixtures';
+import { SYNTHETIC_IMAGE_META } from '../../src/fixtures/synthetic-image';
 import { validateCatalogue, validationMarkdown } from '../../src/quality/validate-catalogue';
 import { checkSupportLinks, StatusProbe } from '../../src/support-directory/link-checker';
 import { freshDatabase } from '../helpers';
@@ -103,6 +104,31 @@ describe('public sources page and sitemap', () => {
     expect(res.body.some((x: { usedForBoundaries: boolean }) => x.usedForBoundaries)).toBe(true);
     const all = res.body.flatMap((x: { species: Array<{ slug: string }> }) => x.species.map((y) => y.slug));
     expect(all).not.toContain('fictus-draftonly');
+  });
+
+  it('lists the credit of every published photo (D-055); never a draft photo, never a rejected image', async () => {
+    const credits = () => request(app.getHttpServer()).get('/api/v1/credits').expect(200).then((r) => r.body);
+    const live = [{
+      slug: 'fictus-captivus', scientificName: 'Fictus captivus', commonName: expect.any(String),
+      credit: SYNTHETIC_IMAGE_META.credit, license: SYNTHETIC_IMAGE_META.license, sourceUrl: null,
+    }];
+    expect(await credits()).toEqual(live);
+
+    // The same image on a species that has only a draft is not listed.
+    const media = (await pool.query(`SELECT id FROM media_assets LIMIT 1`)).rows[0].id;
+    const user = (await pool.query(`SELECT id FROM staff_users LIMIT 1`)).rows[0].id;
+    const sp = (await pool.query(`INSERT INTO species (slug, accepted_scientific_name) VALUES ('fictus-photodraft', 'Fictus photodraft') RETURNING id`)).rows[0].id;
+    const rev = (await pool.query(`INSERT INTO species_revisions (species_id, version, display_group, author_id) VALUES ($1, 1, 'mammal', $2) RETURNING id`, [sp, user])).rows[0].id;
+    await pool.query(
+      `INSERT INTO revision_media (revision_id, media_id, alt_text, credit_snapshot, license_snapshot) VALUES ($1, $2, 'Draft photo', 'Draft-only credit', 'CC0')`,
+      [rev, media],
+    );
+    expect(await credits()).toEqual(live);
+
+    // A takedown removes the credit at once, like the photo.
+    await pool.query(`UPDATE media_assets SET review_state = 'rejected' WHERE id = $1`, [media]);
+    expect(await credits()).toEqual([]);
+    await pool.query(`UPDATE media_assets SET review_state = 'approved' WHERE id = $1`, [media]);
   });
 
   it('lists published species and regions, without drafts or the regions of hidden species', async () => {

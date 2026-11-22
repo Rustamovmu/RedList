@@ -8,7 +8,7 @@ const https = { protocols: ['https'], require_protocol: true };
 /** Text fields sent with a multipart upload, and the body of a metadata edit. */
 export class MediaMetadataDto {
   @ApiProperty({ description: 'Who made the image, as the source names them' }) @IsString() @MinLength(1) @MaxLength(200) creator!: string;
-  @ApiProperty({ description: 'The credit line shown under the image, e.g. "Photo: Jane Doe, CC BY 4.0, via Wikimedia Commons"' })
+  @ApiProperty({ description: 'The credit line shown on the profile and the photo credits page, e.g. "Photo: Jane Doe, CC BY 4.0, via Wikimedia Commons"' })
   @IsString() @MinLength(3) @MaxLength(300) credit!: string;
   @ApiProperty({ description: 'Licence. Must be on the allow-list: CC0, PDM, CC BY, CC BY-SA (any version)' }) @IsString() @MinLength(2) @MaxLength(40) license!: string;
   @ApiPropertyOptional(N) @IsOptional() @IsUrl(https) @MaxLength(1000) licenseUrl?: string | null;

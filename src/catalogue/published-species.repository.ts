@@ -6,7 +6,7 @@ import * as s from '../db/schema';
 import { CURRENT_EDITORIAL_VERSION, Editorial, parseEditorial } from '../editorial/editorial-schema';
 import { CARD_IMAGE, COMMON_NAME, countCards, DISPLAY_NAME, HEADLINE, ListFilters, PUBLISHED, selectCards, SEVERITY } from './catalogue-sql';
 import {
-  FacetDto, FiltersDto, GroupExampleDto, HabitatFacetDto, PublicSourceDto, RangeValueDto, RegionFacetDto, RegionLinkDto, SitemapDto, SpeciesCardDto,
+  FacetDto, FiltersDto, GroupExampleDto, HabitatFacetDto, PhotoCreditDto, PublicSourceDto, RangeValueDto, RegionFacetDto, RegionLinkDto, SitemapDto, SpeciesCardDto,
   SpeciesListDto, SpeciesProfileDto,
 } from './dto';
 import { MAX_PAGE_SIZE } from './list-query.dto';
@@ -344,6 +344,27 @@ export class PublishedSpeciesRepository {
     return res.rows.map((r) => ({
       id: r.id, title: r.title, publisher: r.publisher, authors: r.authors, url: r.url, doi: r.doi, publishedOn: r.published_on,
       accessedOn: r.accessed_on, license: r.license, note: r.permitted_use_note, usedForBoundaries: r.boundaries, species: r.species ?? [],
+    }));
+  }
+
+  /**
+   * The credit of every photo on a published profile (the public /credits page, D-055), through the PUBLISHED set only.
+   * Credit and licence are the revision's snapshot, as on the profile. A rejected image is a takedown and is left out (D-022).
+   */
+  async photoCredits(): Promise<PhotoCreditDto[]> {
+    const res = await this.db.execute<{
+      slug: string; accepted_scientific_name: string; common_name: string | null; credit_snapshot: string; license_snapshot: string; source_url: string | null;
+    }>(sql`
+      WITH p AS (${PUBLISHED})
+      SELECT p.slug, p.accepted_scientific_name, cn.name AS common_name, rm.credit_snapshot, rm.license_snapshot, ma.source_url
+      FROM p ${COMMON_NAME}
+      JOIN revision_media rm ON rm.revision_id = p.revision_id
+      JOIN media_assets ma ON ma.id = rm.media_id
+      WHERE ma.review_state <> 'rejected'
+      ORDER BY ${DISPLAY_NAME}, p.slug, rm.position`);
+    return res.rows.map((r) => ({
+      slug: r.slug, scientificName: r.accepted_scientific_name, commonName: r.common_name,
+      credit: r.credit_snapshot, license: r.license_snapshot, sourceUrl: r.source_url,
     }));
   }
 

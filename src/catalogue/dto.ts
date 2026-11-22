@@ -341,6 +341,16 @@ export class PublicSourceDto {
   @ApiProperty({ type: [CitingSpeciesDto] }) species!: CitingSpeciesDto[];
 }
 
+/** One photograph on a published profile, with its attribution (the public /credits page, D-055). */
+export class PhotoCreditDto {
+  @ApiProperty({ description: 'The species whose profile shows the photo' }) slug!: string;
+  @ApiProperty() scientificName!: string;
+  @ApiProperty(N) commonName!: string | null;
+  @ApiProperty({ description: 'Credit as recorded when the live revision was saved' }) credit!: string;
+  @ApiProperty({ description: 'Licence as recorded when the live revision was saved' }) license!: string;
+  @ApiProperty(N) sourceUrl!: string | null;
+}
+
 export class SitemapSpeciesDto {
   @ApiProperty() slug!: string;
   @ApiProperty({ description: 'When the live revision was published' }) publishedAt!: string;

@@ -1238,6 +1238,30 @@
         ]
       }
     },
+    "/api/v1/credits": {
+      "get": {
+        "operationId": "SpeciesController_credits",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PhotoCreditDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "catalogue"
+        ]
+      }
+    },
     "/api/v1/sitemap": {
       "get": {
         "operationId": "SpeciesController_sitemap",
@@ -5937,6 +5961,42 @@
           "species"
         ]
       },
+      "PhotoCreditDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "description": "The species whose profile shows the photo"
+          },
+          "scientificName": {
+            "type": "string"
+          },
+          "commonName": {
+            "type": "string",
+            "nullable": true
+          },
+          "credit": {
+            "type": "string",
+            "description": "Credit as recorded when the live revision was saved"
+          },
+          "license": {
+            "type": "string",
+            "description": "Licence as recorded when the live revision was saved"
+          },
+          "sourceUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "slug",
+          "scientificName",
+          "commonName",
+          "credit",
+          "license",
+          "sourceUrl"
+        ]
+      },
       "SitemapSpeciesDto": {
         "type": "object",
         "properties": {
@@ -6405,7 +6465,7 @@
           },
           "credit": {
             "type": "string",
-            "description": "The credit line shown under the image, e.g. \"Photo: Jane Doe, CC BY 4.0, via Wikimedia Commons\""
+            "description": "The credit line shown on the profile and the photo credits page, e.g. \"Photo: Jane Doe, CC BY 4.0, via Wikimedia Commons\""
           },
           "license": {
             "type": "string",
@@ -6447,7 +6507,7 @@
           },
           "credit": {
             "type": "string",
-            "description": "The credit line shown under the image, e.g. \"Photo: Jane Doe, CC BY 4.0, via Wikimedia Commons\""
+            "description": "The credit line shown on the profile and the photo credits page, e.g. \"Photo: Jane Doe, CC BY 4.0, via Wikimedia Commons\""
           },
           "license": {
             "type": "string",

@@ -1,5 +1,34 @@
 # Completed tasks
 
+## 2026-11-23: No credit or "pending" text on pictures; a Photo credits page; no Next.js dev badge (owner request, D-055)
+
+**What changed (backend):**
+- `GET /api/v1/credits` (`PhotoCreditDto`): the credit, licence and source of every photo on a published profile. It reads through the PUBLISHED set and the revision snapshots only, and leaves out rejected images.
+- `src/media/dto.ts`: the credit field's description says where the credit appears now. `openapi.json` re-exported.
+- `test/integration/quality.spec.ts`: new test that the list has published photos only, never a draft's photo or a rejected image.
+
+**What changed (frontend):**
+- The "Header image: credit and licence pending" caption is gone from the home, Explore, Map, Compare and About headers (`PageHeader.tsx`, `page.tsx` and the four pages). `HeaderImage.caption` is removed.
+- No credit line under catalogue photos: `Photo.tsx` (profile photo), `SpeciesCard.tsx`, `GroupTile.tsx`, and the home photo sections. The home captions keep the species name.
+- New page `src/app/credits/page.tsx`: "Photo credits", grouped by species, with the licence linked to its deed and the source linked. It is linked as "Photo credits" in the footer's "About our data" column and is in the sitemap. The footer's bottom line now says only "Boundaries: Natural Earth". Each profile keeps its "Photographs" list under Sources.
+- `next.config.ts`: `devIndicators: false`, which removes the round "N" Next.js dev-tools badge (shown only in `next dev`).
+- Terms and the staff media form now say where credits appear. Contracts regenerated.
+- e2e: `content.spec.ts` checks there is no credit line and no "pending" text; the profile's credit is under Sources. `pages.spec.ts` has a new test for `/credits` and checks it is in the sitemap. `/credits` is added to the axe, CSP and reflow lists in `release.spec.ts` and `a11y-extra.spec.ts`.
+- **Docs:** D-055; `ARCHITECTURE.md` (page and endpoint); `DATA_SOURCES.md` and `OWNER_REVIEW.md` questions 9–13 (no caption now; the pictures are still launch blockers).
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| backend `npm run typecheck`, `npm run lint`, `npm run build` | pass |
+| backend `npm test` (Docker was not running, so through a scratch Jest config that points `.env.test` at `wild_test` on Postgres.app, port 5432) | **252/252 pass** (16 suites) |
+| backend `npm run openapi:export`, frontend `npm run contracts:generate` | done |
+| frontend `npm run typecheck`, `npm run lint` | pass |
+| frontend `npm run test:e2e` with `E2E_DATABASE_URL` → Postgres.app `wild_e2e` on 5432 | first run: the 2 new credits tests failed, because the footer had two "Photo credits" links (strict mode); the bottom-line link was removed. Second run: **47 passed, 3 skipped** |
+| `GET :4010/api/v1/credits` on the owner's running dev API | 81 photos for 81 species; licences CC BY 2.0/2.5/3.0/4.0, CC BY-SA 2.0/2.5/3.0/4.0, PDM |
+| Playwright screenshots of `:3000` `/`, `/about`, `/credits` and the footer at 1440 × 900 and 360 × 740 | no "pending" text, no "N" badge, 0 px horizontal overflow |
+
+**Known gaps:** the five header pictures are still unlicensed launch blockers (OWNER_REVIEW 9–13). Credits are no longer next to each photo; whether a credits page is enough attribution is the owner's call (D-055).
+
 ## 2026-11-23: Hero typography, larger sizes and lime for each page's promise (owner request, D-054)
 
 **What changed (frontend):**

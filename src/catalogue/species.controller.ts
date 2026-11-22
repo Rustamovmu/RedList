@@ -1,7 +1,7 @@
 import { BadRequestException, Controller, Get, NotFoundException, Param, Query } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { comparePopulations } from './compare';
-import { CompareDto, FiltersDto, PublicSourceDto, SitemapDto, SpeciesListDto, SpeciesProfileDto } from './dto';
+import { CompareDto, FiltersDto, PhotoCreditDto, PublicSourceDto, SitemapDto, SpeciesListDto, SpeciesProfileDto } from './dto';
 import { CompareQuery, ListSpeciesQuery } from './list-query.dto';
 import { PublishedSpeciesRepository } from './published-species.repository';
 
@@ -61,6 +61,13 @@ export class SpeciesController {
   @ApiOkResponse({ type: [PublicSourceDto] })
   sources(): Promise<PublicSourceDto[]> {
     return this.published.sources();
+  }
+
+  /** The credit of every photo on a published profile (the public /credits page, D-055). */
+  @Get('credits')
+  @ApiOkResponse({ type: [PhotoCreditDto] })
+  credits(): Promise<PhotoCreditDto[]> {
+    return this.published.photoCredits();
   }
 
   /** Published species slugs with publication dates, and region slugs, for sitemap.xml. */
