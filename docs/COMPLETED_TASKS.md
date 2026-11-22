@@ -1,5 +1,43 @@
 # Completed tasks
 
+## 2026-11-23: Staff form editor, published photos in the admin pages, fewer mandatory fields (owner request, D-057)
+
+**What changed (backend):**
+- `StaffSpeciesDto.publishedPhotos`: the photos of the published revision, each with that revision's alt text, caption, credit and licence snapshot, the asset's review state now, and its pixel size. One extra query per species list, joined from `revision_media`.
+- `ChecklistItem`/`ChecklistItemDto` gained `blocking`. `checklistPasses` ignores non-blocking items, and the submit/publish 422 lists only blocking failures.
+- The provider identifier item is now `blocking: false` with a longer message saying why it is still worth filling in. Everything else in the checklist is unchanged.
+- `openapi.json` re-exported; the frontend contract regenerated.
+
+**What changed (frontend):**
+- New `src/components/admin/StaffThumb.tsx`: a thumbnail of a published photo, through the staff preview route (session cookie, any review state), or a "none" box.
+- `/admin`: a thumbnail next to every species. `/admin/species/[id]`: a new "Photos on the live version" section with alt text, caption, credit, licence, a warning when the asset is back in review or rejected, and a link to the Media page. The identifier section says it is optional and why it is still useful.
+- New `src/components/admin/editor/`: `fields.tsx` (labelled inputs, a tag input, a repeatable row list), `PhotoPicker.tsx` (pick from approved images, alt text, caption, reorder, remove) and `ContentForm.tsx` (photos, names, group, environments, overview, classification, the "Not assessed" and "Unknown" switches, diet and diet tags, climate ranges, measurements, biology, conservation actions), plus `pruneEditorial`/`cleanContent`, which drop blank text and renumber photo positions and roles before saving.
+- `/admin/revisions/[id]`: the form replaces the JSON box for that content. The JSON box stays under "Advanced" for the rows that each need a source id, with "Apply this JSON to the form". The checklist marks advice with "recommended, does not block"; "Unsaved changes" is shown, and submit waits until the draft is saved.
+- `/admin/media`: the source page and licence deed URLs are labelled "(optional)", a missing source page is no longer coloured as an error, and the required fields are marked. The credit line says why it is required.
+- New `e2e/staff-editor.spec.ts` (2 tests × 2 viewports).
+- **Docs:** D-057; `ARCHITECTURE.md` (staff area and staff endpoints); `ADMIN_GUIDE.md` (checklist, "Editing a draft", image fields).
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| backend `npm run typecheck`, `npm run lint` | pass |
+| backend tests (Docker was not running, so through a scratch Jest config pointing `.env.test` at `wild_test` on Postgres.app 5432, `--runInBand`) | **254/254 pass** (16 suites; 252 before, plus the two new ones) |
+| backend `npm run openapi:export`, frontend `npm run contracts:generate` | done |
+| frontend `npm run typecheck`, `npm run lint`, `npm run build` | pass |
+| frontend `npm run test:e2e` with `E2E_DATABASE_URL` → Postgres.app `wild_e2e` | first run: the new editor test failed on a selector (`getByRole('alert')` also matches Next.js's route announcer). After the fix: **53 passed, 3 skipped** (49 before, plus 2 new tests at desktop and 360 px) |
+| Playwright screenshots of `/admin`, `/admin/species/[id]` and the editor against the e2e stack | thumbnail or "none" per species; the live photo with its alt text and credit; the form sections and the tag input render at 1280 px |
+
+**New tests:**
+- backend: a species with no identifier publishes and the checklist reports the identifier as `blocking: false` advice; the staff species carries the published photo with its snapshot credit and the asset's current review state; the "blocks submit" test now asserts that the identifier is *not* a reason for the refusal.
+- e2e: the staff list shows a real photo; the form saves overview, a diet tag, the two switches and a photo with alt text and reads them back; saving a photo without alt text is refused in the browser.
+
+**Known gaps:**
+- Assessments, population estimates, places, habitats, threats, citations and support links are still JSON (D-011). Live preview and the diff against the published version are still not built.
+- A photo's credit, licence and creator are still edited only on the Media page, not in the species editor.
+- The editor loads the newest 200 images for the picker; a larger library would need paging or a server-side search.
+- The import file schema still requires at least one provider identifier per species.
+- Checked in headless Chrome against the synthetic e2e fixtures. The pages were not opened against the owner's dev catalogue, because this session had no admin password for it.
+
 ## 2026-11-23: The Wildward logo always leads to the home hero (owner request, D-056)
 
 **What changed (frontend):**

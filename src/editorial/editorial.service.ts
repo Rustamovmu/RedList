@@ -7,7 +7,7 @@ import type { StaffPrincipal } from '../identity/session.service';
 import { checklistPasses, runChecklist } from './checklist';
 import {
   AddIdentifierDto, ChecklistItemDto, CreateSourceDto, CreateSpeciesDto, ReferenceListsDto, RevisionContentDto,
-  RevisionDetailDto, RollbackDto, SaveDraftDto, SourceDto, SourceUpdateResultDto, StaffSpeciesDto, UpdateSourceDto,
+  RevisionDetailDto, RevisionPhotoDto, RollbackDto, SaveDraftDto, SourceDto, SourceUpdateResultDto, StaffSpeciesDto, UpdateSourceDto,
 } from './dto';
 import { CURRENT_EDITORIAL_VERSION, EditorialSchemaError, parseEditorial } from './editorial-schema';
 import { RevalidationService } from './revalidation.service';
@@ -70,6 +70,8 @@ export class EditorialService {
         .from(s.speciesRevisions)
         .where(inArray(s.speciesRevisions.speciesId, ids))
         .orderBy(asc(s.speciesRevisions.version));
+    const publishedIds = rows.map((r) => r.publishedRevisionId).filter((x): x is string => x !== null);
+    const photos = publishedIds.length ? await this.photosOf(db, publishedIds) : [];
     return rows.map((r) => ({
       id: r.id, slug: r.slug, acceptedScientificName: r.acceptedScientificName, rank: r.rank,
       locationSensitivity: r.locationSensitivity, publishedRevisionId: r.publishedRevisionId,
@@ -82,7 +84,24 @@ export class EditorialService {
           id: v.id, version: v.version, state: v.state, updatedAt: v.updatedAt.toISOString(), publishedAt: iso(v.publishedAt),
           isPublished: v.id === r.publishedRevisionId,
         })),
+      publishedPhotos: photos.filter((p) => p.revisionId === r.publishedRevisionId).map(({ revisionId: _, ...p }) => p),
     }));
+  }
+
+  /** The photos of the given revisions: each revision's own snapshots, plus the asset's current review state. */
+  private async photosOf(db: DbOrTx, revisionIds: string[]): Promise<Array<RevisionPhotoDto & { revisionId: string }>> {
+    const rows = await db
+      .select({
+        revisionId: s.revisionMedia.revisionId, mediaId: s.revisionMedia.mediaId, role: s.revisionMedia.role,
+        position: s.revisionMedia.position, altText: s.revisionMedia.altText, caption: s.revisionMedia.caption,
+        credit: s.revisionMedia.creditSnapshot, license: s.revisionMedia.licenseSnapshot,
+        reviewState: s.mediaAssets.reviewState, width: s.mediaAssets.width, height: s.mediaAssets.height,
+      })
+      .from(s.revisionMedia)
+      .innerJoin(s.mediaAssets, eq(s.mediaAssets.id, s.revisionMedia.mediaId))
+      .where(inArray(s.revisionMedia.revisionId, revisionIds))
+      .orderBy(asc(s.revisionMedia.position));
+    return rows.map((p) => ({ ...p, role: p.role === 'primary' ? 'primary' : 'gallery' }));
   }
 
   /**
@@ -159,7 +178,7 @@ export class EditorialService {
     try {
       editorial = parseEditorial(schemaVersion, c.editorial);
     } catch {
-      return [{ key: 'editorial-schema', ok: false, message: 'Editorial content matches the current schema' }];
+      return [{ key: 'editorial-schema', ok: false, blocking: true, message: 'Editorial content matches the current schema' }];
     }
     return runChecklist({
       identifierCount: n,
@@ -250,7 +269,7 @@ export class EditorialService {
       throw new UnprocessableEntityException({
         code: 'CHECKLIST_FAILED',
         message: 'The publication checklist is not complete',
-        details: detail.checklist.filter((c) => !c.ok).map((c) => c.message),
+        details: detail.checklist.filter((c) => !c.ok && c.blocking).map((c) => c.message),
       });
     }
   }

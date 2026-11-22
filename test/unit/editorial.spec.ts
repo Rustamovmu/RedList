@@ -49,6 +49,11 @@ describe('publication checklist', () => {
   it('passes a minimal complete profile; missing diet and climate do not block', () => {
     expect(checklistPasses(runChecklist(base))).toBe(true);
   });
+  it('reports a missing provider identifier as advice, which does not block (D-057)', () => {
+    const items = runChecklist({ ...base, identifierCount: 0 });
+    expect(items.find((i) => i.key === 'identifier')).toMatchObject({ ok: false, blocking: false });
+    expect(checklistPasses(items)).toBe(true);
+  });
   it('blocks "Unknown" population combined with estimates, and "Not assessed" combined with assessments', () => {
     expect(checklistPasses(runChecklist({ ...base, estimateCount: 1 }))).toBe(false);
     expect(checklistPasses(runChecklist({ ...base, editorial: { ...base.editorial, status: { notAssessed: true } } }))).toBe(false);

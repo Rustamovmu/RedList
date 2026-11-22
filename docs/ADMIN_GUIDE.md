@@ -26,14 +26,17 @@ draft ──submit──▶ in review ──publish (admin)──▶ published (
 - **Self-review:** if an admin publishes their own draft, the profile says that it was published without independent review. Prefer a second person when one is available.
 
 ### Publication checklist
-It runs at submit and again at publish. A draft cannot go live until every item passes:
-1. At least one provider identifier (for example a GBIF taxon key).
-2. An overview with at least one citation.
-3. Either at least one status assessment **or** an explicit "Not assessed" (not both).
-4. Either population estimates **or** an explicit "Unknown" (not both).
-5. Every numeric claim is cited.
-6. Every image is approved and has an allow-listed licence.
-7. Every geography row (country presence or range map) has a source.
+It runs at submit and again at publish. A draft cannot go live until every blocking item passes:
+1. An overview with at least one citation.
+2. Either at least one status assessment **or** an explicit "Not assessed" (not both).
+3. Either population estimates **or** an explicit "Unknown" (not both).
+4. Every numeric claim is cited.
+5. Every image is approved and has an allow-listed licence.
+6. Every geography row (country presence or range map) has a source.
+
+One item is **advice, not a blocker** (D-057): at least one provider identifier, for example a GBIF taxon key.
+It is marked "recommended, does not block" in the editor. Fill it in when you know it, because it is how an
+import finds the species again later; a profile can go live without it.
 
 ## Writing content (PLAN §5)
 - **Never invent anything:** no fact, number, source, date or licence. If you cannot check it, leave it out and the page shows "Unknown". Unknown is not zero.
@@ -46,15 +49,23 @@ It runs at submit and again at publish. A draft cannot go live until every item 
 - **Sensitive species:** if a species is at risk from collection or poaching, its locations are generalized to whole countries or withheld (D-017). Precise coordinates are never stored. Do not put them in notes either.
 
 ### Editing a draft
-The draft editor currently edits the revision as **validated JSON** (D-011). A form editor is planned but not built.
-- The page shows the source picker and the reference IDs (habitats, threats, regions) you can use.
-- If the JSON does not match the schema, saving fails and the message names the field.
+Most of a draft is edited in a **form** (D-057): the photos, the common names and synonyms, the group and
+environments, the overview and classification, the "Not assessed" and "Unknown" switches, the diet and its
+tags, the climate and measurement numbers, biology and conservation actions. Change what you need and choose
+**Save draft**.
+- **Photos:** pick from the approved images. The first photo in the list is the one visitors see on cards and
+  at the top of the profile; use "Move up" to change that. Every photo needs alt text, which saving enforces.
+- **Still JSON, under "Advanced":** the status assessment, the population estimates, the countries and oceans,
+  habitats, threats, citations and support links. Each of those rows needs a source id, so the source picker
+  and the reference ID panel below the editor are still how you fill them in (D-011).
+- "Apply this JSON to the form" loads what you typed into the form above; nothing is stored until you save.
+- If the content does not match the schema, saving fails and the message names the field.
 - **Sources:** create one under the source panel, or edit one. Editing a source that a submitted or published version already cites creates a **new** source record, so the published citation never changes underneath you (D-025).
 
 ## Images
 Go to `/admin/media`.
 1. **Upload** a JPEG, PNG or WebP of at most 15 MB. Enter:
-   - the creator, the credit line and the source page URL
+   - the creator, the credit line and (optional) the source page URL and licence deed URL
    - the licence: CC0, the Public Domain Mark, CC BY or CC BY-SA only; no NC, no ND, no "all rights reserved"
    - any changes you made
 2. **Check before uploading:** the licence on the file's source page must match any copyright notice embedded in the file. If they disagree, do not use the image (METHODOLOGY).

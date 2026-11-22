@@ -3003,6 +3003,67 @@
           "isPublished"
         ]
       },
+      "RevisionPhotoDto": {
+        "type": "object",
+        "properties": {
+          "mediaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "primary",
+              "gallery"
+            ]
+          },
+          "position": {
+            "type": "number"
+          },
+          "altText": {
+            "type": "string"
+          },
+          "caption": {
+            "type": "string",
+            "nullable": true
+          },
+          "credit": {
+            "type": "string",
+            "description": "The credit recorded when this revision was saved"
+          },
+          "license": {
+            "type": "string",
+            "description": "The licence recorded when this revision was saved"
+          },
+          "reviewState": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved",
+              "rejected"
+            ],
+            "description": "The asset's review state now"
+          },
+          "width": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "mediaId",
+          "role",
+          "position",
+          "altText",
+          "caption",
+          "credit",
+          "license",
+          "reviewState",
+          "width",
+          "height"
+        ]
+      },
       "StaffSpeciesDto": {
         "type": "object",
         "properties": {
@@ -3047,6 +3108,13 @@
             "items": {
               "$ref": "#/components/schemas/RevisionSummaryDto"
             }
+          },
+          "publishedPhotos": {
+            "description": "The photos on the published revision, in order. Empty when nothing is published.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RevisionPhotoDto"
+            }
           }
         },
         "required": [
@@ -3057,7 +3125,8 @@
           "locationSensitivity",
           "publishedRevisionId",
           "identifiers",
-          "revisions"
+          "revisions",
+          "publishedPhotos"
         ]
       },
       "CreateSpeciesDto": {
@@ -3878,6 +3947,10 @@
           "ok": {
             "type": "boolean"
           },
+          "blocking": {
+            "type": "boolean",
+            "description": "A failing blocking item stops submit and publish; a failing non-blocking item is advice only"
+          },
           "message": {
             "type": "string"
           }
@@ -3885,6 +3958,7 @@
         "required": [
           "key",
           "ok",
+          "blocking",
           "message"
         ]
       },

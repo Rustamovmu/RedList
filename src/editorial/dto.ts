@@ -240,6 +240,25 @@ export class RevisionSummaryDto {
   @ApiProperty() isPublished!: boolean;
 }
 
+/**
+ * A photo as one revision carries it: the alt text and credit of that revision, not the asset's current ones
+ * (PLAN §6 `revision_media` snapshots). `reviewState` is the asset's state now, so staff can see that a live
+ * photo has been sent back to review. Staff see the bytes through `GET staff/media/:id/preview/:width.webp`.
+ */
+export class RevisionPhotoDto {
+  @ApiProperty({ format: 'uuid' }) mediaId!: string;
+  @ApiProperty({ enum: MEDIA_ROLES }) role!: (typeof MEDIA_ROLES)[number];
+  @ApiProperty() position!: number;
+  @ApiProperty() altText!: string;
+  @ApiProperty({ nullable: true, type: String }) caption!: string | null;
+  @ApiProperty({ description: 'The credit recorded when this revision was saved' }) credit!: string;
+  @ApiProperty({ description: 'The licence recorded when this revision was saved' }) license!: string;
+  @ApiProperty({ enum: s.mediaReviewState.enumValues, description: "The asset's review state now" })
+  reviewState!: Enum<typeof s.mediaReviewState>;
+  @ApiProperty() width!: number;
+  @ApiProperty() height!: number;
+}
+
 export class StaffSpeciesDto {
   @ApiProperty({ format: 'uuid' }) id!: string;
   @ApiProperty() slug!: string;
@@ -249,11 +268,14 @@ export class StaffSpeciesDto {
   @ApiProperty({ format: 'uuid', nullable: true, type: String }) publishedRevisionId!: string | null;
   @ApiProperty({ type: [IdentifierDto] }) identifiers!: IdentifierDto[];
   @ApiProperty({ type: [RevisionSummaryDto] }) revisions!: RevisionSummaryDto[];
+  @ApiProperty({ type: [RevisionPhotoDto], description: 'The photos on the published revision, in order. Empty when nothing is published.' })
+  publishedPhotos!: RevisionPhotoDto[];
 }
 
 export class ChecklistItemDto {
   @ApiProperty() key!: string;
   @ApiProperty() ok!: boolean;
+  @ApiProperty({ description: 'A failing blocking item stops submit and publish; a failing non-blocking item is advice only' }) blocking!: boolean;
   @ApiProperty() message!: string;
 }
 

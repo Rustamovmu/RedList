@@ -171,7 +171,7 @@ describe('concurrent publish', () => {
 });
 
 describe('validation and the publication checklist', () => {
-  it('blocks submit until identifier, cited overview, status and population are present', async () => {
+  it('blocks submit until a cited overview, status and population are present', async () => {
     const d: Rev = (
       await authed(http().post('/api/v1/staff/species'), editor)
         .send({ slug: 'fictus-incomplete', acceptedScientificName: 'Fictus incomplete', rank: 'species', displayGroup: 'insect' })
@@ -179,8 +179,26 @@ describe('validation and the publication checklist', () => {
     ).body;
     const res = await submit(editor, d.id).expect(422);
     expect(res.body.error.code).toBe('CHECKLIST_FAILED');
-    expect(res.body.error.details.join(' ')).toMatch(/identifier/);
     expect(res.body.error.details.join(' ')).toMatch(/overview/);
+    // The provider identifier is advice, not a blocker (D-057), so it is never a reason for the refusal.
+    expect(res.body.error.details.join(' ')).not.toMatch(/identifier/);
+  });
+
+  /** D-057: the owner publishes profiles before a GBIF or IUCN id is known. The checklist still asks for one. */
+  it('publishes a species with no provider identifier, and reports the missing identifier as advice', async () => {
+    const d: Rev = (
+      await authed(http().post('/api/v1/staff/species'), editor)
+        .send({ slug: 'fictus-noident', acceptedScientificName: 'Fictus sine nomine', rank: 'species', displayGroup: 'fish' })
+        .expect(201)
+    ).body;
+    const saved = await save(editor, d, content('A synthetic species with no provider identifier.'));
+    const detail = await authed(http().get(`/api/v1/staff/revisions/${saved.id}`), editor).expect(200);
+    const identifier = (detail.body.checklist as Array<{ key: string; ok: boolean; blocking: boolean }>).find((c) => c.key === 'identifier');
+    expect(identifier).toMatchObject({ ok: false, blocking: false });
+
+    await submit(editor, saved.id).expect(200);
+    await publish(admin, saved.id).expect(200);
+    await pub('fictus-noident').expect(200);
   });
 
   it('rejects invalid editorial JSON at the boundary', async () => {

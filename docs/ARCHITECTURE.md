@@ -46,8 +46,9 @@ Navigation: Explore · Map · Compare · About. The support directory is linked 
 | Area | Status |
 |---|---|
 | Login, sessions, CSRF | **done** (M1) |
-| Species list, new species, identifiers, drafts, submit, publish, request changes, checklist | **done** (M1) |
-| Form-based draft editor with source picker, live preview and diff (PLAN §7); M1 edits content as validated JSON (DECISIONS D-011) | open, unassigned (R1) |
+| Species list, new species, identifiers, drafts, submit, publish, request changes, checklist | **done** (M1). The list and the species page show the published photos (D-057); the provider identifier is advice, not a blocker (D-057) |
+| Form editor for photos, names, grouping, the written sections, diet tags, climate and measurements (D-057) | **done** (2026-11-23) |
+| Form editor for the rows that each need a source (assessments, estimates, places, habitats, threats, citations, support links), plus live preview and a diff (PLAN §7); those are still edited as JSON (D-011) | open, unassigned (R1) |
 | Organizations and support links (`/admin/support`) | **done** (M3) |
 | Media upload and review queue (`/admin/media`), rollback ("Make this version live again" on `/admin/species/[id]`) | **done** (M4) |
 | Staff invites (one-time link, no email), staff management | open, unassigned (moved from M1, not built in M4; a solo admin works without it) |
@@ -72,7 +73,7 @@ Navigation: Explore · Map · Compare · About. The support directory is linked 
 | `GET /support` | **done** (M3) |
 | `GET /sources`, `GET /sitemap` (published content only) | **done** (2026-11-21, D-028) |
 | `GET /credits` (credit, licence and source of every photo on a published profile; rejected images left out) | **done** (2026-11-23, D-055) |
-| Staff: `auth/login`, `auth/logout`, `auth/me`; `species` (list, create, get, identifiers, drafts); `revisions/:id` (get, save, submit, publish, request-changes); `sources` (list, create); `reference` | **done** (M1) |
+| Staff: `auth/login`, `auth/logout`, `auth/me`; `species` (list, create, get, identifiers, drafts); `revisions/:id` (get, save, submit, publish, request-changes); `sources` (list, create); `reference` | **done** (M1). Staff species carry `publishedPhotos`, and each checklist item carries `blocking` (D-057) |
 | Staff: organizations, support links (list, create, edit, approve, disable) | **done** (M3) |
 | Staff: `media` (list, upload, get, preview, edit, approve, reject), `species/:id/rollback`, `PUT sources/:id` | **done** (M4) |
 | `GET /media/:key/:width.webp` (approved or live-published images only; rejected never) | **done** (M4, D-022) |

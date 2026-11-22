@@ -155,6 +155,14 @@ describe('credits, licences and citations survive edits', () => {
     expect(srcEdit.body.source.id).not.toBe(src.id);
 
     expect((await http().get(`/api/v1/staff/media/${m.id}`).set('Cookie', editor.cookie).expect(200)).body.usedByRevisions).toBe(1);
+    // The staff species carries the live photo, so the admin pages can show it: the revision's own snapshot
+    // credit, and the asset's review state now (pending again after the edit above).
+    const staffSp = (await http().get(`/api/v1/staff/species/${v1.speciesId}`).set('Cookie', editor.cookie).expect(200)).body;
+    expect(staffSp.publishedPhotos).toHaveLength(1);
+    expect(staffSp.publishedPhotos[0]).toMatchObject({
+      mediaId: m.id, role: 'primary', position: 0, altText: 'A synthetic test image',
+      credit: 'Photo: Synthetic Creator, CC BY 4.0', license: 'CC BY 4.0', reviewState: 'pending',
+    });
     const page = (await pub('fictus-snapshot').expect(200)).body;
     expect(page.media[0]).toMatchObject({ credit: 'Photo: Synthetic Creator, CC BY 4.0', license: 'CC BY 4.0' });
     expect(page.sources.find((x: { id: string }) => x.id === src.id)).toMatchObject({ title: 'Synthetic field guide', publishedOn: '2019-05-01' });
