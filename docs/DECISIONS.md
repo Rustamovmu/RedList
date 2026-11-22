@@ -390,3 +390,17 @@ White text on each IUCN badge colour measures 4.9:1 to 21:1, so all pass WCAG AA
 - No cost while the repositories stay public and use standard runners. If either repository becomes private, re-check against the $12 monthly allowance, or turn the workflows off.
 - **Not yet run on GitHub:** the owner commits and pushes (AGENTS.md), so the first run happens on the owner's push. The same commands passed locally (COMPLETED_TASKS, R1-L).
 - The e2e stack now creates an e2e-only admin (`E2E_ADMIN_EMAIL` and `E2E_ADMIN_PASSWORD`, set in the frontend's `playwright.config.ts` and `e2e/staff.ts`), only in a database whose name contains `e2e`. With it, `e2e/a11y-extra.spec.ts` checks the staff pages.
+
+## D-034 "Signal" visual redesign replaces the nature-editorial style (2026-11-22, owner request)
+**Context:** the owner asked for a more premium look, based on `docs/STITCH_PROMPT.md` and a reference screenshot (a dark template with acid-lime display type). PLAN §4 described "a calm nature-editorial style: warm off-white background, deep forest-green navigation".
+**Decision:**
+- **Palette:** black `#000000` canvas, navy `#0E1E32` panels (raised `#15283F`, rules `#2A3B52`), one signal colour, acid lime `#D9FE8F`. Body text `#DCDCDC`, secondary `#9AA4B2`, errors `#FF8A80`. Text on lime is always black. The nine status colours are unchanged; badges keep the code and label as text.
+- **Type:** Anton (uppercase display, never faux-bold), Space Mono (navigation, labels, buttons), Inter (reading text). Square corners, no shadows, no gradients except dark scrims over photographs.
+- **Fonts are self-hosted from npm** (`@fontsource/anton`, `@fontsource/space-mono`, `@fontsource-variable/inter`, all 5.3.0, fonts under the SIL Open Font License 1.1, no cost). The CSP keeps `font-src 'self'`; no Google Fonts request. The woff2 files carry the OFL notice in their metadata.
+- **Only the look changed.** Page structure, wording rules, data, routes and the accessibility target are as before. Section numbers (01–08) are used where the content is a sequence (the profile's eight questions) and on the long-reading pages, as the prompt pack specifies.
+- From the reference only the palette, type pairing and layout feel are used, never its pictures, logo or words. The hero photo is the catalogue's own licensed photo with its credit.
+**Consequences:**
+- PLAN §4 "Style" now points here.
+- The keyboard e2e helper `tabTo()` reads `textContent` instead of `innerText`, because `innerText` applies CSS `text-transform` (nav and buttons are uppercase in CSS, not in the DOM).
+- Contrast (WCAG formula, computed): on black, body 15.3:1, secondary 8.3:1, lime 18.5:1, errors 9.2:1; on navy, secondary 6.7:1, errors 7.4:1, lime 14.8:1; black on lime 18.5:1. Focus is a 3px lime ring, black on lime surfaces.
+- To go back, revert the frontend commit. A copy of the previous style was kept outside the repo on 2026-11-22 (STITCH_PROMPT.md, "Notes for the owner").

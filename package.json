@@ -18,6 +18,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "ts-node --transpile-only src/cli/migrate.ts",
     "db:seed:regions": "ts-node --transpile-only src/cli/seed-regions.ts",
+    "db:seed:vocab": "ts-node --transpile-only src/cli/seed-vocab.ts",
     "db:seed:fixtures": "ts-node --transpile-only src/cli/seed-fixtures.ts",
     "admin:create": "ts-node --transpile-only src/cli/admin-create.ts",
     "e2e:prepare": "ts-node --transpile-only src/cli/e2e-prepare.ts",

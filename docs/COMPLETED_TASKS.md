@@ -1,5 +1,61 @@
 # Completed tasks
 
+## 2026-11-22: "Signal" visual redesign of the web app (owner request, D-034)
+
+**Scope:** the frontend's look, rebuilt from `docs/STITCH_PROMPT.md` and the owner's reference screenshot. Black canvas, navy panels, acid lime `#D9FE8F`, Anton display type, Space Mono UI text, Inter body text, square corners. Only the look changed: routes, data, wording rules and the accessibility target are as before. No API change, so no `openapi:export` or `contracts:generate`.
+
+**Frontend (`RedList-frontend`):**
+- `globals.css`: new tokens (`canvas`, `panel`, `raised`, `rule`, `lime`, `fog`, `muted`, `alert`), a `type-display` utility, and shared classes (`btn-*`, `field`, `panel`, `chip`, `notice`, `kicker`, `h-page`, `h-section`, `info-body`). MapLibre controls are restyled. One load animation: the hero's WILD / WARD rise in, and `prefers-reduced-motion` turns it off.
+- **Fonts:** self-hosted from npm (`@fontsource/anton`, `@fontsource/space-mono`, `@fontsource-variable/inter` 5.3.0, OFL), imported in `layout.tsx`. The CSP is unchanged (`font-src 'self'`).
+- **Shell:**
+  - lime announcement bar linking to the methodology
+  - header: an original line-art mark, the four nav links with the current page underlined (`aria-current`), and a "Comparing 2 of 3" counter while species are picked
+  - footer: three columns and a cropped giant wordmark (decorative, `aria-hidden`)
+- **Pages:**
+  - home: full-bleed hero, where the catalogue's own licensed photo with its credit sits between giant WILD / WARD; the threatened grid now loads 5 cards so the large first card fills the grid
+  - explore (sidebar filters with status swatches, sticky Apply), profile (sticky numbered list of the eight questions, 21:9 photo, key-facts strip, assessment rows with a status-coloured edge, population cards), compare (lime "not directly comparable" band, giant 0/3 empty state), map (dark basemap, lime country shading, white hatched ranges, sticky map on desktop)
+  - regions, support, sources (numbered ledger), the four information pages (shared long-reading layout with an "On this page" list; methodology shows the nine badges), 404, error
+  - staff: "Staff area" strip, sign-in panel, staff tabs, state chips, checklist ticks
+- New components: `SectionHead`, `Pagination`, `shell/Mark`, `shell/NavLinks`, `shell/CompareCounter`.
+- `e2e/release.spec.ts`: `tabTo()` reads `textContent` instead of `innerText`, because `innerText` applies CSS `text-transform` (nav and buttons are uppercase only in CSS).
+
+**Backend docs:** D-034 in DECISIONS; PLAN §4 "Style" points to it; DATA_SOURCES lists the fonts.
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| frontend `npm run typecheck` / `npm run lint` | pass / pass |
+| frontend `npm run test:e2e`, first run | **42 passed, 3 failed, 3 skipped.** Failures: axe `label-content-name-mismatch` on the header counter (its `aria-label` did not contain the visible "[2/3]"), on 11 pages in both projects; reflow on `/` at 320 px (9 px overflow: an environment row could not shrink). Both fixed. |
+| frontend `npm run test:e2e`, second run (includes `next build`) | **45 passed, 3 skipped** (the skips are by design, as before) |
+| Playwright screenshots of the dev site (`:3000`, real catalogue) at 1440, 640, 360 and 320 px | every public page and `/admin` at 0 px horizontal overflow; one earlier 1170 px overflow on the mobile profile (grid track widened by the section bar) was fixed with `minmax(0,1fr)` |
+| WCAG contrast, computed | on black: body 15.3:1, secondary 8.3:1, lime 18.5:1, errors 9.2:1; secondary on navy 6.7:1 |
+
+The e2e suite ran against Postgres.app (`E2E_DATABASE_URL` pointing at a new `wild_e2e` database on port 5432), not Docker, because Docker was not running. `e2e:prepare` creates and wipes only a database whose name contains `e2e`.
+
+**Known gaps:**
+- The signed-in staff screens were checked by axe (`a11y-extra`), not by eye; only the sign-in screen was screenshotted.
+- No scroll-spy on the profile's section list: it shows all eight, not the one in view.
+- The previous style exists only outside the repo (owner's copy) and in git history.
+- Manual checks are still open: VoiceOver and zoom (`docs/launch/A11Y_MANUAL_CHECK.md`).
+
+## 2026-11-22: Ecology and geography for all 40 batch-1 species (owner request, web search)
+
+**Scope:** at the owner's request the agent searched the web (no approved-site list) for where each species lives, its habitat, diet, threats and a population figure, and loaded them as **drafts** through the normal import. Nothing was published; no IUCN page was read.
+- `catalogue/batch-1.json`: per species a `facts-<slug>` source (URL of the page used, licence "not stated", facts restated in our own words), country or ocean rows, habitats, threats, `editorial.diet`, citations, and a population estimate where a source gave a clear figure. 7 species first got country rows with their own `range-*` sources earlier the same day.
+- `src/cli/seed-vocab.ts` and `npm run db:seed:vocab`: our own habitat (21) and threat (18) lists, codes start with `w-`. **They are not the IUCN schemes** (licence still pending). Run it on every database before importing.
+- Maps: no range polygons. The map shows country- and ocean-level presence from the region rows, labelled as such.
+- Import dry-run then apply: 255 changes, 40 species, drafts only.
+- `npm run typecheck` and `npm run lint` pass. `npm test`, `validate:catalogue` and the browser were not run.
+
+**Second pass (same day, owner asked for no empty fields):** every one of the 40 drafts now has countries or oceans, habitats, threats, diet and at least one population estimate. Where sources disagree the estimate is a range of their lowest and highest figures (elephant, gorilla, red panda, condor, koala); where nobody publishes a count it is a `qualitative` estimate in words (sharks, bluefin, monarch, bumble bee, amphibians, coral, giant clam, coconut crab, sturgeon). Nothing was invented. `validate:catalogue` passes on the published records.
+
+**Published (same day, owner said "yes publish"):** `scripts/publish-drafts.mjs --only=<the 40 batch-1 slugs>` submitted and published all 40 through the staff API as the owner admin (self-review): 40 published, 0 failed. `validate:catalogue` passes. Three older drafts not made in this task (ambystoma-mexicanum, eretmochelys-imbricata, panthera-uncia) were left unpublished for the owner to check. The admin password was typed in chat; the owner should change it.
+
+**Known gaps / caveats**
+- Facts are second-hand from web search and not checked against IUCN. Where sources disagree the list is partial and the source note says so (elephant, cheetah, black rhino, snowy owl). Unknown stays unknown: no population figure for elephant, gorilla, red panda, polar bear (existing), sharks, bluefin, monarch, bumble bee, condor and others.
+- Nesting-female and breeding-pair figures use basis `other` or `breeding_pairs`, so compare may not mix them with whole-population counts.
+- Climate is still empty for all 40. Replace web-search sources with primary ones before any public launch.
+
 ## 2026-11-21: R1-L Launch readiness
 **Scope:** the R1 launch-readiness task (CLAUDE_TASKS "R1-L"): status-check sheet and import, CI, the manual accessibility checklist, the user-testing script, and the owner review list. **Nothing was deployed or pushed, and no IUCN page was read.** Decisions: D-032 (status check), D-033 (CI).
 
