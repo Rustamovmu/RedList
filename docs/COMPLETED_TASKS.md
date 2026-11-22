@@ -1,5 +1,19 @@
 # Completed tasks
 
+## 2026-11-22: The help panel's photo fills its curve, no blur (owner request, D-042)
+
+**What changed (frontend):** `app/page.tsx`: the lime help panel shows its photo with `object-cover` (anchored at 50% 30%) instead of `WholePhoto`, so the blurred fill around it is gone. The photo column is 28rem on desktop, and the photo area has a fixed height on phones (`h-80`, `sm:h-96`). Other frames are unchanged (D-039).
+
+**Docs (backend):** D-042 in `DECISIONS.md`.
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| frontend `npm run typecheck`, `npm run lint` | pass / pass |
+| Playwright screenshots of the help panel at 1458, 1920 and 360 px (dev server) | the orangutan fills the curve without blur, and its face is fully in view at every width |
+
+**Known gaps:** `npm run test:e2e` was not run, because no e2e test covers this panel. The 400 px source photo is enlarged to about 28rem, so it is slightly soft on high-density screens.
+
 ## 2026-11-22: The owner's collage as the home hero, credit and licence pending (owner request, D-041)
 
 **What changed (frontend):**

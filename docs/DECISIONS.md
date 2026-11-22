@@ -490,3 +490,12 @@ White text on each IUCN badge colour measures 4.9:1 to 21:1, so all pass WCAG AA
 - The scrims, the curve and the entrance (a fade from a slight zoom, `.hero-in`, off with reduced motion) stay. The catalogue strips, their credits and `stripCredits` are removed. The home page now fetches 16 threatened species instead of 32, enough for the cards and the four section photos.
 **Conflict with the plan:** PLAN §4 asks for "a hero photograph with credit", and AGENTS.md limits photos to CC0, PDM, CC BY and CC BY-SA. This hero meets neither until its source is known. It is recorded as a launch blocker in `docs/launch/OWNER_REVIEW.md` (open question 9) and as a pending row in `DATA_SOURCES.md`. Before a public launch the owner either confirms an allowed licence and the credit goes into the caption, or the image is replaced. Going back to the catalogue strips means restoring the D-038 hero from git.
 **Consequences:** D-038's line "Every photo is a catalogue photo with its credit" no longer holds for the hero; it still holds for every other photo. The e2e check for the home page now looks for the hero image and its "pending" caption, and for the fixture photo and credit on a threatened-species card.
+
+## D-042 The help panel's photo fills its curve, with no blurred fill (2026-11-22, owner request)
+**Context:** under D-039 the home page's lime "Find a credible way to help" panel showed its mammal photo whole (`WholePhoto`), so a portrait photo (the Bornean orangutan, 400 × 518) sat in the middle of a wide frame with blurred sides. The owner pointed at it: "do not blur the edges of the images and make it fit".
+**Decision:**
+- In this panel only, the photo is a plain `next/image` with `object-cover` that fills the curved shape. There is no blurred copy. The crop is anchored above the middle (`object-[50%_30%]`), where heads usually are.
+- On desktop the photo column is 28rem wide instead of 1fr of 2.2fr, so the frame is close to a portrait photo's shape and only a little is cut off. On phones the photo area has a fixed height (`h-80`, `sm:h-96`) under the text, with the curve on top as before.
+**Consequences:**
+- The photo is cropped a little. The panel picks the first available threatened mammal, so another photo could lose more, mostly at its sides if it is landscape. A focal point per image (the BACKLOG candidate from D-039) would allow a better crop.
+- Every other frame still follows D-039 (whole photo with a blurred fill).
