@@ -667,3 +667,15 @@ The PNG and ICO files were rendered once from the SVG with the Playwright that i
 - The five header pictures are still unlicensed launch blockers (OWNER_REVIEW 9–13; `DATA_SOURCES.md`). Removing the caption changes only what the page says, not their status. If one gets a CC BY licence, its credit must be added somewhere, for example on `/credits`.
 - A photo shown on Explore, the home page or the map has its credit one click away (footer → Photo credits), not next to it.
 - Putting credits back under the images means restoring the old `Photo` figcaption and the credit lines in `SpeciesCard`, `GroupTile` and `src/app/page.tsx`.
+
+## D-056 The Wildward logo always leads to the home hero, in the header and the footer (2026-11-23, owner request)
+**Context:** the owner clicked the Wildward logo in the footer of the home page and nothing happened. The owner asked that, wherever anyone presses it, the logo goes to the home page's main hero. Two causes were found and measured in Chrome:
+- The footer logo was decorative (`<p aria-hidden>`), not a link.
+- The header logo was a `next/link` to `/`. On the home page that is the same URL, so Next.js did not move. From the bottom of the home page, the page stayed at scrollY 5869.
+**Decision:**
+- New client component `src/components/shell/HomeLink.tsx`, used for both logos.
+  - From any other page it is a normal link to `/`, which opens at the top.
+  - On the home page it scrolls back up to the hero: smoothly, or instantly when the visitor prefers reduced motion. It then moves keyboard focus to the header logo, so Tab continues from the top and not from the footer.
+  - The URL stays `/`, with no `#top`. Ctrl-, Cmd-, Shift- or middle-click still opens a new tab or window.
+- The footer logo is now a real link named "Wildward", like the header's, and is no longer hidden from assistive technology.
+**Consequences:** a new e2e test in `pages.spec.ts` covers both logos on the home page and the footer logo from `/species`, at desktop and 360 px.

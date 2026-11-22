@@ -1,5 +1,24 @@
 # Completed tasks
 
+## 2026-11-23: The Wildward logo always leads to the home hero (owner request, D-056)
+
+**What changed (frontend):**
+- New `src/components/shell/HomeLink.tsx` (client), used by the header and footer logos. From other pages it is a normal link to `/`. On `/` it scrolls back up to the hero (smoothly, or instantly with reduced motion) and focuses the header logo. A modified click (new tab or window) is left to the browser.
+- `src/components/SiteHeader.tsx`: the logo uses `HomeLink`.
+- `src/components/SiteFooter.tsx`: the footer logo was decorative (`aria-hidden`, not a link). It is now a `HomeLink` named "Wildward".
+- `e2e/pages.spec.ts`: new test for both logos on `/` (scroll returns to 0, focus on the header logo) and the footer logo from `/species`.
+- **Docs:** D-056.
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| Playwright on the owner's dev server `:3000`, before the fix | `/` header logo after scrolling down: stayed at scrollY 5869; footer logo: not a link |
+| same, after the fix | `/`: both logos reach scrollY 0 (about 1.3 s smooth; 12–42 ms with reduced motion), URL `/`, focus on the header logo, by mouse and by Enter. `/species`: both open `/` at the top |
+| frontend `npm run typecheck`, `npm run lint` | pass |
+| frontend `npm run test:e2e` with `E2E_DATABASE_URL` → Postgres.app `wild_e2e` on 5432 | **49 passed, 3 skipped** (47 before, plus the new test at desktop and 360 px) |
+
+**Known gaps:** none found.
+
 ## 2026-11-23: No credit or "pending" text on pictures; a Photo credits page; no Next.js dev badge (owner request, D-055)
 
 **What changed (backend):**
