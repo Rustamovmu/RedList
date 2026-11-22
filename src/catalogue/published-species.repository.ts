@@ -4,12 +4,26 @@ import { domainOf } from '../common/url';
 import { Db, InjectDb } from '../db/db.module';
 import * as s from '../db/schema';
 import { CURRENT_EDITORIAL_VERSION, Editorial, parseEditorial } from '../editorial/editorial-schema';
-import { COMMON_NAME, countCards, DISPLAY_NAME, HEADLINE, ListFilters, PUBLISHED, selectCards, SEVERITY } from './catalogue-sql';
+import { CARD_IMAGE, COMMON_NAME, countCards, DISPLAY_NAME, HEADLINE, ListFilters, PUBLISHED, selectCards, SEVERITY } from './catalogue-sql';
 import {
-  FacetDto, FiltersDto, HabitatFacetDto, PublicSourceDto, RangeValueDto, RegionFacetDto, RegionLinkDto, SitemapDto, SpeciesCardDto, SpeciesListDto,
-  SpeciesProfileDto,
+  FacetDto, FiltersDto, GroupExampleDto, HabitatFacetDto, PublicSourceDto, RangeValueDto, RegionFacetDto, RegionLinkDto, SitemapDto, SpeciesCardDto,
+  SpeciesListDto, SpeciesProfileDto,
 } from './dto';
 import { MAX_PAGE_SIZE } from './list-query.dto';
+
+/** A group tile is about 450 CSS px wide on desktop, so a narrower photo would look soft there. */
+const GROUP_PHOTO_MIN_WIDTH = 800;
+
+type GroupExampleRow = {
+  value: string;
+  slug: string;
+  accepted_scientific_name: string;
+  common_name: string | null;
+  storage_key: string;
+  alt_text: string;
+  credit_snapshot: string;
+  license_snapshot: string;
+};
 
 const region = (r: { slug: string | null; name: string | null; type: RegionLinkDto['type'] | null }): RegionLinkDto | null =>
   r.slug && r.name && r.type ? { slug: r.slug, name: r.name, type: r.type } : null;
@@ -215,7 +229,7 @@ export class PublishedSpeciesRepository {
 
   async filters(): Promise<FiltersDto> {
     const q = <T>(body: ReturnType<typeof sql>) => this.db.execute<T & Record<string, unknown>>(sql`WITH p AS (${PUBLISHED}) ${body}`).then((r) => r.rows);
-    const [totals, groups, envs, cats, trends, regions, habitats] = await Promise.all([
+    const [totals, groups, envs, cats, trends, regions, habitats, examples] = await Promise.all([
       q<{ total: number; threatened: number }>(sql`
         SELECT count(*)::int AS total, count(*) FILTER (WHERE ha.category IN ('CR','EN','VU'))::int AS threatened FROM p ${HEADLINE}`),
       q<{ value: string; count: number }>(sql`SELECT p.display_group::text AS value, count(*)::int AS count FROM p GROUP BY 1`),
@@ -232,13 +246,35 @@ export class PublishedSpeciesRepository {
         SELECT h.code, h.name, count(DISTINCT p.species_id)::int AS count
         FROM p JOIN species_habitats sh ON sh.revision_id = p.revision_id JOIN habitats h ON h.id = sh.habitat_id
         GROUP BY h.code, h.name ORDER BY h.code`),
+      // One photo per group: a sharp photo first, then the most widespread species. A withheld region list
+      // counts as none, so a location-sensitive species is never ranked by data it hides.
+      q<GroupExampleRow>(sql`
+        SELECT DISTINCT ON (p.display_group) p.display_group::text AS value, p.slug, p.accepted_scientific_name, cn.name AS common_name,
+               img.storage_key, img.alt_text, img.credit_snapshot, img.license_snapshot
+        FROM p ${COMMON_NAME} ${CARD_IMAGE}
+        WHERE img.storage_key IS NOT NULL
+        ORDER BY p.display_group, (img.width >= ${GROUP_PHOTO_MIN_WIDTH}) DESC,
+          CASE WHEN p.location_sensitivity = 'hide_regions' THEN 0
+               ELSE (SELECT count(*) FROM species_regions sr WHERE sr.revision_id = p.revision_id) END DESC,
+          ${DISPLAY_NAME}, p.slug`),
     ]);
     const facet = (values: readonly string[], rows: Array<{ value: string; count: number }>): FacetDto[] =>
       values.map((value) => ({ value, count: rows.find((r) => r.value === value)?.count ?? 0 }));
+    const example = (value: string): GroupExampleDto | null => {
+      const r = examples.find((e) => e.value === value);
+      return r
+        ? {
+            slug: r.slug,
+            scientificName: r.accepted_scientific_name,
+            commonName: r.common_name,
+            image: { storageKey: r.storage_key, altText: r.alt_text, credit: r.credit_snapshot, license: r.license_snapshot },
+          }
+        : null;
+    };
     return {
       total: totals[0].total,
       threatened: totals[0].threatened,
-      groups: facet(s.displayGroup.enumValues, groups),
+      groups: facet(s.displayGroup.enumValues, groups).map((g) => ({ ...g, example: example(g.value) })),
       environments: facet(s.environment.enumValues, envs),
       categories: facet(s.iucnCategory.enumValues, cats),
       trends: facet(s.populationTrend.enumValues, trends),

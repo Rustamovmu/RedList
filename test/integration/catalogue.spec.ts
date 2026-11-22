@@ -139,6 +139,27 @@ describe('GET /filters', () => {
     expect(f.regions.map((r: { slug: string }) => r.slug)).not.toContain('peru');
     expect(f.regions.map((r: { slug: string }) => r.slug)).toContain('fiji');
   });
+
+  it("illustrates a group with the photo its species card shows, null without one, and drops it on takedown", async () => {
+    type Group = { value: string; example: { slug: string; image: unknown } | null };
+    const groups = async () => (await http().get('/api/v1/filters').expect(200)).body.groups as Group[];
+    const card = (await http().get('/api/v1/species?group=reptile').expect(200)).body.items[0];
+    expect(card.image).not.toBeNull();
+
+    const before = await groups();
+    expect(before.find((g) => g.value === 'reptile')?.example).toEqual({
+      slug: 'fictus-captivus', scientificName: 'Fictus captivus', commonName: 'Captive example lizard (fixture)', image: card.image,
+    });
+    expect(before.filter((g) => g.value !== 'reptile' && g.example !== null)).toEqual([]); // the only fixture photo
+
+    const { rows } = await pool.query(`SELECT id FROM media_assets WHERE storage_key = $1`, [card.image.storageKey]);
+    await pool.query(`UPDATE media_assets SET review_state = 'rejected' WHERE id = $1`, [rows[0].id]);
+    try {
+      expect((await groups()).find((g) => g.value === 'reptile')?.example).toBeNull();
+    } finally {
+      await pool.query(`UPDATE media_assets SET review_state = 'approved' WHERE id = $1`, [rows[0].id]);
+    }
+  });
 });
 
 describe('related species', () => {

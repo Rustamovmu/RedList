@@ -1,5 +1,85 @@
 # Completed tasks
 
+## 2026-11-22: A photo on each home-page group tile (owner request, D-037)
+
+**Backend (`RedList-backent`):**
+- `GET /filters`: each group is now a `GroupFacetDto` with `example` (`slug`, `scientificName`, `commonName`, `image`) or `null`. Pick order:
+  1. photos at least 800 px wide
+  2. the group's most widespread species (most countries and seas; a location-sensitive species counts as none)
+  3. name
+- `catalogue-sql.ts`: the card photo choice is one shared fragment, `CARD_IMAGE`. Species cards and group tiles use it, so they always show the same photo, and a takedown removes it from both.
+- New integration test: the tile gets the same photo as its species card, groups without a photo get `null`, and a rejected photo drops off the tile.
+- `openapi.json` re-exported.
+
+**Frontend (`RedList-frontend`):**
+- `contracts:generate` run.
+- New `components/GroupTile.tsx`:
+  - the photo is full-bleed and decorative (`alt=""`) behind the group name and count, with dark scrims; the scrim starts higher below `lg`, where the credit wraps onto more lines
+  - a caption names the species shown and gives its credit
+  - the whole tile is the link, and the caption sits above the link overlay
+  - without a photo the tile is the plain panel
+- `app/page.tsx`: the grid is 2 columns, then 3 from `sm` (was 6 on desktop).
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| backend `npm run typecheck` / `npm run lint` | pass / pass |
+| backend `npm test` (`.env.test` pointed at a new `wild_test` on Postgres.app 5432 for this run, then restored to 5433; Docker was not running) | **251/251 pass**, 16 suites (250 before + 1 new) |
+| backend `npm run openapi:export`, frontend `npm run contracts:generate` | written |
+| frontend `npm run typecheck` / `npm run lint` | pass / pass |
+| frontend `npm run test:e2e` with `E2E_DATABASE_URL` → Postgres.app `wild_e2e` (includes build, axe, reflow) | **45 passed, 3 skipped** (as before) |
+| Playwright on the dev site (`/`) at 1512×861, 800×1000 and 360×780, after revalidating `catalogue` | 8 photos load (coral has none), 0 px horizontal overflow; names, counts and credits readable over the white-background frog and butterfly photos |
+
+**Known gaps:**
+- Editors cannot choose a tile photo; the rule picks it.
+- No e2e test checks the tile photos; the synthetic e2e catalogue has only one photo.
+- On phones a long credit takes four lines and covers the lower half of the photo.
+
+## 2026-11-22: Footer "rising lines" decoration (owner request, D-036)
+
+**Request:** add React Bits Pro's "Rising Lines" component to the footer. **Not installed:** React Bits Pro is paid and needs a licence key (none is configured). The frontend has no shadcn `components.json`. Its licence (v2.2 §2.4) forbids publishing the code in open-source repositories, and both repos are public. Written instead as our own component, without the Pro source (D-036).
+
+**Frontend (`RedList-frontend`):**
+- New `components/shell/RisingLines.tsx` (client component, 2D canvas, no dependency):
+  - thin lime lines rise from a hairline horizon at the bottom edge, with a soft elliptical glow, brighter in the middle and fading as they climb
+  - colour from `--color-lime`; device pixel ratio capped at 2
+  - animates only while on screen; `prefers-reduced-motion` draws one still frame
+  - `aria-hidden`, ignores the pointer
+- `components/SiteFooter.tsx`: the canvas sits behind the cropped WILDWARD wordmark. The wordmark block gets `clamp(4rem, 9vw, 8rem)` top padding so the lines show above the letters, and they fade out before any text.
+- No API change, so no `openapi:export` or `contracts:generate`. No new package, no CSP change.
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| frontend `npm run typecheck` / `npm run lint` | pass / pass |
+| frontend `npm run test:e2e` with `E2E_DATABASE_URL` → Postgres.app `wild_e2e` on 5432 (includes `next build`, axe, CSP, reflow) | **45 passed, 3 skipped** (skips by design, as before). The first try without `E2E_DATABASE_URL` failed at start-up because the default points at Docker on 5433, which was not running. |
+| Playwright on the dev site (`/about` footer) at 1512×861, 360×780, and 1280×800 with reduced motion | canvas draws at all three. The frames differ after 0.7 s with normal motion and are identical with reduced motion. 0 px horizontal overflow, no console errors from the footer. |
+
+**Known gaps:**
+- The look was checked in headless Chrome only (device pixel ratio 1), not on a Retina screen or in Safari/Firefox.
+- One run logged a single unrelated 404 on `/about`, which did not happen again on a second load (the canvas makes no requests).
+
+## 2026-11-22: Profile hero: name and whole photo on one screen (owner request, D-035)
+
+**Problem (owner's screenshot, 1512×861 window):** the photo started below the fold, was cropped to 21:9 (a portrait orangutan became a blurry close-up), and the name scrolled away before the photo was in view.
+
+**Frontend (`RedList-frontend`):**
+- `components/Photo.tsx`: new optional `fit` (the photo's own width and height) and `className`. With `fit` the photo is drawn uncropped at its own aspect ratio, no wider than its column and no taller than `--photo-max-h`. Without it nothing changes, so cards and the home hero are unaffected.
+- `app/species/[slug]/page.tsx`: the hero is a grid. From `lg`: name, scientific name, compare and key facts on the left (5fr), the photo on the right (7fr), right-aligned. Key facts become label/value rows there. Below `lg` it stacks (name, photo, facts) as before. Display name at most 5.5rem stacked and 6rem side by side (was 7.5rem). No-photo placeholder is capped to the same height.
+- `globals.css`: `.profile-hero` sets `--photo-max-h`: `min(45svh, 40rem)` stacked; `max(18rem, 100svh − nav − 10rem)` from `lg`.
+- No API change, so no `openapi:export` or `contracts:generate`.
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| frontend `npm run typecheck` / `npm run lint` | pass / pass |
+| frontend `npm run test:e2e` (includes `next build`; Postgres.app `wild_e2e` on 5432) | **45 passed, 3 skipped** (skips by design, as before) |
+| Playwright screenshots of the dev site (`:3000`) for orangutan, emperor penguin, whale shark, tiger and elkhorn coral (no photo), at 1512×861, 1280×680 and 390×750 | 0 px horizontal overflow everywhere. At 1512×861 and 1280×680 the name and the whole photo with its credit are inside the first screen for all five. At 390×750 the whole photo fits for 4 of 5; the orangutan (two-line name) overshoots by about 10 px. |
+
+**Known gaps:**
+- On small phones a two-line name plus a portrait photo can still need a short scroll to see the photo's bottom edge.
+- Small source photos are enlarged somewhat (orangutan original 400×518, shown about 486 px wide on desktop). A larger licensed photo would fix that.
+
 ## 2026-11-22: "Signal" visual redesign of the web app (owner request, D-034)
 
 **Scope:** the frontend's look, rebuilt from `docs/STITCH_PROMPT.md` and the owner's reference screenshot. Black canvas, navy panels, acid lime `#D9FE8F`, Anton display type, Space Mono UI text, Inter body text, square corners. Only the look changed: routes, data, wording rules and the accessibility target are as before. No API change, so no `openapi:export` or `contracts:generate`.

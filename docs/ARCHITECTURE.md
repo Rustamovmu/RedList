@@ -64,7 +64,7 @@ Navigation: Explore · Map · Compare · About. The support directory is linked 
 | `GET /health/live`, `GET /health/ready` | **done** |
 | `GET /species/:slug` | **done** (M1) |
 | `GET /species` (q, filters, sort, page, pageSize ≤ 48) | **done** (M2) |
-| `GET /filters` | **done** (M2) |
+| `GET /filters` (each group carries an `example` photo for its home tile, D-037) | **done** (M2; example 2026-11-22) |
 | `GET /compare?species=a,b,c` (max 3, 400 otherwise) | **done** (M2) |
 | `GET /regions/:slug` | **done** (M3) |
 | `GET /map?bbox&group&category&species` (antimeridian-aware, capped), `GET /map/basemap` | **done** (M3, D-016) |

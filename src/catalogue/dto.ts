@@ -259,6 +259,25 @@ export class FacetDto {
   @ApiProperty() value!: string;
   @ApiProperty() count!: number;
 }
+
+/** The species whose photo illustrates a group's tile on the home page. */
+export class GroupExampleDto {
+  @ApiProperty() slug!: string;
+  @ApiProperty() scientificName!: string;
+  @ApiProperty(N) commonName!: string | null;
+  @ApiProperty({ type: CardImageDto, description: 'The same photo the species card shows' }) image!: CardImageDto;
+}
+
+export class GroupFacetDto extends FacetDto {
+  @ApiProperty({
+    type: GroupExampleDto,
+    nullable: true,
+    description:
+      'A published species of the group that has a photo. Photos at least 800 px wide first, then the species recorded in the most ' +
+      'countries and seas (location-sensitive species count as none), then by name. Null when no species of the group has a photo.',
+  })
+  example!: GroupExampleDto | null;
+}
 export class RegionFacetDto {
   @ApiProperty() slug!: string;
   @ApiProperty() name!: string;
@@ -275,7 +294,7 @@ export class HabitatFacetDto {
 export class FiltersDto {
   @ApiProperty({ description: 'Published species in this catalogue' }) total!: number;
   @ApiProperty({ description: 'Published species whose headline category is CR, EN or VU' }) threatened!: number;
-  @ApiProperty({ type: [FacetDto] }) groups!: FacetDto[];
+  @ApiProperty({ type: [GroupFacetDto] }) groups!: GroupFacetDto[];
   @ApiProperty({ type: [FacetDto] }) environments!: FacetDto[];
   @ApiProperty({ type: [FacetDto] }) categories!: FacetDto[];
   @ApiProperty({ type: [FacetDto] }) trends!: FacetDto[];

@@ -404,3 +404,43 @@ White text on each IUCN badge colour measures 4.9:1 to 21:1, so all pass WCAG AA
 - The keyboard e2e helper `tabTo()` reads `textContent` instead of `innerText`, because `innerText` applies CSS `text-transform` (nav and buttons are uppercase in CSS, not in the DOM).
 - Contrast (WCAG formula, computed): on black, body 15.3:1, secondary 8.3:1, lime 18.5:1, errors 9.2:1; on navy, secondary 6.7:1, errors 7.4:1, lime 14.8:1; black on lime 18.5:1. Focus is a 3px lime ring, black on lime surfaces.
 - To go back, revert the frontend commit. A copy of the previous style was kept outside the repo on 2026-11-22 (STITCH_PROMPT.md, "Notes for the owner").
+
+## D-035 Profile photo shown whole, beside the name (2026-11-22, owner request)
+**Context:** the profile put a 7.5rem name above a full-width 21:9 photo cropped with `object-cover`. On a 1512×861 window the photo started below the fold and the name scrolled away before the photo was in view. Catalogue photos range from 1280×590 (landscape) to 872×1400 (portrait), and some are small (the Bornean orangutan's original is 400×518), so a fixed 21:9 crop zoomed portrait photos into an unrecognisable, blurry strip.
+**Decision:**
+- The profile photo is never cropped. `Photo` takes `fit` (the photo's own width and height from the API) and draws the photo at its own aspect ratio, as wide as its column allows and no taller than `--photo-max-h`.
+- From `lg` (1024px) the hero has two columns: name, scientific name, compare and the key facts on the left (5fr), the photo on the right (7fr). `--photo-max-h` is the first screen minus the lime bar, nav, top padding and credit line, so the name and the whole photo are visible together without scrolling. The display name is smaller there (at most 6rem).
+- Below `lg` the hero stacks (name, photo, facts) and the photo is at most 45% of the screen height.
+**Consequences:**
+- Any other place can opt in with `fit`; without it `Photo` behaves as before (fixed `aspect`, cropped). Cards and the home hero are unchanged.
+- Small source photos are still enlarged somewhat (the orangutan is shown about 1.2× its original width at 1512×861). A larger licensed photo is the real fix, not a layout change.
+
+## D-036 Footer "rising lines" decoration is our own code, not React Bits Pro (2026-11-22, owner request)
+**Context:** the owner asked for React Bits Pro's "Rising Lines" component ("lines of light rising from a glowing horizon") in the footer, installed with `npx shadcn@latest add @reactbits-starter/rising-lines-tw` and a `REACTBITS_LICENSE_KEY`. Checked on 2026-11-22 against pro.reactbits.dev (installation page and License Agreement v2.2):
+- React Bits Pro is paid: "Subject to full payment and compliance with this Agreement, Licensor grants Licensee a personal, non-exclusive, non-transferable license". The registry needs a licence key, and the `@reactbits-starter` registry needs at least the Starter plan.
+- §2.4 forbids making "the Product or any substantial part of it available to any third party", which expressly includes publishing it "as part of open source repositories". Both repos are public (D-033).
+- The frontend has no `components.json` (it does not use shadcn), and no licence key is configured. The owner's rule is no cost and no licensing risk.
+**Decision:**
+- `RisingLines` (`src/components/shell/RisingLines.tsx`) is written from scratch, without the Pro source. It uses a 2D canvas and adds no dependency. Thin lime lines rise from a hairline horizon at the bottom edge, with a soft elliptical glow centred on it. Lines are brighter in the middle and fade as they climb.
+- In the footer it sits behind the cropped WILDWARD wordmark. The wordmark block gets `clamp(4rem, 9vw, 8rem)` of top padding so the lines show above the letters, and they fade out before reaching any text.
+- The colour comes from the `--color-lime` token. The animation runs only while the canvas is on screen (IntersectionObserver). With `prefers-reduced-motion` it draws one still frame. The canvas is `aria-hidden` and ignores the pointer. The device pixel ratio is capped at 2.
+- This is a deliberate exception to D-034's "no gradients except dark scrims over photographs", for this one decoration only.
+**Consequences:**
+- No new package, no shadcn setup and no CSP change (a canvas needs none). The footer is taller by the new padding.
+- Using the Pro component itself would need a paid plan and either a private repo or the licensor's written permission. That is the owner's licensing decision, not an agent's.
+- To remove it, delete the `<RisingLines>` line and the padding in `SiteFooter.tsx`, and delete the component file.
+
+## D-037 A photo on each home-page group tile (2026-11-22, owner request)
+**Context:** the owner asked for a representative photo on each "Browse by animal group" tile. The tiles were plain navy squares with a name and a count. The catalogue's own licensed photos are the only allowed source: never stock or invented images.
+**Decision:**
+- `GET /filters` gives each group an `example`: one published species of the group with its card photo (`slug`, names, and `image` with the credit and licence snapshot), or `null` when no species of the group has a photo. The species card and the tile choose the photo with the same SQL fragment (`CARD_IMAGE`), so they never disagree, and a rejected photo (takedown) disappears from both at once.
+- Which species is picked, in this order:
+  1. photos at least 800 px wide (a tile is about 450 CSS px wide on desktop)
+  2. the species recorded in the most countries and seas, i.e. the group's most widespread member. A location-sensitive species counts as none, so it is never ranked by data it hides.
+  3. then by name
+  "Most threatened first" was rejected: it would repeat the hero photo and the threatened-species row on the same page. With today's catalogue the picks are African bush elephant, Atlantic puffin, green turtle, lemur leaf frog, great white shark, monarch butterfly, giant clam and coconut crab. Coral has no photo yet, so its tile stays plain.
+- The tile (`GroupTile`) shows the photo full-bleed behind the name and count, with dark scrims (allowed by D-034). The photo is decorative there (`alt=""`), because the link names the group. A caption names the species shown, so the photo is not read as the whole group, and gives the credit, because attribution travels with the image.
+- The grid is now 2 columns on phones and 3 from `sm` (was 6 on desktop). Six columns made the tiles about 220 px wide, too small for a photo plus a credit.
+**Consequences:**
+- The pick changes on its own when the catalogue changes. Publishing or a media decision revalidates `catalogue`, which refreshes the tiles.
+- An editor cannot choose a tile photo. If that is wanted, it needs a small editorial field later (BACKLOG candidate, not R1).

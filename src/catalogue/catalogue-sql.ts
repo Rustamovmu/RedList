@@ -37,6 +37,17 @@ export const SEVERITY = sql`CASE ha.category
   WHEN 'NT' THEN 5 WHEN 'LC' THEN 6 WHEN 'DD' THEN 7 WHEN 'NE' THEN 8 ELSE 9 END`;
 export const DISPLAY_NAME = sql`lower(coalesce(cn.name, p.accepted_scientific_name))`;
 
+/**
+ * The photo shown for a species wherever it appears outside its profile (cards, group tiles): the primary image first.
+ * A rejected image is a takedown and disappears at once (DECISIONS D-022).
+ */
+export const CARD_IMAGE = sql`
+  LEFT JOIN LATERAL (
+    SELECT ma.storage_key, ma.width, rm.alt_text, rm.credit_snapshot, rm.license_snapshot
+    FROM revision_media rm JOIN media_assets ma ON ma.id = rm.media_id
+    WHERE rm.revision_id = p.revision_id AND ma.review_state <> 'rejected' ORDER BY (rm.role = 'primary') DESC, rm.position LIMIT 1
+  ) img ON true`;
+
 export type ListFilters = {
   q?: string;
   group?: string[];
@@ -121,12 +132,7 @@ export async function selectCards(db: DbOrTx, f: ListFilters, orderBy: SQL, limi
                 ELSE (SELECT count(*)::int FROM species_regions sr WHERE sr.revision_id = p.revision_id) END AS region_count,
            p.location_sensitivity,
            img.storage_key AS image_key, img.alt_text AS image_alt, img.credit_snapshot AS image_credit, img.license_snapshot AS image_license
-    FROM p ${COMMON_NAME} ${HEADLINE}
-    LEFT JOIN LATERAL (
-      SELECT ma.storage_key, rm.alt_text, rm.credit_snapshot, rm.license_snapshot
-      FROM revision_media rm JOIN media_assets ma ON ma.id = rm.media_id
-      WHERE rm.revision_id = p.revision_id AND ma.review_state <> 'rejected' ORDER BY (rm.role = 'primary') DESC, rm.position LIMIT 1
-    ) img ON true
+    FROM p ${COMMON_NAME} ${HEADLINE} ${CARD_IMAGE}
     WHERE ${whereClause(f)}
     ORDER BY ${orderBy}, p.slug
     LIMIT ${limit} OFFSET ${offset}`);
