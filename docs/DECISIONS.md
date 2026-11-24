@@ -910,3 +910,38 @@ While that was in progress the owner asked to use the OpenStreetMap map (openstr
 - Without WebGL the component shows a wireframe globe with the same pins, cards and links.
 - The e2e fixtures do not draw the globe (one fixture photo, used by the home cards), as for the wall (BACKLOG). The pins endpoint has integration tests. The globe was checked by hand against the dev catalogue on a production build.
 - To remove the globe: delete `<SpeciesGlobe>`, `globePicks` and the pins request from `app/page.tsx`, and `cobe` from `package.json`. The endpoint can stay.
+
+## D-065 Staff area guard: no staff session, back to the home page (2026-11-25, owner request)
+**Context:** `/admin` showed the staff sign-in form to anyone who opened it, and the other staff pages showed it as well. The owner asked for an admin guard: someone without a staff session who opens the staff area should be sent to the home page. Sign-in therefore needed a page of its own. The owner chose `/admin/sign-in`. They also chose that editors keep the staff area, with only the admin-only pages closed to them. The API already authorizes every staff request (`StaffGuard`, and `@Roles('admin')` on admin routes). This guard only decides where a browser lands.
+**Decision:**
+- **Open without a session:** `/admin/sign-in` (new) and `/admin/set-password` (D-062). Every other `/admin` page needs a session.
+- **On the server:** `src/proxy.ts` redirects (307) to `/` any staff page request that carries no session cookie (`__Host-ww_session` or `ww_session`), before anything renders. The proxy checks only that the cookie exists. It does not call the API, so page requests stay as fast as before.
+- **In the browser:** the staff layout's `SessionGate` asks the API who is signed in (`GET /staff/auth/me`). If the answer is 401 (an expired, revoked or forged session), or the page is admin-only (`/admin/staff`) and the user is an editor, it sends the browser to `/` and renders none of the page. Signing out also lands on `/`.
+- **Sign-in:** a successful sign-in goes to `/admin`. Someone already signed in who opens `/admin/sign-in` goes straight to `/admin`.
+- The path rules are in one place, `src/lib/staff-paths.ts`, used by both the proxy and the layout.
+**Consequences:**
+- Staff now sign in at `/admin/sign-in`. Bookmarks to `/admin` work once signed in; signed out they lead home. ADMIN_GUIDE, DEPLOYMENT and both READMEs give the new address.
+- `/admin` no longer says that a staff area exists, but this is not a security boundary: the API is. The `robots.txt` rule for `/admin` stays.
+- An editor who opens `/admin/staff` is sent home rather than shown a message.
+- e2e: `staff-guard.spec.ts` (new) and an editor check in `staff-accounts.spec.ts`. The sign-in tests and the axe and CSP page lists use `/admin/sign-in`.
+- **Changed the same day by D-066:** staff sign in on the form for everyone at `/sign-in`, and `/admin/sign-in` is gone. The guard itself is unchanged.
+
+## D-066 Optional visitor accounts and one sign-in form for everyone (2026-11-25, owner request)
+**Context:** After D-065 the owner's staff session had expired (12 hours idle), so `/admin` sent them home, and nothing on the site led to `/admin/sign-in`. The owner then asked for a sign-in or sign-up page for everyone: an admin who signs in goes to the admin page, and a regular person who signs in stays on the site as a user. PLAN puts public accounts in R2 ("with verification, reset and deletion"). R1 sends no email. The privacy page promised "No accounts, no sign-up". The agent laid this out and asked; the owner chose to build visitor accounts now. Addresses cannot be verified, a forgotten password cannot be reset by email, and signed-in visitors get nothing extra yet (saved collections are R2 too).
+**Decision:**
+- **Separate from staff.** Visitor accounts have their own tables (`public_users`, `public_sessions`), cookies (`ww_account`, `ww_account_csrf`; `__Host-` prefixed with `COOKIE_SECURE`) and guard (`AccountGuard`, the same session, Origin and CSRF checks as `StaffGuard`). StaffGuard never looks up a visitor session, and AccountGuard never looks up a staff one. Tests check both directions.
+- **One email, one kind.** An address is a staff account or a visitor account, never both. A trigger on both tables (`0008`) enforces it under races. The staff invite and sign-up check first. Sign-up gives the same 409 for a staff address and a visitor address.
+- **One sign-in form,** `POST /auth/sign-in`. A staff email takes the staff sign-in path unchanged (moved into `StaffSignInService`, which `POST /staff/auth/login` also uses), with the D-061 device cookies and lockout. Any other email signs in to a visitor account: same per-IP budget and per-email lockout, no device cookies. The answer's `kind` tells the web app where to go: staff to `/admin`, a visitor back to `?next=` (our own public pages only) or home. Signing in or up ends the browser's other session, so a browser holds one identity.
+- **Sign-up:** name (1 to 80 characters), email and password, with the staff password policy (at least 12 characters, no placeholders). It signs in at once and shares the per-IP budget of sign-in.
+- **Sessions:** 7 days idle, 30 days at most. Signing out deletes the session row. Changing the password deletes the other sessions. Deleting the account needs the password and deletes the account at once, with its sessions. No IP address or user agent is stored, and visitor actions are not audited. A staff session ended by a visitor sign-in in the same browser is audited as a sign-out.
+- **Web:** **Sign in** at the top of every page: last in the nav from md up, beside the logo below md. Signed in, it shows the visitor's name (a person icon below lg) linking to `/account`, or Staff area. New pages: `/sign-in`, `/sign-up` and `/account` (noindex; `/account` is also disallowed in `robots.txt`). `/admin/sign-in` (D-065) is removed. The header learns who is signed in from the readable CSRF cookies, so a visitor who never signed in costs no API request.
+- **Phone header:** to fit the account link beside the logo and the compare counter, "Comparing" shows from 440 px (was 380 px, D-059), and the logo is one size smaller below 340 px. Measured with no horizontal overflow from 320 to 1280 px, signed out and signed in, with species picked.
+- **Privacy page** rewritten from the code: accounts are optional; what an account stores; its two cookies; no email; deletion, and that backups made before a deletion keep a copy, so a restore brings the account back.
+- **`LOGIN_IP_LIMIT`** (default 20 attempts per address per 15 minutes) is now a setting, so the e2e stack, whose browsers all share one address, can raise it.
+**Consequences:**
+- Part of R2 is built early. Email verification, reset by email and saved collections stay in BACKLOG. PLAN's "Build R1 only" line points here.
+- Wildward now stores personal data of members of the public. Nobody qualified has reviewed the privacy text for legal adequacy. The operator answers for that data, its backups and contact requests (set `CONTACT_URL`).
+- A visitor who forgets the password cannot get back in, and the address stays taken. They can sign up with another address. Deleting an account for someone who cannot sign in takes a database statement; there is no tool for it yet.
+- Sign-up says whether an address already has an account (staff or visitor). Without email, any sign-up form does.
+- A school or office behind one address shares the 20 attempts per 15 minutes (BACKLOG).
+- `POST /staff/auth/login` stays for the API tests; the web app no longer calls it.

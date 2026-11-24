@@ -19,7 +19,7 @@ There is no self-service sign-up. The first admin is created on the server (`adm
 - **Your own password:** select your name in the staff bar (**Your account**). Changing it signs you out everywhere else.
 
 ## Signing in
-- Go to `/admin` and sign in with your email and password (at least 12 characters).
+- Select **Sign in** at the top of any page (`/sign-in`) and sign in with your email and password (at least 12 characters). Staff go on to the staff area; the same form signs visitors in to their own accounts (D-066). Any staff page opened without a session sends you to the home page, and so does signing out (D-065).
 - **Sessions:** a session ends after 12 hours without activity, and after 7 days in any case. Sign out from the staff bar when you finish on a shared computer.
 - **Throttling:** after 5 wrong passwords in a row, the account is locked for 30 seconds, then for longer with each further failure, up to 15 minutes. One address may try at most 20 times in 15 minutes (D-010). A browser you have signed in with before keeps working during such a lock, so someone else's guesses cannot lock you out (D-061). That browser has its own count, so it locks only itself if it keeps guessing.
 

@@ -50,6 +50,20 @@
       "when": 1795504392822,
       "tag": "0006_staff_devices",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1795556796586,
+      "tag": "0007_visitor_accounts",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1795556804023,
+      "tag": "0008_visitor_account_rules",
+      "breakpoints": true
     }
   ]
 }

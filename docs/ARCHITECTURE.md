@@ -34,18 +34,20 @@ flowchart LR
 | `/regions/[slug]` | Country, sea or ocean page with region-aware filters | **done** (M3) |
 | `/support` | Directory of reviewed support links, plus the published review criteria | **done** (M3). Criteria text needs owner review (D-018) |
 | `/about`, `/methodology`, `/sources`, `/privacy`, `/terms` | Information pages. `/sources` lists every source cited by published content. | **done** (2026-11-21). The about page describes a personal portfolio project; set `NEXT_PUBLIC_CONTACT_URL` for a contact link |
+| `/sign-in`, `/sign-up`, `/account` | One sign-in form for everyone: staff go on to `/admin`, visitors stay on the site (back to the page they came from). Optional visitor accounts: sign up, then on `/account` see the account, sign out, change the password or delete the account. **Sign in** sits at the top of every page; signed in, it shows the visitor's name (a person icon below lg) or Staff area | **done** (2026-11-25, D-066, owner request; R2 accounts without email) |
 | `/credits` | Photo credits: credit line, licence (linked to its deed) and source of every photo on a published profile, by species; linked from the footer | **done** (2026-11-23, D-055) |
 | `/sitemap.xml`, `/robots.txt` | SEO, published content only | **done** (2026-11-21), plus Open Graph with the licensed photo and schema.org JSON-LD (`Taxon`, `BreadcrumbList`, `WebSite` search) |
 | all pages | Accessibility (axe, keyboard), nonce CSP | **done** (M5): `e2e/release.spec.ts` |
 | not-found, error | Fallback pages | **done** |
 
-Navigation: Explore · Map · Compare · About. The support directory is linked from the footer and from species context.
+Navigation: Explore · Map · Compare · About, then Sign in (or who is signed in; D-066). The support directory is linked from the footer and from species context.
 
 ## Staff area (`/admin`, same Next.js app)
 
 | Area | Status |
 |---|---|
-| Login, sessions, CSRF | **done** (M1); device cookies against lockout abuse (D-061) |
+| Login (on the form for everyone, `/sign-in`, D-066), sessions, CSRF | **done** (M1); device cookies against lockout abuse (D-061) |
+| Staff area guard: without a session every staff page except sign-in and set-password redirects to `/` (proxy for a missing cookie, the layout for a session the API rejects); editors are sent home from `/admin/staff` | **done** (2026-11-25, D-065) |
 | Species list, new species, identifiers, drafts, submit, publish, request changes, checklist | **done** (M1). The list and the species page show the published photos (D-057); the provider identifier is advice, not a blocker (D-057) |
 | Form editor for photos, names, grouping, the written sections, diet tags, climate and measurements (D-057) | **done** (2026-11-23) |
 | Form editor for the rows that each need a source (assessments, estimates, places, habitats, threats, citations, support links), plus live preview and a diff (PLAN §7); those are still edited as JSON (D-011) | open, unassigned (R1) |
@@ -79,6 +81,8 @@ Navigation: Explore · Map · Compare · About. The support directory is linked 
 | Staff: `media` (list, upload, get, preview, edit, approve, reject), `species/:id/rollback`, `PUT sources/:id` | **done** (M4) |
 | `GET /media/:key/:width.webp` (approved or live-published images only; rejected never) | **done** (M4, D-022) |
 | Staff: `users` (list, invite, edit role/disabled, `:id/link`, `:id/sign-out`), admin only; `auth/password`; `auth/link/check` and `auth/link/redeem` (no session, Origin + per-IP limit) | **done** (2026-11-24, D-062) |
+| `POST /auth/sign-in`: the form for everyone. A staff email signs in as staff (as `staff/auth/login`, which stays), any other email as a visitor; the answer's `kind` says which. The browser's other session ends | **done** (2026-11-25, D-066) |
+| Visitor: `account/sign-up` (no session, Origin + per-IP limit), `account/me`, `account/logout`, `account/password`, `account/delete` (visitor session, Origin + CSRF) | **done** (2026-11-25, D-066) |
 
 Swagger UI: `/api/docs` (non-production only).
 
@@ -90,7 +94,7 @@ Swagger UI: `/api/docs` (non-production only).
 | `db` | Drizzle connection and `schema.ts` | **done** |
 | `common` | error shape, request IDs, JSON (bigint as string) | **done** |
 | `cli` | migrate, seed-regions, seed-vocab, export-openapi, admin-create, staff-link, seed-fixtures, e2e-prepare, import, links-check, validate-catalogue, status-check | **done** (M4 added import, links-check and validate-catalogue; seed-vocab came with the batch-1 ecology on 2026-11-22; R1-L added status-check) |
-| `identity` | staff sessions, CSRF + Origin guard, roles, login throttle, device cookies, staff accounts and one-time links | **done** (M1; D-061 and D-062 on 2026-11-24) |
+| `identity` | staff sessions, CSRF + Origin guard, roles, login throttle, device cookies, staff accounts and one-time links; visitor accounts with their own sessions, cookies and guard (`AccountGuard`), and the one sign-in form (`SignInController`, `StaffSignInService`) | **done** (M1; D-061 and D-062 on 2026-11-24; D-066 on 2026-11-25) |
 | `editorial` | revisions, editorial zod schema, checklist, publish transaction, audit, revalidation, sources | **done** (M1) |
 | `catalogue` | `PublishedSpeciesRepository` plus the `PUBLISHED` SQL fragment in `catalogue-sql.ts` (the only public read path): profile, list, filters, related, compare | **done** (M1, M2) |
 | `geography` | regions, map, basemap, `GeoRepository` (the only home of spatial SQL) | **done** (M3) |

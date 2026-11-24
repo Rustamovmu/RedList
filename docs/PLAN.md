@@ -27,7 +27,7 @@ Working name: **Wildward** (renamed from WildAtlas; check domain and trademark a
 | R3 Support | Follow projects and optionally donate | Organization review, project updates, sandbox payments, then live payments once authorized | Pooled fund custody, unverified badges, assumed tax receipts |
 | R4 Expand | Broader coverage and specialist tools | More taxa and regions, licensed exports, optional cited AI explanations, PWA | Features with no demonstrated demand |
 
-**Build R1 only.** R2–R4 go into `docs/BACKLOG.md`. Do not create their tables, endpoints, disabled navigation or placeholder screens.
+**Build R1 only.** R2–R4 go into `docs/BACKLOG.md`. Do not create their tables, endpoints, disabled navigation or placeholder screens. One owner-approved exception: optional visitor accounts (sign up, sign in, change the password, delete the account), without email, verification or saved collections (DECISIONS D-066).
 
 ---
 

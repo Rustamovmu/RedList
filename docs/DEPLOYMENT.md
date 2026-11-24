@@ -64,7 +64,7 @@ read -rs ADMIN_PASSWORD && export ADMIN_PASSWORD
 unset ADMIN_PASSWORD
 ```
 
-Then sign in at `/admin` and follow `docs/ADMIN_GUIDE.md`. Invite everyone else from the Staff page (D-062). Do not run `admin-create` again for them.
+Then sign in at `/sign-in` (the form for everyone; staff go on to the staff area, D-066) and follow `docs/ADMIN_GUIDE.md`. Invite everyone else from the Staff page (D-062). Do not run `admin-create` again for them.
 
 **Locked out of every admin account** (for example a forgotten password): print a one-time reset link on the server and open it yourself. Anyone with the link can set the password, so do not paste it anywhere shared.
 ```sh
@@ -82,7 +82,8 @@ Then sign in at `/admin` and follow `docs/ADMIN_GUIDE.md`. Invite everyone else 
 | `CONTACT_URL` | Optional contact link on `/about` and `/privacy`. Built into the web image. |
 | `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` | Database credentials. Use letters and digits only, because the password goes into a URL. |
 | `REVALIDATE_SECRET` | Shared by the API and the web app's revalidate hook (at least 24 characters). |
-| `COOKIE_SECURE` | `true` in production; staff cookies then use the `__Host-` prefix. Only a local rehearsal on plain HTTP sets `false`. |
+| `COOKIE_SECURE` | `true` in production; staff and visitor cookies then use the `__Host-` prefix. Only a local rehearsal on plain HTTP sets `false`. |
+| `LOGIN_IP_LIMIT` | Optional. Sign-in, sign-up and one-time link attempts per client address per 15 minutes (default 20). Leave it unset; only the throwaway e2e stack raises it (D-066). |
 | `HTTP_BIND`, `HTTP_PORT` | Where Nginx listens on the host. |
 | `NGINX_SITE_CONF` | `./nginx/http.conf` or `./nginx/https.conf` (see TLS). |
 | `FETCH_CONTACT` | Optional operator contact for the User-Agent of outbound fetches. |
@@ -176,7 +177,8 @@ Use this to recover from data loss, to undo a bad migration, or to move to a new
    - the printed counts equal those in `MANIFEST.txt`
    - `./deploy/compose.sh exec api node dist/cli/validate-catalogue.js` passes
    - a profile with a photo renders
-   - staff can sign in. Sessions from before the backup come back with it; to sign everyone out, delete the rows in `staff_sessions`.
+   - staff can sign in. Sessions from before the backup come back with it; to sign everyone out, delete the rows in `staff_sessions` and `public_sessions`.
+   - **Visitor accounts deleted after that backup was made come back with it** (D-066). No record of deletions is kept, so they cannot be replayed. The privacy page tells visitors this can happen and that they can delete the account again.
 6. **Record it:** the date, the backup used, and the result.
 
 **Rehearsed** on 2026-11-21 against the local stack, through backup → `down -v` → empty stack → restore; see COMPLETED_TASKS (M5). Repeat the rehearsal after any change to the scripts or the compose file, and at least before each release.

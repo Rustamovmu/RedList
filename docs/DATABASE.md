@@ -11,6 +11,8 @@ PostgreSQL 16 + PostGIS 3.4. Schema: `src/db/schema.ts`. Migrations: `drizzle/`.
 | `0004_media_import.sql` | Generated (M4): `media_assets` gains sha256 (unique), variants, licence URL, modifications, uploader, reviewer, review date and note; new table `import_records` |
 | `0005_media_rules.sql` | Hand-written (M4): an approved image needs a creator, a credit and an allow-listed licence; reviewed images need a review date; WebP only; https source URLs |
 | `0006_staff_devices.sql` | Generated (2026-11-24, D-061): new table `staff_devices` (user, SHA-256 of the device token, created, last used, expiry; cascades with the user) |
+| `0007_visitor_accounts.sql` | Generated (2026-11-25, D-066): new tables `public_users` (email, name, Argon2id hash, created) and `public_sessions` (user, SHA-256 of the session token, CSRF token, created, last used, expiry; cascades with the user) |
+| `0008_visitor_account_rules.sql` | Hand-written (D-066): visitor emails stored trimmed and in lower case, names trimmed and 1 to 80 characters; trigger `account_email_once` on both `public_users` and `staff_users`, so one email is never both a staff and a visitor account (advisory lock per address, raised as 23505) |
 
 ## Model
 
@@ -44,6 +46,7 @@ erDiagram
   staff_users ||--o{ staff_sessions : ""
   staff_users ||--o{ staff_tokens : ""
   staff_users ||--o{ staff_devices : ""
+  public_users ||--o{ public_sessions : ""
   staff_users ||--o{ audit_events : ""
   species ||--o{ import_records : "last imported hash per section"
 ```
@@ -143,3 +146,9 @@ Both spatial lookups use their GiST index. As in M2, 6 rows say nothing about sc
 - `staff_tokens` holds the one-time invite and reset links: unused while `consumed_at` is null and `expires_at` is in the future. Making a new link, using one, setting a password and disabling the account all set `consumed_at` on the open ones.
 - `staff_devices` lists browsers that signed in successfully, at most 10 per user. Expired rows are removed on the next sign-in of that user.
 - Disabling an account (`staff_users.disabled_at`) revokes its sessions, deletes its devices and uses up its links in one transaction. The session guard also checks `disabled_at` on every request.
+
+## Visitor accounts (2026-11-25, D-066)
+- `public_users` and `public_sessions` are apart from the staff tables: a visitor's session is looked up only in `public_sessions`, so it can never pass the staff guard.
+- Only an Argon2id hash of the password and a SHA-256 hash of each session token are stored. No IP address or user agent is kept.
+- Signing out deletes the session row. Changing the password deletes the other sessions. Deleting the account deletes the user, and its sessions cascade. Expired sessions of a user are deleted at their next sign-in.
+- An email is a staff account or a visitor account, never both (trigger in `0008`). The staff invite and the sign-up form check it first and answer 409.

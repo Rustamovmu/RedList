@@ -88,6 +88,35 @@ export const staffSessions = pgTable(
   (t) => [index('staff_sessions_user_idx').on(t.userId)],
 );
 
+// ---------- visitor accounts (D-066) ----------
+/**
+ * Optional accounts for visitors (owner request, D-066). Kept apart from staff_users, so a visitor's session can
+ * never pass StaffGuard. An email belongs to a staff account or a visitor account, never both, and is stored in
+ * lower case (0008_visitor_account_rules.sql). No IP address or user agent is kept.
+ */
+export const publicUsers = pgTable('public_users', {
+  id: id(),
+  email: text('email').notNull().unique(),
+  name: text('name').notNull(),
+  passwordHash: text('password_hash').notNull(),
+  createdAt: tsz('created_at').notNull().defaultNow(),
+});
+
+/** A visitor's sign-in session. Only the SHA-256 of the token is stored; signing out deletes the row. */
+export const publicSessions = pgTable(
+  'public_sessions',
+  {
+    id: id(),
+    userId: uuid('user_id').notNull().references(() => publicUsers.id, { onDelete: 'cascade' }),
+    tokenHash: text('token_hash').notNull().unique(),
+    csrfToken: text('csrf_token').notNull(),
+    createdAt: tsz('created_at').notNull().defaultNow(),
+    lastSeenAt: tsz('last_seen_at').notNull().defaultNow(),
+    expiresAt: tsz('expires_at').notNull(),
+  },
+  (t) => [index('public_sessions_user_idx').on(t.userId)],
+);
+
 /**
  * Browsers that have signed in successfully ("device cookies", DECISIONS D-061). A valid device token lets its
  * owner sign in while their email is locked out for everyone else, so a stranger cannot lock the admin out.

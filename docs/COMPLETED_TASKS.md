@@ -1,5 +1,97 @@
 # Completed tasks
 
+## 2026-11-25: Visitor accounts and one sign-in form for everyone (owner request, no milestone; D-066)
+
+The owner reported that `/admin` sent them home although they had signed in as admin. The dev database showed why: their newest admin session was last used at 06:53 UTC on 24 November, almost 15 hours earlier, past the 12-hour idle limit. The D-065 guard therefore sent the browser home, as designed, and nothing on the site led to `/admin/sign-in`. The owner then asked for a sign-in or sign-up page for everyone: admins go to the admin page, and a regular person stays on the site. Public accounts are R2 in PLAN, and the privacy page promised "no accounts". The agent explained that, plus the lack of email (no verification, no reset). The owner chose "Public accounts now".
+
+**Backend:**
+- `src/db/schema.ts` and `0007_visitor_accounts.sql` (generated, reviewed): `public_users`, `public_sessions`.
+- `0008_visitor_account_rules.sql` (hand-written):
+  - visitor emails stored trimmed and in lower case, names trimmed and 1 to 80 characters;
+  - trigger `account_email_once` on `public_users` and `staff_users`, so one email is never both (advisory lock per address, raised as 23505).
+- `identity/`:
+  - `account-session.service.ts`, `account.guard.ts`, `account.service.ts`, `account.controller.ts` (new): `POST /auth/sign-in` for everyone; `account/sign-up`, `me`, `logout`, `password` and `delete`;
+  - `staff-sign-in.service.ts` (new): the staff sign-in code, moved unchanged out of `auth.controller.ts`, which still serves `POST /staff/auth/login`;
+  - `staff-users.service.ts`: an invite is refused for a visitor address;
+  - `login-throttle.ts`: `throwIfLimited`, and a per-address limit read from `LOGIN_IP_LIMIT`;
+  - `identity.module.ts`: registers the new pieces.
+- `config.ts`: visitor cookie names, and `LOGIN_IP_LIMIT` (default 20).
+- `test/integration/accounts.spec.ts` (new, 19 tests).
+- `openapi.json` re-exported.
+- The dev database (`wild` on Postgres.app) was migrated with `npm run db:migrate`.
+
+**Frontend:**
+- `lib/api-client.ts` (new): the fetch and CSRF code, shared by `staff-api.ts` (now on it, without `login`) and `account-api.ts` (new, with `nextPath`).
+- `lib/who.ts` (new): who is signed in, for the header and pages.
+- `components/shell/AccountLink.tsx` (new), in `SiteHeader` and `NavLinks`:
+  - **Sign in**, or the visitor's name (a person icon below lg), or Staff area;
+  - `CompareCounter` shows "Comparing" from 440 px; the logo is a size smaller below 340 px.
+- Pages: `sign-in`, `sign-up` and `account` (`components/account/`). `/admin/sign-in` and `StaffSignIn` are removed. Staff sign-out and set-password update the header.
+- `staff-paths.ts`: only set-password is open.
+- `robots.ts`: `/account` disallowed.
+- Privacy page rewritten (accounts section, updated 25 November 2026).
+- README.
+- e2e:
+  - `accounts.spec.ts` (new, 4 tests);
+  - `staff-guard.spec.ts`, `staff-accounts.spec.ts`, `staff-editor.spec.ts`, `a11y-extra.spec.ts` and `release.spec.ts` use `/sign-in`; `/sign-up` joined the axe and reflow lists;
+  - `playwright.config.ts` sets `LOGIN_IP_LIMIT=500` for the throwaway API.
+
+**Docs:**
+- DECISIONS D-066, plus a note on D-065.
+- PLAN (the "Build R1 only" line points to D-066).
+- BACKLOG (what is left of R2 accounts, and the shared-address limit).
+- ARCHITECTURE, DATABASE, TESTING, ADMIN_GUIDE.
+- DEPLOYMENT: `LOGIN_IP_LIMIT`, and restoring a backup brings deleted visitor accounts back.
+
+**Commands run, with results** (backend tests on Postgres.app `wild_test` through a scratchpad Jest config, because `.env.test` points at Docker's 5433, which was not running; e2e with `E2E_DATABASE_URL` → Postgres.app `wild_e2e`):
+| Command | Result |
+|---|---|
+| read-only query on the dev database (no emails printed) | newest admin session last used 11-24 06:53 UTC, so idle-expired; no bug in the guard |
+| `npm run db:generate`, `drizzle-kit generate --custom` | `0007` generated and reviewed; `0008` written by hand |
+| backend `npm run typecheck`, `npm run lint` | pass |
+| backend tests, all suites, in band | **292/292 pass** (273 before, plus 19) |
+| backend build: `tsc -p tsconfig.build.json` into the scratchpad | pass. `npm run build` was not run, because it empties `dist/`, which the owner's running `nest start --watch` uses |
+| `npm run openapi:export`, frontend `npm run contracts:generate` | written |
+| frontend `npm run typecheck`, `npm run lint` | pass |
+| frontend `npx playwright test` (full suite, includes `npm run build`) | first run 3 failed: 5 px of overflow at 320 px while comparing, and the test expected the name "Visitor Desk, your account" where Chrome gives "Visitor Desk , your account". Both fixed. Final run **77 passed, 5 skipped** (the new axe and reflow test runs on desktop only) |
+| header measured on the owner's dev server at 320 to 1280 px, with and without species picked | no horizontal overflow; header heights as before (127 px at 320 to 340, 109 px below md, 89 px from md) |
+| `npm run db:migrate` on the dev database | applied; both tables and both triggers present |
+| headless Chrome on the owner's dev servers (:3000 → :4010), synthetic `dev-check-visitor@example.invalid` | sign-up from the header returned to `/about` with the name in the header; `/admin` sent the visitor home; `/account` showed the email; deleting the account returned home with Sign in. No console errors; 0 rows left for that address |
+
+**Known gaps:**
+- No email: addresses are not verified, and a forgotten visitor password cannot be reset (the address stays taken). Deleting an account for someone who cannot sign in takes a database statement.
+- A school or office behind one address shares 20 attempts per 15 minutes.
+- Nobody qualified has reviewed the privacy text.
+- Signed-in visitors get nothing beyond the account itself yet; saved collections are R2.
+- The staff sign-in was not tried on the owner's dev server: the agent does not have the owner's password. The e2e suite covers it.
+
+## 2026-11-25: Staff area guard (owner request, no milestone; D-065)
+
+The owner asked for an admin guard: someone without a staff session who opens the staff area is sent to the home page. Asked where sign-in should go, the owner chose a separate `/admin/sign-in` page. They also chose that editors keep the staff area, while admin-only pages send them home. Frontend only: the API already authorizes every staff request and did not change.
+
+**Frontend:**
+- `src/lib/staff-paths.ts` (new): the sign-in and set-password paths, the session cookie names, and which paths are staff, open or admin-only.
+- `src/proxy.ts`: a staff page request without a session cookie gets a 307 to `/`, except sign-in and set-password.
+- `src/components/admin/StaffSession.tsx`: the layout's gate sends the browser to `/` when the API answers 401, or when an editor opens an admin-only page (`/admin/staff`). Signing out also leads to `/`. The sign-in form is now `StaffSignIn`. It goes to `/admin` after sign-in, and straight there if already signed in.
+- `src/app/admin/sign-in/page.tsx` (new).
+- e2e: `staff-guard.spec.ts` (new, 4 tests). `staff-accounts.spec.ts` checks that an editor is sent home from `/admin/staff` and that a disabled account's next staff page leads home. Sign-in helpers and the axe and CSP page lists use `/admin/sign-in`.
+- README: the new sign-in address.
+
+**Docs:** DECISIONS D-065; ARCHITECTURE (staff area rows); ADMIN_GUIDE and DEPLOYMENT (sign in at `/admin/sign-in`); TESTING.
+
+**Commands run, with results** (e2e with `E2E_DATABASE_URL` → Postgres.app `wild_e2e`):
+| Command | Result |
+|---|---|
+| frontend `npm run typecheck`, `npm run lint` | pass |
+| frontend `npx playwright test` (full suite, includes `npm run build`) | **70 passed, 4 skipped** (62 before, plus the 4 guard tests in both projects) |
+| `curl` against the owner's running dev server on :3000 | `/admin` and `/admin/staff` → 307 to `/`; `/admin/sign-in` and `/admin/set-password` → 200 |
+
+Backend: no code change, so no backend commands were run.
+
+**Known gaps:**
+- The proxy checks only that a session cookie exists. A stale or forged cookie reaches the page shell, which shows "Loading…" until the API answers 401 and the browser goes home. No staff data is served to it.
+- A session that expires while someone is working still shows API errors on that page; the next staff page they open sends them home.
+
 ## 2026-11-25: A globe of threatened species on the home page (owner request, no milestone; D-064)
 
 The owner asked where the testimonial globe kit was (`~/Documents/component-kits/testimonial-globe`). The agent had left it out: PLAN §4 says "Avoid 3D globes", and its round pins crop photos, against D-039. The owner answered "ok break the rules then". The globe went in as its own section after the photo wall (D-063); the owner had not said whether to replace the wall.
@@ -42,6 +134,8 @@ The owner asked where the testimonial globe kit was (`~/Documents/component-kits
 - e2e does not cover the globe or the wall (BACKLOG).
 - A pin marks one place where the species lives, chosen by size, not the species' range. Places that are far apart (for example the parts of Malaysia) can put a pin a few hundred kilometres from the species.
 - The globe's land map ships inside `cobe` under its MIT licence; the package does not say where the map came from.
+
+**Correction to the photo wall entry below** ("the owner's own servers untouched"): the `npm run dev` the agent started in that session failed on the busy port 4010, but its watcher kept running. It rebuilt `dist/` on later edits, and at 00:58 its server took port 4010, so the owner's own `npm run dev` (started 01:11) could not start. At the owner's request ("rebuild and restart the api") the agent stopped it at 01:15. It then made the owner's watcher rebuild and restart, by adding a blank line to `src/main.ts` and removing it again (the file is identical to git). Checked afterwards: health ok, `GET /map/pins` and card photo sizes served, and the home page on the owner's dev server shows the wall (7 frames) and the globe (WebGL ready, 8 pins) with no errors.
 
 ## 2026-11-25: A photo wall of threatened species on the home page (owner request, no milestone; D-063)
 

@@ -20,17 +20,29 @@ const EnvSchema = z.object({
     .string()
     .regex(/^(loopback|linklocal|uniquelocal)(\s*,\s*(loopback|linklocal|uniquelocal))*$/, 'use loopback, linklocal and/or uniquelocal')
     .default('loopback'),
+  // Sign-in, sign-up and one-time link attempts per client address per 15 minutes (PLAN §9, D-010). Only the
+  // throwaway e2e stack raises it: all of its browsers share one address (D-066).
+  LOGIN_IP_LIMIT: z.coerce.number().int().min(5).max(1000).default(20),
   COOKIE_SECURE: z
     .enum(['true', 'false'])
     .default('false')
     .transform((v) => v === 'true'),
 });
 
-/** Cookie names. The __Host- prefix requires Secure, so plain-HTTP local development uses unprefixed names. */
+/**
+ * Cookie names. The __Host- prefix requires Secure, so plain-HTTP local development uses unprefixed names.
+ * `session`, `csrf` and `device` are for staff; `account` and `accountCsrf` for visitor accounts (D-066).
+ */
 export function cookieNames(secure: boolean) {
   return secure
-    ? { session: '__Host-ww_session', csrf: '__Host-ww_csrf', device: '__Host-ww_device' }
-    : { session: 'ww_session', csrf: 'ww_csrf', device: 'ww_device' };
+    ? {
+        session: '__Host-ww_session',
+        csrf: '__Host-ww_csrf',
+        device: '__Host-ww_device',
+        account: '__Host-ww_account',
+        accountCsrf: '__Host-ww_account_csrf',
+      }
+    : { session: 'ww_session', csrf: 'ww_csrf', device: 'ww_device', account: 'ww_account', accountCsrf: 'ww_account_csrf' };
 }
 
 export type AppConfig = z.infer<typeof EnvSchema>;

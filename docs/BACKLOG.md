@@ -1,7 +1,8 @@
 # Backlog (not in R1: do not build without explicit approval)
 
 ## R2 Return and learn
-- Public accounts with verification, reset and deletion; private saved collections
+- Public accounts: email verification and password reset by email (needs an email service that costs nothing; none chosen), and private saved collections. Accounts themselves, with sign-up, sign-in, password change and deletion, exist since D-066
+- Sign-in limits for shared addresses: a school or office behind one address shares 20 sign-in and sign-up attempts per 15 minutes (`LOGIN_IP_LIMIT`, D-066)
 - Articles (Learn section)
 - Editorial change summaries ("what changed")
 - Scheduled imports: a worker in the same backend codebase with a PostgreSQL-backed queue, staged records, conflict review and checkpoints

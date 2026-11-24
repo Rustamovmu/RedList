@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import type { Response } from 'express';
+import { loadConfig } from '../config';
 
 const IP_WINDOW_MS = 15 * 60_000;
-const IP_MAX_ATTEMPTS = 20;
 const FREE_FAILURES = 5;
 const BASE_LOCK_MS = 30_000;
 const MAX_LOCK_MS = 15 * 60_000;
@@ -11,7 +12,7 @@ type Lock = { failures: number; lockedUntil: number };
 
 /**
  * Login rate limiting and lockout with backoff (PLAN §9).
- * - Per IP: at most 20 attempts in a sliding 15-minute window, for everyone.
+ * - Per IP: at most LOGIN_IP_LIMIT (default 20) attempts in a sliding 15-minute window, for everyone.
  * - Per email, for browsers without a valid device cookie: after 5 consecutive failures, locked for 30 s,
  *   doubling per further failure, capped at 15 min.
  * - Per device, for a browser with a valid device cookie of that user (D-061): the same backoff, counted
@@ -21,6 +22,7 @@ type Lock = { failures: number; lockedUntil: number };
  */
 @Injectable()
 export class LoginThrottle {
+  private readonly ipMax = loadConfig().LOGIN_IP_LIMIT;
   private readonly byIp = new Map<string, number[]>();
   private readonly byEmail = new Map<string, Lock>();
   private readonly byDevice = new Map<string, Lock>();
@@ -43,7 +45,7 @@ export class LoginThrottle {
    */
   checkIp(ip: string, now = Date.now()): number {
     const recent = (this.byIp.get(ip) ?? []).filter((t) => now - t < IP_WINDOW_MS);
-    if (recent.length >= IP_MAX_ATTEMPTS) {
+    if (recent.length >= this.ipMax) {
       this.byIp.set(ip, recent);
       return Math.ceil((recent[0] + IP_WINDOW_MS - now) / 1000);
     }
@@ -82,4 +84,11 @@ function prune(map: Map<string, unknown>) {
     if (i++ >= drop) break;
     map.delete(k);
   }
+}
+
+/** Turns a wait from LoginThrottle into a 429 with Retry-After; does nothing when the wait is 0. */
+export function throwIfLimited(res: Response, wait: number) {
+  if (wait <= 0) return;
+  res.setHeader('Retry-After', String(wait));
+  throw new HttpException({ code: 'RATE_LIMITED', message: 'Too many attempts. Try again later.' }, HttpStatus.TOO_MANY_REQUESTS);
 }

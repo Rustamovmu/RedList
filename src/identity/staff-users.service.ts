@@ -4,7 +4,7 @@ import { randomBytes } from 'node:crypto';
 import { audit } from '../common/audit';
 import { loadConfig } from '../config';
 import { Db, InjectDb, Tx } from '../db/db.module';
-import { staffSessions, staffTokens, staffUsers } from '../db/schema';
+import { publicUsers, staffSessions, staffTokens, staffUsers } from '../db/schema';
 import { DeviceService } from './device.service';
 import { hashPassword, passwordPolicyError } from './password';
 import { hashToken, SessionService, StaffPrincipal } from './session.service';
@@ -85,6 +85,14 @@ export class StaffUsersService {
     return this.db.transaction(async (tx) => {
       const [taken] = await tx.select({ id: staffUsers.id }).from(staffUsers).where(eq(sql`lower(${staffUsers.email})`, email)).limit(1);
       if (taken) throw new ConflictException({ code: 'EMAIL_TAKEN', message: 'A staff member with this email already exists' });
+      // An email is a staff account or a visitor account, never both (D-066; the trigger in 0008 backs this up).
+      const [visitor] = await tx.select({ id: publicUsers.id }).from(publicUsers).where(eq(publicUsers.email, email)).limit(1);
+      if (visitor) {
+        throw new ConflictException({
+          code: 'EMAIL_TAKEN',
+          message: 'This email belongs to a visitor account. Invite another address, or ask them to delete that account first.',
+        });
+      }
       const [user] = await tx.insert(staffUsers).values({ email, name, role: input.role, passwordHash: null }).returning();
       const link = await this.issueLink(tx, user.id, 'invite');
       await audit(tx, { actorId: actor.id, action: 'staff.invite', entityType: 'staff_user', entityId: user.id, summary: `Invited a new ${input.role}` });
