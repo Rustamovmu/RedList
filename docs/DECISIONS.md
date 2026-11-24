@@ -821,3 +821,52 @@ While that was in progress the owner asked to use the OpenStreetMap map (openstr
   - Hints: "Use Ctrl + scroll to zoom the map", "Use Ctrl or ⌘ + scroll, or pinch, to zoom the map" on a Mac, and "Use two fingers to move the map" on touch. They are styled in the site's type (`globals.css`). The hover label clears when the hint shows.
   - The map's wrapper is `isolate`, because the hint's z-index of 99999 otherwise painted over the sticky nav.
   - The hint under the legend says how to zoom.
+
+## D-061 Device cookies against lockout abuse; the admin-only routes are a reviewed list (2026-11-24, owner request)
+**Context:** the owner asked to talk about security, authentication and authorization, then to fix the findings from easiest to hardest. Two came out of the review:
+- **Lockout abuse.** The per-email lockout (D-010) also refused the correct password. Anyone who knew or guessed the admin's email could send about ten wrong passwords and then one every 15 minutes. That kept the account locked indefinitely, far below every rate limit (20 per IP per 15 min in the API, 10 per minute in Nginx).
+- **Authorization tests.** PLAN §13 asks for tests of authorization on every staff route. The 401 test already read every route from OpenAPI, but the editor-gets-403 tests covered only 6 of the 13 admin-only routes.
+**Decision:**
+- **Device cookies,** after OWASP's "Slow down online guessing attacks with device cookies":
+  - A successful sign-in sets `__Host-ww_device` (`ww_device` on plain-HTTP development): HttpOnly, Secure, `SameSite=Strict`, 180 days. It holds a random 32-byte token, and the new table `staff_devices` stores only its SHA-256, the user, created, last used and expiry. No IP address or user agent is stored.
+  - **Rotation and limits:** the token changes on every sign-in. A user keeps at most 10 devices, and expired ones are dropped.
+  - **Sign-in:** a browser with a valid device token for that user is not affected by the email lockout. It gets its own failure count with the same backoff (5 free, 30 s doubling, 15 min cap). Its failures do not count against the email, and its success does not unlock the email for strangers. The per-IP limit applies to everyone.
+  - **Logout keeps the cookie:** it only says this browser once signed in, and it is not a session. Disabling an account or setting a password forgets every device of that account (D-062).
+  - **New table, not a reuse of `staff_tokens`:** those tokens are one-time links (D-062), with different lifetimes and meaning. Migration `drizzle/0006_staff_devices.sql`, generated, adds only that table.
+- **The admin-only routes are a reviewed list.** `auth.spec.ts` reads every `@Roles('admin')` route from the running app's controllers (`ROLES_KEY` is exported from `staff.guard.ts` for this). It checks that set against a written list and calls each route as an editor (403 `FORBIDDEN`) and as an admin (anything else). A route that gains or loses the restriction fails the test until the list is changed on purpose. Removing `@Roles('admin')` from media reject made it fail as expected.
+**Consequences:**
+- The privacy page lists the device cookie and what is stored about it.
+- The throttle is still in memory (D-010). A restart clears both the email and the device counts; the devices themselves are in the database.
+- An attacker who steals a device cookie gets only the right to guess passwords at that device's own backoff rate, not a session.
+
+## D-062 Staff accounts: invites, password links, disabling, roles (2026-11-24, owner request)
+**Context:** PLAN §7: "Admins invite staff by generating a one-time link that is shown once in the UI. R1 sends no email." This was open and unassigned (ARCHITECTURE). Without it, adding an editor, resetting a forgotten password or removing someone's access needed hand-written SQL, and `admin:create` makes only admins and refuses an existing email. The `staff_tokens` table (`invite`/`reset`) had existed since M0 without use.
+**Decision:**
+- **API** (`src/identity/staff-users.*`), admin only, including reading the list:
+  - `GET /staff/users`: name, email, role, status (`active`, `invited` for no password yet, or `disabled`), created, last active, open sessions. Only timestamps and a count are read from the sessions table.
+  - `POST /staff/users {email, name, role}`: an account without a password, plus its invite link.
+  - `POST /staff/users/:id/link`: a new invite link (no password yet, 7 days) or reset link (24 hours). Earlier unused links of that account stop working. Refused for a disabled account.
+  - `PUT /staff/users/:id {role?, disabled?}`: a role change applies to open sessions at once, because the guard reads the role on each request. Disabling ends every session, device and open link in the same transaction.
+  - `POST /staff/users/:id/sign-out`: ends every session of the account and keeps its password.
+- **No admin can lock themselves out.** An admin cannot change their own role or disable themselves (422 `SELF`). The acting admin therefore always stays an active admin, so the site never ends up without one.
+- **Links:**
+  - A one-time 32-byte random token. Only its SHA-256 is stored in `staff_tokens`.
+  - The admin sees the link once, in the response to the call that made it, sent with `Cache-Control: no-store`.
+  - The token is in the URL fragment (`/admin/set-password#token=…`). Browsers never send fragments, so it reaches no server or Nginx log and no Referer. The page removes it from the address bar and history as soon as it has read it.
+- **Using a link** (no session): `POST /staff/auth/link/check {token}` says what the link is for and whose it is. `POST /staff/auth/link/redeem {token, password}` sets the password and signs the person in.
+  - Both check Origin and share the login's per-IP budget (PLAN §9: rate limits on login and token endpoints).
+  - Expired, used, replaced and unknown links all get the same 400 `LINK_INVALID`.
+  - Redeeming also ends every other session, device and link of the account, because a reset may follow a stolen password.
+- **Changing your own password:** `POST /staff/auth/password {currentPassword, newPassword}`, with a session and CSRF.
+  - Wrong current passwords count towards the same lockout as sign-in.
+  - Every other session and device ends, and this browser gets a fresh device cookie.
+- **Recovery without a signed-in admin:** `npm run staff:link -- <email>` (`node dist/cli/staff-link.js` in the container) prints a link for an existing account. It runs on the server only, and the audit log records it with no actor and "(server CLI)". This covers a solo admin who forgets the password.
+- **Web:**
+  - `/admin/staff` (admin only, in the staff bar): the list, an invite form, and per-account actions. The link panel says the link is shown once, works once, and that anyone with it can set the password.
+  - `/admin/account`: your details, and changing your password.
+  - `/admin/set-password`: the one staff page that works without a session.
+- **Audit:** every action has a fixed summary with ids and no email (`staff.invite`, `staff.link`, `staff.role`, `staff.disable`, `staff.enable`, `staff.sign_out`, `staff.password_set`, `staff.password_change`). A test checks that no staff summary contains `@`.
+**Consequences:**
+- Admins pass links on themselves. If email is added later, the same tokens and pages work, and only the delivery changes.
+- Nothing yet lets anyone change a name or email: an admin disables the account and invites the person again. That is enough for R1's handful of staff.
+- Not built: two-factor sign-in (TOTP). PLAN only rules out SMS. It needs the owner's decision (BACKLOG, technical follow-ups).

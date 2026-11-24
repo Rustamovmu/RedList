@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, eq, isNull, ne } from 'drizzle-orm';
 import { createHash, randomBytes } from 'node:crypto';
-import { Db, InjectDb } from '../db/db.module';
+import { Db, DbOrTx, InjectDb } from '../db/db.module';
 import { staffSessions, staffUsers } from '../db/schema';
 
 export const SESSION_IDLE_MS = 12 * 60 * 60_000;
@@ -52,5 +52,15 @@ export class SessionService {
 
   async revoke(sessionId: string) {
     await this.db.update(staffSessions).set({ revokedAt: new Date() }).where(eq(staffSessions.id, sessionId));
+  }
+
+  /** Ends every open session of a user, optionally keeping one (the caller's own). Returns how many ended. */
+  async revokeAllForUser(userId: string, keepSessionId?: string, db: DbOrTx = this.db): Promise<number> {
+    const rows = await db
+      .update(staffSessions)
+      .set({ revokedAt: new Date() })
+      .where(and(eq(staffSessions.userId, userId), isNull(staffSessions.revokedAt), keepSessionId ? ne(staffSessions.id, keepSessionId) : undefined))
+      .returning({ id: staffSessions.id });
+    return rows.length;
   }
 }

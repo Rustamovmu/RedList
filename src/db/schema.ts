@@ -88,6 +88,24 @@ export const staffSessions = pgTable(
   (t) => [index('staff_sessions_user_idx').on(t.userId)],
 );
 
+/**
+ * Browsers that have signed in successfully ("device cookies", DECISIONS D-061). A valid device token lets its
+ * owner sign in while their email is locked out for everyone else, so a stranger cannot lock the admin out.
+ * Only the SHA-256 of the token is stored. No IP address or user agent is kept.
+ */
+export const staffDevices = pgTable(
+  'staff_devices',
+  {
+    id: id(),
+    userId: uuid('user_id').notNull().references(() => staffUsers.id, { onDelete: 'cascade' }),
+    tokenHash: text('token_hash').notNull().unique(),
+    createdAt: tsz('created_at').notNull().defaultNow(),
+    lastUsedAt: tsz('last_used_at').notNull().defaultNow(),
+    expiresAt: tsz('expires_at').notNull(),
+  },
+  (t) => [index('staff_devices_user_idx').on(t.userId)],
+);
+
 export const staffTokens = pgTable('staff_tokens', {
   id: id(),
   userId: uuid('user_id').notNull().references(() => staffUsers.id, { onDelete: 'cascade' }),

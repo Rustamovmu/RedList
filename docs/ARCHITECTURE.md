@@ -45,13 +45,13 @@ Navigation: Explore · Map · Compare · About. The support directory is linked 
 
 | Area | Status |
 |---|---|
-| Login, sessions, CSRF | **done** (M1) |
+| Login, sessions, CSRF | **done** (M1); device cookies against lockout abuse (D-061) |
 | Species list, new species, identifiers, drafts, submit, publish, request changes, checklist | **done** (M1). The list and the species page show the published photos (D-057); the provider identifier is advice, not a blocker (D-057) |
 | Form editor for photos, names, grouping, the written sections, diet tags, climate and measurements (D-057) | **done** (2026-11-23) |
 | Form editor for the rows that each need a source (assessments, estimates, places, habitats, threats, citations, support links), plus live preview and a diff (PLAN §7); those are still edited as JSON (D-011) | open, unassigned (R1) |
 | Organizations and support links (`/admin/support`) | **done** (M3) |
 | Media upload and review queue (`/admin/media`), rollback ("Make this version live again" on `/admin/species/[id]`) | **done** (M4) |
-| Staff invites (one-time link, no email), staff management | open, unassigned (moved from M1, not built in M4; a solo admin works without it) |
+| Staff accounts (`/admin/staff`): invite with a one-time link (no email), password reset links, roles, disable/enable, sign out everywhere; `/admin/account` (change your password); `/admin/set-password` (use a link, no session) | **done** (2026-11-24, D-062) |
 
 ## Web-app internal route
 
@@ -77,7 +77,7 @@ Navigation: Explore · Map · Compare · About. The support directory is linked 
 | Staff: organizations, support links (list, create, edit, approve, disable) | **done** (M3) |
 | Staff: `media` (list, upload, get, preview, edit, approve, reject), `species/:id/rollback`, `PUT sources/:id` | **done** (M4) |
 | `GET /media/:key/:width.webp` (approved or live-published images only; rejected never) | **done** (M4, D-022) |
-| Staff: staff management and invites | open, unassigned |
+| Staff: `users` (list, invite, edit role/disabled, `:id/link`, `:id/sign-out`), admin only; `auth/password`; `auth/link/check` and `auth/link/redeem` (no session, Origin + per-IP limit) | **done** (2026-11-24, D-062) |
 
 Swagger UI: `/api/docs` (non-production only).
 
@@ -88,8 +88,8 @@ Swagger UI: `/api/docs` (non-production only).
 | `health` | liveness and readiness | **done** |
 | `db` | Drizzle connection and `schema.ts` | **done** |
 | `common` | error shape, request IDs, JSON (bigint as string) | **done** |
-| `cli` | migrate, seed-regions, seed-vocab, export-openapi, admin-create, seed-fixtures, e2e-prepare, import, links-check, validate-catalogue, status-check | **done** (M4 added import, links-check and validate-catalogue; seed-vocab came with the batch-1 ecology on 2026-11-22; R1-L added status-check) |
-| `identity` | staff sessions, CSRF + Origin guard, roles, login throttle | **done** (M1) |
+| `cli` | migrate, seed-regions, seed-vocab, export-openapi, admin-create, staff-link, seed-fixtures, e2e-prepare, import, links-check, validate-catalogue, status-check | **done** (M4 added import, links-check and validate-catalogue; seed-vocab came with the batch-1 ecology on 2026-11-22; R1-L added status-check) |
+| `identity` | staff sessions, CSRF + Origin guard, roles, login throttle, device cookies, staff accounts and one-time links | **done** (M1; D-061 and D-062 on 2026-11-24) |
 | `editorial` | revisions, editorial zod schema, checklist, publish transaction, audit, revalidation, sources | **done** (M1) |
 | `catalogue` | `PublishedSpeciesRepository` plus the `PUBLISHED` SQL fragment in `catalogue-sql.ts` (the only public read path): profile, list, filters, related, compare | **done** (M1, M2) |
 | `geography` | regions, map, basemap, `GeoRepository` (the only home of spatial SQL) | **done** (M3) |

@@ -6,14 +6,22 @@ For the people who edit and publish Wildward content in the staff area at `/admi
 | Role | Can |
 |---|---|
 | **Editor** | Create species and drafts, edit drafts, add sources, upload images, submit drafts for review, read the support directory, attach approved support links to drafts. |
-| **Admin** | Everything an editor can, plus: publish, request changes, roll back, approve or reject images, manage organizations and support links. |
+| **Admin** | Everything an editor can, plus: publish, request changes, roll back, approve or reject images, manage organizations and support links, manage staff accounts. |
 
-R1 has no self-service sign-up and no staff invites yet (ARCHITECTURE). The first admin is created on the server (`admin:create`, see README or DEPLOYMENT). Further accounts need the same CLI with `ADMIN_*` set, and every CLI account is an admin.
+There is no self-service sign-up. The first admin is created on the server (`admin:create`, see README or DEPLOYMENT); everyone else is invited from the **Staff** page (D-062).
+
+## Staff accounts (admins)
+- **Invite:** on **Staff**, fill in name, email and role. A one-time link appears **once**. The site sends no email, so give the link to the person yourself, through a channel you trust: anyone who opens it can set that account's password. An invite link lasts 7 days.
+- **Forgotten password:** press **Password reset link** on that person's row and pass the link on (24 hours). Using it signs them out everywhere else. **New invite link** does the same for someone who never set a password. Making a new link cancels the previous one.
+- **Someone leaves, or a laptop is lost:** **Disable** ends their sessions and links at once, and **Enable** lets them back in with their old password. **Sign out everywhere** ends their sessions but keeps their password.
+- **Roles:** changing a role applies at once, even to an open session. You cannot change your own role or disable yourself, so the site always keeps an admin. Ask another admin for that.
+- **Nobody can sign in** (for example a solo admin who forgot the password): on the server, `./deploy/compose.sh exec api node dist/cli/staff-link.js you@example.org` prints a reset link (DEPLOYMENT).
+- **Your own password:** select your name in the staff bar (**Your account**). Changing it signs you out everywhere else.
 
 ## Signing in
 - Go to `/admin` and sign in with your email and password (at least 12 characters).
 - **Sessions:** a session ends after 12 hours without activity, and after 7 days in any case. Sign out from the staff bar when you finish on a shared computer.
-- **Throttling:** after 5 wrong passwords in a row, the account is locked for 30 seconds, then for longer with each further failure, up to 15 minutes. One address may try at most 20 times in 15 minutes (D-010).
+- **Throttling:** after 5 wrong passwords in a row, the account is locked for 30 seconds, then for longer with each further failure, up to 15 minutes. One address may try at most 20 times in 15 minutes (D-010). A browser you have signed in with before keeps working during such a lock, so someone else's guesses cannot lock you out (D-061). That browser has its own count, so it locks only itself if it keeps guessing.
 
 ## The workflow
 ```

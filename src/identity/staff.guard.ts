@@ -16,7 +16,8 @@ import { SessionService, StaffPrincipal } from './session.service';
 
 export type StaffRequest = Request & { staff?: StaffPrincipal };
 
-const ROLES_KEY = 'staffRoles';
+/** Exported so the authorization test can list every role-restricted route from the controllers themselves. */
+export const ROLES_KEY = 'staffRoles';
 /** Restrict a staff route to roles. Without it, any signed-in staff member (editor or admin) may call it. */
 export const Roles = (...roles: Array<'editor' | 'admin'>) => SetMetadata(ROLES_KEY, roles);
 

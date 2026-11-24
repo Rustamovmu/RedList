@@ -1,5 +1,48 @@
 # Completed tasks
 
+## 2026-11-24: Security review, then fixes from easiest to hardest (owner request, no milestone; D-061, D-062)
+
+The owner asked to discuss security, authentication and authorization, then to fix the findings "from the easiest to hardest". The review read PLAN §7, §9 and §13, D-010, D-029 and D-030, `src/identity/*`, the guards on every controller, the auth tests, the revalidate route and the staff API client.
+
+**1. Admin-only routes are a reviewed list (D-061).** `auth.spec.ts` reads every `@Roles('admin')` route from the running app's controllers (`ROLES_KEY` is exported from `staff.guard.ts`). It checks that set against a written list and calls each route as an editor (403 `FORBIDDEN`) and as an admin (past the role check). Before, only 6 of 13 admin-only routes had an editor-403 test. Removing `@Roles('admin')` from media reject made the test fail, as it should; the file was restored.
+
+**2. Device cookies against lockout abuse (D-061).** A stranger who knew the admin's email could keep the account locked indefinitely, at one wrong guess every 15 minutes.
+- A successful sign-in now sets `__Host-ww_device` (HttpOnly, `SameSite=Strict`, 180 days, rotated on every sign-in). A browser with a valid device token is not affected by the email lockout and has its own failure count.
+- New table `staff_devices` (generated migration `0006_staff_devices.sql`) stores only the SHA-256, at most 10 per user.
+- `LoginThrottle` gains device counts and `checkIp`. `setCookie` takes `sameSite`.
+- The privacy page (frontend) lists the device cookie and what is stored about it.
+
+**3. Staff accounts (D-062), PLAN §7, open and unassigned until now.**
+- **API:**
+  - `GET/POST /staff/users`, `PUT /staff/users/:id`, `POST /staff/users/:id/link`, `POST /staff/users/:id/sign-out` (admin only);
+  - `POST /staff/auth/password` (session + CSRF);
+  - `POST /staff/auth/link/check` and `/link/redeem` (no session; Origin check and the login's per-IP budget).
+- **Links:** one-time 32-byte tokens in `staff_tokens` (hash only), lasting 7 days for an invite and 24 hours for a reset. They are shown once and carried in the URL fragment. Redeeming ends every other session, device and link.
+- **Disabling** ends sessions, devices and links in one transaction. An admin cannot change their own role or disable themselves.
+- **CLI** `npm run staff:link -- <email>` (`dist/cli/staff-link.js`): a recovery link when nobody can sign in. Audited with no actor.
+- **Web:**
+  - `/admin/staff`: list, invite, per-account actions, a link panel shown once;
+  - `/admin/account`: change your password;
+  - `/admin/set-password`: no session; it reads the token from the fragment, then strips it from the address bar.
+  - The staff bar shows "Staff" to admins only, and your name links to your account.
+- **Docs:** DECISIONS D-061 and D-062; ARCHITECTURE, ADMIN_GUIDE (new "Staff accounts" section), DATABASE, TESTING, DEPLOYMENT (recovery), BACKLOG (TOTP and a breached-password list, both need a decision or a licence check), AGENTS and README (commands).
+
+**Commands run, with results** (Docker not running: backend tests used a temporary Jest config in the session scratchpad that loads `.env.test` and changes only the port to Postgres.app's 5432; the repo's `.env.test` was not changed):
+| Command | Result |
+|---|---|
+| `npx drizzle-kit generate --name staff_devices` | `0006_staff_devices.sql`: one CREATE TABLE, its FK and index, nothing else |
+| backend `npm run typecheck`, `npm run lint`, `npm run build` | pass; `dist/cli/staff-link.js` built |
+| backend tests, all suites | **269/269 pass**, 17 suites (254 before; new: admin-only route list, device cookie, throttle device unit test, 12 in `staff-users.spec.ts`) |
+| `npm run staff:link` against `wild_test` | unknown email → exit 1 "No staff account has that email"; known → reset link, audit "(server CLI)" with no actor |
+| `npm run openapi:export`, frontend `npm run contracts:generate` | written |
+| frontend `npm run typecheck`, `npm run lint` | pass |
+| frontend `npx playwright test` (full suite) with `E2E_DATABASE_URL` → Postgres.app `wild_e2e` | **62 passed, 4 skipped** (60 before, plus `staff-accounts.spec.ts` at desktop and 360 px). The first run of the new spec failed twice, for two reasons. First, the password hint was inside its `<label>`, so the field's accessible name included the hint; it now sits outside, linked with `aria-describedby`, on both password forms. Second, `getByRole('alert')` also matched Next.js's route announcer. |
+
+**Known gaps:**
+- Changing a staff member's name or email is not built: disable the account and invite again.
+- Two-factor sign-in and a breached-password list are not built (BACKLOG). The first needs the owner's decision. The second needs a list whose licence has been checked.
+- The login throttle is still in memory (D-010): a restart clears its counts.
+
 ## 2026-11-24: Docs and code review pass (owner request, no milestone)
 
 The owner asked for the docs to be read, the code analysed, and any errors fixed. Read: PLAN, AGENTS, ARCHITECTURE, README, TESTING, DATABASE, DEPLOYMENT, DATA_SOURCES, METHODOLOGY, ADMIN_GUIDE, BACKLOG, the latest DECISIONS and COMPLETED_TASKS entries. Reviewed: identity, editorial (publish, rollback, checklist, content repository), catalogue SQL and repository, geography, media, support directory, safe-fetch, importer, status-check, validate-catalogue, publish-drafts, and the frontend revalidate route and API client.

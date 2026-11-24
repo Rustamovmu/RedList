@@ -76,22 +76,37 @@ describe('login throttle', () => {
   it('blocks an IP after 20 attempts in 15 minutes, then frees it', () => {
     const t = new LoginThrottle();
     const now = 1_000_000;
-    for (let i = 0; i < 20; i++) expect(t.check('1.2.3.4', `u${i}@x`, now)).toBe(0);
-    expect(t.check('1.2.3.4', 'other@x', now)).toBeGreaterThan(0);
-    expect(t.check('5.6.7.8', 'other@x', now)).toBe(0);
-    expect(t.check('1.2.3.4', 'other@x', now + 15 * 60_000 + 1)).toBe(0);
+    for (let i = 0; i < 20; i++) expect(t.check('1.2.3.4', `u${i}@x`, null, now)).toBe(0);
+    expect(t.check('1.2.3.4', 'other@x', null, now)).toBeGreaterThan(0);
+    expect(t.check('5.6.7.8', 'other@x', null, now)).toBe(0);
+    expect(t.check('1.2.3.4', 'other@x', null, now + 15 * 60_000 + 1)).toBe(0);
   });
 
   it('locks an email after 5 failures with doubling backoff, and clears on success', () => {
     const t = new LoginThrottle();
     const now = 1_000_000;
-    for (let i = 0; i < 4; i++) t.recordFailure('A@x', now);
-    expect(t.check('ip1', 'a@x', now)).toBe(0);
-    t.recordFailure('a@x', now);
-    expect(t.check('ip2', 'a@x', now)).toBe(30);
-    t.recordFailure('a@x', now);
-    expect(t.check('ip3', 'a@x', now)).toBe(60);
+    for (let i = 0; i < 4; i++) t.recordFailure('A@x', null, now);
+    expect(t.check('ip1', 'a@x', null, now)).toBe(0);
+    t.recordFailure('a@x', null, now);
+    expect(t.check('ip2', 'a@x', null, now)).toBe(30);
+    t.recordFailure('a@x', null, now);
+    expect(t.check('ip3', 'a@x', null, now)).toBe(60);
     t.recordSuccess('a@x');
-    expect(t.check('ip4', 'a@x', now)).toBe(0);
+    expect(t.check('ip4', 'a@x', null, now)).toBe(0);
+  });
+
+  it('a trusted device ignores the email lockout, keeps its own count, and its success leaves the email locked (D-061)', () => {
+    const t = new LoginThrottle();
+    const now = 1_000_000;
+    for (let i = 0; i < 6; i++) t.recordFailure('a@x', null, now);
+    expect(t.check('ip1', 'a@x', null, now)).toBe(60);
+    expect(t.check('ip1', 'a@x', 'device-1', now)).toBe(0);
+    t.recordSuccess('a@x', 'device-1');
+    expect(t.check('ip2', 'a@x', null, now)).toBe(60);
+    for (let i = 0; i < 5; i++) t.recordFailure('a@x', 'device-1', now);
+    expect(t.check('ip3', 'a@x', 'device-1', now)).toBe(30);
+    expect(t.check('ip3', 'a@x', 'device-2', now)).toBe(0);
+    // The device's failures did not add to the email's count.
+    expect(t.check('ip4', 'a@x', null, now)).toBe(60);
   });
 });

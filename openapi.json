@@ -74,6 +74,104 @@
         ]
       }
     },
+    "/api/v1/staff/auth/password": {
+      "post": {
+        "operationId": "AuthController_changePassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-auth"
+        ]
+      }
+    },
+    "/api/v1/staff/auth/link/check": {
+      "post": {
+        "operationId": "AuthController_checkLink",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkInfoDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "staff-auth"
+        ]
+      }
+    },
+    "/api/v1/staff/auth/link/redeem": {
+      "post": {
+        "operationId": "AuthController_redeemLink",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RedeemLinkDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "staff-auth"
+        ]
+      }
+    },
     "/api/v1/staff/auth/logout": {
       "post": {
         "operationId": "AuthController_logout",
@@ -123,6 +221,231 @@
         ],
         "tags": [
           "staff-auth"
+        ]
+      }
+    },
+    "/api/v1/staff/users": {
+      "get": {
+        "operationId": "StaffUsersController_list",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StaffUserDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-users"
+        ]
+      },
+      "post": {
+        "operationId": "StaffUsersController_invite",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviteStaffDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InviteResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-users"
+        ]
+      }
+    },
+    "/api/v1/staff/users/{id}": {
+      "put": {
+        "operationId": "StaffUsersController_update",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStaffDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffUserDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-users"
+        ]
+      }
+    },
+    "/api/v1/staff/users/{id}/link": {
+      "post": {
+        "operationId": "StaffUsersController_link",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffLinkDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-users"
+        ]
+      }
+    },
+    "/api/v1/staff/users/{id}/sign-out": {
+      "post": {
+        "operationId": "StaffUsersController_signOut",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Required on POST/PUT",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffUserDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "tags": [
+          "staff-users"
         ]
       }
     },
@@ -2191,6 +2514,22 @@
           "csrfToken"
         ]
       },
+      "ChangePasswordDto": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string",
+            "minLength": 12
+          }
+        },
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ]
+      },
       "OkDto": {
         "type": "object",
         "properties": {
@@ -2202,6 +2541,196 @@
         "required": [
           "ok"
         ]
+      },
+      "LinkTokenDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "The token from the link fragment (#token=…)"
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "LinkInfoDto": {
+        "type": "object",
+        "properties": {
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "invite",
+              "reset"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "purpose",
+          "name",
+          "email",
+          "expiresAt"
+        ]
+      },
+      "RedeemLinkDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "The token from the link fragment (#token=…)"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 12
+          }
+        },
+        "required": [
+          "token",
+          "password"
+        ]
+      },
+      "StaffUserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "editor",
+              "admin"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "invited",
+              "disabled"
+            ],
+            "description": "invited: no password set yet"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastActiveAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "openSessions": {
+            "type": "number",
+            "description": "Sessions that are neither revoked nor past their absolute limit"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "role",
+          "status",
+          "createdAt",
+          "lastActiveAt",
+          "openSessions"
+        ]
+      },
+      "InviteStaffDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "editor",
+              "admin"
+            ]
+          }
+        },
+        "required": [
+          "email",
+          "name",
+          "role"
+        ]
+      },
+      "StaffLinkDto": {
+        "type": "object",
+        "properties": {
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "invite",
+              "reset"
+            ]
+          },
+          "url": {
+            "type": "string",
+            "description": "One-time link, shown only in this response. The token is in the fragment, so it never reaches a server log."
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "purpose",
+          "url",
+          "expiresAt"
+        ]
+      },
+      "InviteResultDto": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/StaffUserDto"
+          },
+          "link": {
+            "$ref": "#/components/schemas/StaffLinkDto"
+          }
+        },
+        "required": [
+          "user",
+          "link"
+        ]
+      },
+      "UpdateStaffDto": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "editor",
+              "admin"
+            ]
+          },
+          "disabled": {
+            "type": "boolean",
+            "description": "true ends every session, device and open link of the account at once"
+          }
+        }
       },
       "CardStatusDto": {
         "type": "object",

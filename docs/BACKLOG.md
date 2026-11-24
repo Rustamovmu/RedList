@@ -26,3 +26,5 @@
 - CSP without `style-src 'unsafe-inline'`: move the map legend swatches to classes and nonce-tag `next/image` styles (D-029)
 - Load test the API under concurrent requests and re-measure query plans at a few hundred species (DATABASE.md M5)
 - Move the login throttle to PostgreSQL if the API ever runs as more than one process (D-010)
+- Two-factor sign-in for staff (TOTP; PLAN only rules out SMS). Needs the owner's decision first (D-062)
+- An offline breached-password list (PLAN §9 "if one is available"). It is free to use only if its licence checks out, so it is `pending` until someone verifies the licence (D-010)

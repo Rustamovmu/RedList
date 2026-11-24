@@ -22,6 +22,7 @@ npm run db:seed:regions     # Natural Earth countries + oceans (idempotent)
 npm run db:seed:vocab       # our own habitat and threat lists (w- codes, idempotent); needed before importing catalogue/*.json
 npm run db:seed:fixtures    # SYNTHETIC dev species, published through the real workflow (never in production)
 npm run admin:create        # first admin from ADMIN_EMAIL / ADMIN_NAME / ADMIN_PASSWORD
+npm run staff:link -- <email>   # one-time invite/reset link for an existing staff account (recovery; D-062)
 npm run e2e:prepare         # wipe + reload the wild_e2e database and storage/media-e2e (used by the frontend's test:e2e)
 npm run import -- <file.json> --dry-run | --apply [--reconcile]   # content into DRAFTS only; report in import-reports/
 npm run links:check         # record HTTP status of every support link (never disables one)

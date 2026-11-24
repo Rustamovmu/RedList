@@ -21,6 +21,7 @@
     "db:seed:vocab": "ts-node --transpile-only src/cli/seed-vocab.ts",
     "db:seed:fixtures": "ts-node --transpile-only src/cli/seed-fixtures.ts",
     "admin:create": "ts-node --transpile-only src/cli/admin-create.ts",
+    "staff:link": "ts-node --transpile-only src/cli/staff-link.ts",
     "e2e:prepare": "ts-node --transpile-only src/cli/e2e-prepare.ts",
     "e2e:api": "npm run e2e:prepare && ts-node --transpile-only src/main.ts",
     "import": "ts-node --transpile-only src/cli/import.ts",

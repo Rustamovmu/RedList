@@ -64,7 +64,14 @@ read -rs ADMIN_PASSWORD && export ADMIN_PASSWORD
 unset ADMIN_PASSWORD
 ```
 
-Then sign in at `/admin` and follow `docs/ADMIN_GUIDE.md`. **Never** run `db:seed:fixtures` or `e2e:prepare` in production. Both refuse to run there, and `validate:catalogue` fails if synthetic fixtures are found.
+Then sign in at `/admin` and follow `docs/ADMIN_GUIDE.md`. Invite everyone else from the Staff page (D-062). Do not run `admin-create` again for them.
+
+**Locked out of every admin account** (for example a forgotten password): print a one-time reset link on the server and open it yourself. Anyone with the link can set the password, so do not paste it anywhere shared.
+```sh
+./deploy/compose.sh exec api node dist/cli/staff-link.js you@example.org
+```
+
+**Never** run `db:seed:fixtures` or `e2e:prepare` in production. Both refuse to run there, and `validate:catalogue` fails if synthetic fixtures are found.
 
 ### Settings (`deploy/.env.prod`)
 

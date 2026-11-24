@@ -32,6 +32,7 @@ npm run db:seed:regions     # countries and oceans from Natural Earth
 npm run db:seed:vocab       # our own habitat and threat lists; the catalogue import files need them
 npm run db:seed:fixtures    # optional: synthetic dev species (Fictus …), never real data
 npm run admin:create        # first admin; set ADMIN_EMAIL, ADMIN_NAME, ADMIN_PASSWORD (≥12 chars) in .env first
+npm run staff:link -- <email>   # prints a one-time password link for an existing staff account (if nobody can sign in)
 npm run dev                 # http://localhost:4000/api/v1/health/ready
                             # Swagger UI: http://localhost:4000/api/docs
 ```
@@ -95,7 +96,7 @@ src/import/             import file schema and engine (drafts only, idempotent, 
 src/quality/            validate:catalogue
 catalogue/              real-catalogue import files (sources checked, see notes in each file)
 src/fixtures/           SYNTHETIC dev fixtures
-src/cli/                migrate, seed-regions, seed-vocab, seed-fixtures, admin-create, export-openapi, e2e-prepare, import, links-check, validate-catalogue, status-check
+src/cli/                migrate, seed-regions, seed-vocab, seed-fixtures, admin-create, staff-link, export-openapi, e2e-prepare, import, links-check, validate-catalogue, status-check
 scripts/                setup-local-db.sh (Postgres.app), check-db.cjs (connection test), backup.sh, restore.sh, publish-drafts.mjs (dev: submit and publish drafts through the staff API)
 deploy/                 production compose, compose.sh wrapper, .env.prod.example, nginx/ (http.conf, https.conf)
 Dockerfile              production API image (compiled JS, runs as node)

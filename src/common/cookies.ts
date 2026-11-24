@@ -17,11 +17,11 @@ export function readCookie(req: Request, name: string): string | undefined {
   return undefined;
 }
 
-export type CookieOpts = { httpOnly: boolean; secure: boolean; maxAgeSeconds?: number };
+export type CookieOpts = { httpOnly: boolean; secure: boolean; maxAgeSeconds?: number; sameSite?: 'Lax' | 'Strict' };
 
-/** Path=/ and no Domain, so the __Host- prefix is valid whenever Secure is set. SameSite=Lax per PLAN §9. */
+/** Path=/ and no Domain, so the __Host- prefix is valid whenever Secure is set. SameSite=Lax per PLAN §9 unless set. */
 export function setCookie(res: Response, name: string, value: string, o: CookieOpts) {
-  const parts = [`${name}=${encodeURIComponent(value)}`, 'Path=/', 'SameSite=Lax'];
+  const parts = [`${name}=${encodeURIComponent(value)}`, 'Path=/', `SameSite=${o.sameSite ?? 'Lax'}`];
   if (o.httpOnly) parts.push('HttpOnly');
   if (o.secure) parts.push('Secure');
   if (o.maxAgeSeconds !== undefined) parts.push(`Max-Age=${o.maxAgeSeconds}`);

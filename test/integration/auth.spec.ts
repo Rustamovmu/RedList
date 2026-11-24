@@ -2,12 +2,53 @@
  * Staff authentication, sessions, CSRF and authorization (PLAN §9, M1 gate).
  * Runs the real app against real PostgreSQL + PostGIS.
  */
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, RequestMethod, Type } from '@nestjs/common';
+import { METHOD_METADATA, PATH_METADATA } from '@nestjs/common/constants';
+import { ModulesContainer, Reflector } from '@nestjs/core';
 import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
 import request from 'supertest';
 import { buildOpenApi, createApp } from '../../src/bootstrap';
+import { ROLES_KEY } from '../../src/identity/staff.guard';
 import { authed, cookieHeader, createStaff, freshDatabase, login, ORIGIN, TEST_PASSWORD } from '../helpers';
+
+type Verb = 'get' | 'post' | 'put' | 'patch' | 'delete';
+
+/** Every route whose handler or controller carries @Roles('admin'), read from the running app's controllers. */
+function adminOnlyRoutes(nest: INestApplication): Array<{ m: Verb; p: string }> {
+  const reflector = nest.get(Reflector);
+  const verbs: Partial<Record<RequestMethod, Verb>> = {
+    [RequestMethod.GET]: 'get',
+    [RequestMethod.POST]: 'post',
+    [RequestMethod.PUT]: 'put',
+    [RequestMethod.PATCH]: 'patch',
+    [RequestMethod.DELETE]: 'delete',
+  };
+  const out: Array<{ m: Verb; p: string }> = [];
+  for (const mod of nest.get(ModulesContainer).values()) {
+    for (const wrapper of mod.controllers.values()) {
+      const cls = wrapper.metatype as Type | null;
+      if (!cls) continue;
+      const base = String(Reflect.getMetadata(PATH_METADATA, cls) ?? '');
+      for (const name of Object.getOwnPropertyNames(cls.prototype)) {
+        const handler: unknown = cls.prototype[name];
+        if (name === 'constructor' || typeof handler !== 'function') continue;
+        const method = Reflect.getMetadata(METHOD_METADATA, handler) as RequestMethod | undefined;
+        if (method === undefined) continue;
+        const roles = reflector.getAllAndOverride<string[] | undefined>(ROLES_KEY, [handler, cls]);
+        if (!roles?.includes('admin') || roles.includes('editor')) continue;
+        const verb = verbs[method];
+        if (!verb) throw new Error(`Unexpected HTTP method on ${cls.name}.${name}`);
+        const sub = String(Reflect.getMetadata(PATH_METADATA, handler) ?? '');
+        out.push({ m: verb, p: `/api/v1/${[base, sub].filter((x) => x && x !== '/').join('/')}` });
+      }
+    }
+  }
+  return out;
+}
+
+/** The only staff routes that work without a session; each checks Origin and is rate limited per IP. */
+const PUBLIC_STAFF_ROUTES = new Set(['/api/v1/staff/auth/login', '/api/v1/staff/auth/link/check', '/api/v1/staff/auth/link/redeem']);
 
 let app: INestApplication;
 let pool: Pool;
@@ -62,6 +103,46 @@ describe('login', () => {
     }
     const res = await loginReq().set('Origin', ORIGIN).send({ email: 'lockme@test.invalid', password: TEST_PASSWORD }).expect(429);
     expect(Number(res.headers['retry-after'])).toBeGreaterThan(0);
+  });
+
+  it('a browser that signed in before still gets in while a stranger keeps its email locked (device cookie, D-061)', async () => {
+    const userId = await createStaff(pool, 'admin', 'trusted@test.invalid');
+    await createStaff(pool, 'editor', 'neighbour@test.invalid');
+    const attempt = (ip: string, email: string, password: string, cookie?: string) => {
+      const r = loginReq().set('Origin', ORIGIN).set('X-Forwarded-For', ip);
+      return (cookie ? r.set('Cookie', cookie) : r).send({ email, password });
+    };
+    const deviceOf = (res: request.Response) => {
+      const c = (res.headers['set-cookie'] as unknown as string[]).find((x) => x.startsWith('ww_device='));
+      expect(c).toMatch(/HttpOnly/);
+      expect(c).toMatch(/SameSite=Strict/);
+      expect(c).toMatch(/Max-Age=15552000/);
+      return c!.split(';')[0];
+    };
+
+    const device = deviceOf(await attempt('10.200.0.1', 'trusted@test.invalid', TEST_PASSWORD).expect(200));
+    const raw = device.split('=')[1];
+    const stored = await pool.query(`SELECT count(*)::int n FROM staff_devices WHERE user_id = $1 AND token_hash <> $2`, [userId, raw]);
+    expect(stored.rows[0].n).toBe(1); // stored, but only as a hash
+
+    for (let i = 0; i < 5; i++) await attempt('10.200.0.2', 'trusted@test.invalid', 'not the password!').expect(401);
+    await attempt('10.200.0.3', 'trusted@test.invalid', TEST_PASSWORD).expect(429);
+
+    // The owner's browser signs in despite the lock and gets a new token; the old one stops counting.
+    const rotated = deviceOf(await attempt('10.200.0.4', 'trusted@test.invalid', TEST_PASSWORD, device).expect(200));
+    expect(rotated).not.toBe(device);
+    await attempt('10.200.0.4', 'trusted@test.invalid', TEST_PASSWORD, device).expect(429);
+    const rows = await pool.query(`SELECT count(*)::int n FROM staff_devices WHERE user_id = $1`, [userId]);
+    expect(rows.rows[0].n).toBe(1);
+
+    // That success did not unlock the email for strangers, and the cookie is no use for another account.
+    await attempt('10.200.0.5', 'trusted@test.invalid', TEST_PASSWORD).expect(429);
+    for (let i = 0; i < 5; i++) await attempt('10.200.0.6', 'neighbour@test.invalid', 'not the password!').expect(401);
+    await attempt('10.200.0.7', 'neighbour@test.invalid', TEST_PASSWORD, rotated).expect(429);
+
+    // A trusted browser that keeps guessing locks only itself.
+    for (let i = 0; i < 5; i++) await attempt('10.200.0.8', 'trusted@test.invalid', 'not the password!', rotated).expect(401);
+    await attempt('10.200.0.8', 'trusted@test.invalid', TEST_PASSWORD, rotated).expect(429);
   });
 });
 
@@ -123,10 +204,10 @@ describe('CSRF and Origin on mutations', () => {
 });
 
 describe('authorization on every staff route', () => {
-  it('every staff route except login answers 401 without a session', async () => {
+  it('every staff route except sign-in and the one-time link routes answers 401 without a session', async () => {
     const doc = buildOpenApi(app);
     const routes = Object.entries(doc.paths)
-      .filter(([p]) => p.startsWith('/api/v1/staff/') && p !== '/api/v1/staff/auth/login')
+      .filter(([p]) => p.startsWith('/api/v1/staff/') && !PUBLIC_STAFF_ROUTES.has(p))
       .flatMap(([p, item]) =>
         (['get', 'post', 'put', 'patch', 'delete'] as const).filter((m) => (item as Record<string, unknown>)[m]).map((m) => ({ m, p: p.replace(/\{[^}]+\}/g, randomUUID()) })),
       );
@@ -134,6 +215,48 @@ describe('authorization on every staff route', () => {
     for (const { m, p } of routes) {
       const res = await http()[m](p).set('Origin', ORIGIN).send({});
       expect({ route: `${m.toUpperCase()} ${p}`, status: res.status }).toEqual({ route: `${m.toUpperCase()} ${p}`, status: 401 });
+    }
+  });
+
+  it('the admin-only routes are exactly the reviewed list; an editor gets 403 on each, an admin passes the role check', async () => {
+    const routes = adminOnlyRoutes(app);
+    // The authorization policy (PLAN §7). A route that gains or loses @Roles('admin') must be added here on purpose.
+    expect(routes.map((r) => `${r.m.toUpperCase()} ${r.p}`).sort()).toEqual(
+      [
+        'POST /api/v1/staff/media/:id/approve',
+        'POST /api/v1/staff/media/:id/reject',
+        'POST /api/v1/staff/organizations',
+        'POST /api/v1/staff/organizations/:id/approve',
+        'POST /api/v1/staff/organizations/:id/disable',
+        'POST /api/v1/staff/revisions/:id/publish',
+        'POST /api/v1/staff/revisions/:id/request-changes',
+        'POST /api/v1/staff/species/:id/rollback',
+        'POST /api/v1/staff/support-links',
+        'POST /api/v1/staff/support-links/:id/approve',
+        'POST /api/v1/staff/support-links/:id/disable',
+        'PUT /api/v1/staff/organizations/:id',
+        'PUT /api/v1/staff/support-links/:id',
+        'GET /api/v1/staff/users',
+        'POST /api/v1/staff/users',
+        'PUT /api/v1/staff/users/:id',
+        'POST /api/v1/staff/users/:id/link',
+        'POST /api/v1/staff/users/:id/sign-out',
+      ].sort(),
+    );
+    const editor = await login(loginReq, 'editor@test.invalid');
+    const admin = await login(loginReq, 'admin@test.invalid');
+    for (const { m, p } of routes) {
+      const path = p.replace(/:[a-zA-Z]+/g, randomUUID());
+      const asEditor = await authed(http()[m](path), editor).send({});
+      expect({ route: `${m.toUpperCase()} ${p}`, status: asEditor.status, code: asEditor.body.error?.code }).toEqual({
+        route: `${m.toUpperCase()} ${p}`,
+        status: 403,
+        code: 'FORBIDDEN',
+      });
+      // Guards run before validation, so anything other than FORBIDDEN (400 for the empty body, 404 for the
+      // random id) shows the admin got past the role check.
+      const asAdmin = await authed(http()[m](path), admin).send({});
+      expect({ route: `${m.toUpperCase()} ${p}`, code: asAdmin.body.error?.code }).not.toEqual({ route: `${m.toUpperCase()} ${p}`, code: 'FORBIDDEN' });
     }
   });
 

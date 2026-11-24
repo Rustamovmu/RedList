@@ -10,6 +10,7 @@ PostgreSQL 16 + PostGIS 3.4. Schema: `src/db/schema.ts`. Migrations: `drizzle/`.
 | `0003_geometry_bounds.sql` | Hand-written (M3): range and region geometry must lie inside -180…180 / -90…90 (antimeridian-safe storage) |
 | `0004_media_import.sql` | Generated (M4): `media_assets` gains sha256 (unique), variants, licence URL, modifications, uploader, reviewer, review date and note; new table `import_records` |
 | `0005_media_rules.sql` | Hand-written (M4): an approved image needs a creator, a credit and an allow-listed licence; reviewed images need a review date; WebP only; https source URLs |
+| `0006_staff_devices.sql` | Generated (2026-11-24, D-061): new table `staff_devices` (user, SHA-256 of the device token, created, last used, expiry; cascades with the user) |
 
 ## Model
 
@@ -42,6 +43,7 @@ erDiagram
   staff_users ||--o{ species_revisions : "author / reviewer"
   staff_users ||--o{ staff_sessions : ""
   staff_users ||--o{ staff_tokens : ""
+  staff_users ||--o{ staff_devices : ""
   staff_users ||--o{ audit_events : ""
   species ||--o{ import_records : "last imported hash per section"
 ```
@@ -135,3 +137,9 @@ Both spatial lookups use their GiST index. As in M2, 6 rows say nothing about sc
 **Honest limit:** 43 rows still say nothing about behaviour at thousands of species. Re-measure at a few hundred profiles, and under concurrent load, before claiming any capacity.
 
 **Found during the restore rehearsal:** `pg_restore` brings no planner statistics. Until autovacuum ran, every table was estimated at 1 row. `scripts/restore.sh` now runs `ANALYZE` (D-030).
+
+## Staff tables (2026-11-24, D-061, D-062)
+- `staff_sessions`, `staff_tokens` and `staff_devices` hold only SHA-256 hashes of their tokens. A database leak gives no working session, link or device.
+- `staff_tokens` holds the one-time invite and reset links: unused while `consumed_at` is null and `expires_at` is in the future. Making a new link, using one, setting a password and disabling the account all set `consumed_at` on the open ones.
+- `staff_devices` lists browsers that signed in successfully, at most 10 per user. Expired rows are removed on the next sign-in of that user.
+- Disabling an account (`staff_users.disabled_at`) revokes its sessions, deletes its devices and uses up its links in one transaction. The session guard also checks `disabled_at` on every request.

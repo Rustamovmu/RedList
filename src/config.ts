@@ -28,7 +28,9 @@ const EnvSchema = z.object({
 
 /** Cookie names. The __Host- prefix requires Secure, so plain-HTTP local development uses unprefixed names. */
 export function cookieNames(secure: boolean) {
-  return secure ? { session: '__Host-ww_session', csrf: '__Host-ww_csrf' } : { session: 'ww_session', csrf: 'ww_csrf' };
+  return secure
+    ? { session: '__Host-ww_session', csrf: '__Host-ww_csrf', device: '__Host-ww_device' }
+    : { session: 'ww_session', csrf: 'ww_csrf', device: 'ww_device' };
 }
 
 export type AppConfig = z.infer<typeof EnvSchema>;
