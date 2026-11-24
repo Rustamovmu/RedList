@@ -236,6 +236,60 @@ describe('geometry limits', () => {
   });
 });
 
+describe('GET /map/pins: one place per species for the home globe (D-064)', () => {
+  type Pin = { slug: string; place: { slug: string; name: string; type: string }; lat: number; lng: number };
+  const pins = async (species: string) => (await http().get(`/api/v1/map/pins?species=${species}`).expect(200)).body.pins as Pin[];
+  const regionId = async (slug: string) => (await pool.query(`SELECT id FROM regions WHERE slug = $1`, [slug])).rows[0].id as string;
+  /** Within 0.001° of the place: the point is inside it, give or take the rounding. */
+  const atPlace = async (p: Pin) =>
+    (await pool.query(`SELECT ST_DWithin(geom, ST_SetSRID(ST_MakePoint($2, $3), 4326), 0.001) AS ok FROM regions WHERE slug = $1`, [p.place.slug, p.lng, p.lat]))
+      .rows[0].ok as boolean;
+
+  it('puts each species on the smallest place where it lives, at a rounded point inside that place', async () => {
+    const got = await pins('fictus-regionalis,fictus-marinus,fictus-exemplaris,fictus-captivus');
+    expect(got.map((p) => [p.slug, p.place.slug, p.place.type])).toEqual([
+      ['fictus-captivus', 'madagascar', 'country'],
+      ['fictus-exemplaris', 'kenya', 'country'], // smaller than Tanzania
+      ['fictus-marinus', 'fiji', 'country'], // smaller than the Coral Sea and the South Pacific Ocean; Fiji is split at 180°
+      ['fictus-regionalis', 'norway', 'country'], // breeding and non-breeding records only: the smaller place
+    ]);
+    for (const p of got) {
+      expect(await atPlace(p)).toBe(true);
+      expect([p.lat, p.lng]).toEqual([Math.round(p.lat * 1000) / 1000, Math.round(p.lng * 1000) / 1000]);
+    }
+  });
+
+  it('never pins a hide_regions species, even by slug; a generalize_country species gets a whole country', async () => {
+    const got = await pins('fictus-occultus,fictus-generalis,no-such-species');
+    expect(got.map((p) => [p.slug, p.place.slug])).toEqual([['fictus-generalis', 'ethiopia']]);
+  });
+
+  it('pins only places where the species lives: never a draft, nor an introduced, vagrant or extinct record', async () => {
+    const d = await editorial.createSpecies(staff, { slug: 'fictus-advena', acceptedScientificName: 'Fictus advena', rank: 'species', displayGroup: 'other_invertebrate' });
+    await editorial.addIdentifier(staff, d.speciesId, { provider: 'fixture', externalId: 'fictus-advena' });
+    const record = async (slug: string, presence: 'extant' | 'extinct', origin: 'native' | 'introduced' | 'vagrant') =>
+      ({ regionId: await regionId(slug), presence, origin, seasonality: 'resident' as const, sourceId });
+
+    const first = await editorial.saveDraft(staff, d.id, { ...publishable([]), regions: [await record('chile', 'extant', 'native')], expectedUpdatedAt: d.updatedAt });
+    expect(await pins('fictus-advena')).toEqual([]); // a draft with a native place: not published, so no pin
+
+    // Places that no later test in this file looks at (the region page tests expect Peru, Norway and Fiji as seeded).
+    const regions = [await record('japan', 'extant', 'introduced'), await record('chile', 'extinct', 'native'), await record('mongolia', 'extant', 'vagrant')];
+    const saved = await editorial.saveDraft(staff, d.id, { ...publishable([]), regions, expectedUpdatedAt: first.updatedAt });
+    await editorial.submit(staff, saved.id);
+    await editorial.publish(staff, saved.id);
+    expect(await pins('fictus-advena')).toEqual([]); // published, but recorded nowhere as living there
+  });
+
+  it('validates the list: required, well-formed slugs, at most 48', async () => {
+    await http().get('/api/v1/map/pins').expect(400);
+    await http().get('/api/v1/map/pins?species=Not_A_Slug').expect(400);
+    const slugs = (n: number) => Array.from({ length: n }, (_, i) => `fictus-${i}`).join(',');
+    await http().get(`/api/v1/map/pins?species=${slugs(49)}`).expect(400);
+    expect(await pins(slugs(48))).toEqual([]);
+  });
+});
+
 describe('GET /regions/:slug', () => {
   it('404s unknown and malformed slugs', async () => {
     await http().get('/api/v1/regions/atlantis').expect(404);

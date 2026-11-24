@@ -1,5 +1,48 @@
 # Completed tasks
 
+## 2026-11-25: A globe of threatened species on the home page (owner request, no milestone; D-064)
+
+The owner asked where the testimonial globe kit was (`~/Documents/component-kits/testimonial-globe`). The agent had left it out: PLAN §4 says "Avoid 3D globes", and its round pins crop photos, against D-039. The owner answered "ok break the rules then". The globe went in as its own section after the photo wall (D-063); the owner had not said whether to replace the wall.
+
+**Backend:**
+- New `GET /api/v1/map/pins?species=a,b,…` (1 to 48 slugs). It gives one point inside the smallest country, sea or ocean where each published species is recorded as living (native or reintroduced, present). Firmer records come first. The point is rounded to 0.001°. Hidden-location species never get one. Code: `GeoRepository.pins`, `PinsQuery` / `SpeciesPinsDto` in `geography/dto.ts`, and the controller route.
+- `geography.spec.ts`, 4 tests:
+  - the smallest place, with a point inside it (Kenya over Tanzania, Fiji over the Coral Sea and the South Pacific Ocean, across 180°);
+  - `hide_regions` never pinned, `generalize_country` pinned to its country;
+  - drafts and introduced, vagrant and extinct records never pinned (a synthetic species published through the real workflow);
+  - list validation.
+- `openapi.json` re-exported.
+
+**Frontend:**
+- `cobe` 2.0.1 (MIT), installed with `--save-exact`; it has no dependencies of its own.
+- `src/components/ui/testimonial-globe.tsx`: the kit's component, with these changes, each marked in the code: plain text instead of quotations, no counters, a profile link on the name (24 px tall), names that wrap, no announcements while the globe turns on its own, and lint fixes.
+- `src/components/home/SpeciesGlobe.tsx` (new): the full-screen "Around the world" section.
+  - The card text comes from catalogue data (status, scope, year, place and how many more places).
+  - "Pause motion" stops the rotation and every CSS animation (WCAG 2.2.2); it is hidden with reduced motion.
+  - The globe loads within 600 px of the screen.
+- `src/app/page.tsx`: `globePicks` (after the wall; pins at least 20° apart, then 10°; a new group preferred; at most 8, west to east) and the pins request.
+- `src/app/globals.css`: chart colours 1 to 5, all lime.
+- `src/contracts/api.d.ts` regenerated.
+
+**Docs:** DECISIONS D-064; PLAN §4 points at the exception; ARCHITECTURE (home row, new endpoint); DATA_SOURCES (cobe and its embedded land map); TESTING; BACKLOG (fixture photos now cover the globe too).
+
+**Commands run, with results** (backend tests on Postgres.app's 5432 through the scratchpad Jest config; e2e with `E2E_DATABASE_URL` → Postgres.app `wild_e2e`):
+| Command | Result |
+|---|---|
+| `npm view cobe@2`, `npm pack cobe@2.0.1` (read, not run) | MIT; the bundle has no URLs, and its land map is an embedded `data:` image |
+| backend `npm run typecheck`, `npm run lint` | pass |
+| backend tests, all suites, in band | **273/273 pass** (269 before, plus 4). The first run failed one region-page test: the new test had published a species with a record in Peru, which that test expects to list nothing. It now uses Japan, Chile and Mongolia |
+| `npm run openapi:export`, frontend `npm run contracts:generate` | written |
+| frontend `npm install cobe@2.0.1 --save-exact` | installed, 0 vulnerabilities |
+| frontend `npm run typecheck`, `npm run lint` | pass |
+| frontend `npx playwright test` (full suite, includes `npm run build`) | **62 passed, 4 skipped**, as before. The globe is not drawn there (one fixture photo) |
+| Scratch check of a production build (`next start`, strict CSP) against this change's API, dev catalogue, Chrome + axe | WebGL ready; 8 pins in 8 places (USA, Nicaragua, Luxembourg, Rwanda, Madagascar, Nepal, Indonesia, New Zealand); axe (WCAG 2.2 AA tags plus the structure rules) finds nothing on the section at 1280 and 360 px, at rest and with a pin focused; Tab reaches the map link, the pause button, then one pin, and the arrow keys move between pins and update the card; "Pause motion" stops the pins and the CSS animations; with reduced motion nothing moves and the button is hidden; the card's text is not announced while the globe turns and is announced once a pin is picked; no overflow at 320, 640, 1280 and 1920 px; no console or CSP errors, no off-site requests, no failed images. The first run found clustered, overlapping pins in Central America and the Caribbean (now kept 20° apart) and names cut off on phones (now wrapping); both re-checked |
+
+**Known gaps:**
+- e2e does not cover the globe or the wall (BACKLOG).
+- A pin marks one place where the species lives, chosen by size, not the species' range. Places that are far apart (for example the parts of Malaysia) can put a pin a few hundred kilometres from the species.
+- The globe's land map ships inside `cobe` under its MIT licence; the package does not say where the map came from.
+
 ## 2026-11-25: A photo wall of threatened species on the home page (owner request, no milestone; D-063)
 
 The owner asked to use the picture-rail gallery kit (`~/Documents/component-kits/picture-rail-gallery`, made in a Claude desktop session; the kits were first copied there from the session's temporary folder) "for animals on the main home page", with its own screen component.

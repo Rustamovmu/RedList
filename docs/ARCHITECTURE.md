@@ -26,7 +26,7 @@ flowchart LR
 
 | Route | Purpose (PLAN §4) | Status |
 |---|---|---|
-| `/` | Home: hero, search, browse by group and environment, threatened species, places, "in this catalogue" stats | **done** (M2, M4): the hero is the owner's collage (D-041), with no caption (D-055). A full-screen photo wall of threatened species after the numbers (`SpeciesWall`, D-063) |
+| `/` | Home: hero, search, browse by group and environment, threatened species, places, "in this catalogue" stats | **done** (M2, M4): the hero is the owner's collage (D-041), with no caption (D-055). A full-screen photo wall of threatened species after the numbers (`SpeciesWall`, D-063), then a globe with one pin per species on a place where it lives (`SpeciesGlobe`, D-064) |
 | `/species` | Explore: search, filters, sort and page held in the URL; mobile filter drawer, chips, reset, empty and error states | **done** (M2) |
 | `/species/[slug]` | Profile: the eight questions, from "What is it?" to "How do we know?" | **done** (M1–M3): eight sections, Add to compare, related species, map with range list and region links, support links, photo (M4); its credit and licence are listed under Sources, not under the photo (D-055) |
 | `/compare?species=a,b,c` | Compare up to 3, with no scores and no mixed units; table on desktop, stacked on mobile | **done** (M2) |
@@ -70,6 +70,7 @@ Navigation: Explore · Map · Compare · About. The support directory is linked 
 | `GET /compare?species=a,b,c` (max 3, 400 otherwise) | **done** (M2) |
 | `GET /regions/:slug` | **done** (M3) |
 | `GET /map?bbox&group&category&species` (antimeridian-aware, capped), `GET /map/basemap` | **done** (M3, D-016) |
+| `GET /map/pins?species=a,b,…` (≤ 48): one point inside the smallest place where each species lives, for the home globe; never for hidden-location species | **done** (2026-11-25, D-064) |
 | `GET /support` | **done** (M3) |
 | `GET /sources`, `GET /sitemap` (published content only) | **done** (2026-11-21, D-028) |
 | `GET /credits` (credit, licence and source of every photo on a published profile; rejected images left out) | **done** (2026-11-23, D-055) |

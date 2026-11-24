@@ -532,6 +532,40 @@
         ]
       }
     },
+    "/api/v1/map/pins": {
+      "get": {
+        "operationId": "GeographyController_pins",
+        "parameters": [
+          {
+            "name": "species",
+            "required": true,
+            "in": "query",
+            "description": "1 to 48 species slugs, comma-separated. Duplicates are ignored.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpeciesPinsDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "species is missing, has a malformed slug, or lists more than 48"
+          }
+        },
+        "tags": [
+          "geography"
+        ]
+      }
+    },
     "/api/v1/regions/{slug}": {
       "get": {
         "operationId": "GeographyController_region",
@@ -3165,6 +3199,76 @@
           "type",
           "features",
           "attribution"
+        ]
+      },
+      "PinPlaceDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "description": "Region slug (its page is /regions/<slug>)"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "country",
+              "ocean",
+              "sea",
+              "other"
+            ]
+          }
+        },
+        "required": [
+          "slug",
+          "name",
+          "type"
+        ]
+      },
+      "SpeciesPinDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "place": {
+            "description": "The smallest country, sea or ocean where the species is recorded as living (native or reintroduced, present)",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PinPlaceDto"
+              }
+            ]
+          },
+          "lat": {
+            "type": "number",
+            "description": "Latitude of a point inside the place (not inside the species range), rounded to 0.001°"
+          },
+          "lng": {
+            "type": "number",
+            "description": "Longitude of the same point, rounded to 0.001°"
+          }
+        },
+        "required": [
+          "slug",
+          "place",
+          "lat",
+          "lng"
+        ]
+      },
+      "SpeciesPinsDto": {
+        "type": "object",
+        "properties": {
+          "pins": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SpeciesPinDto"
+            }
+          }
+        },
+        "required": [
+          "pins"
         ]
       },
       "RegionSourceDto": {

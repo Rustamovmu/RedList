@@ -42,6 +42,7 @@ The e2e suite expects Docker PostGIS on `localhost:5433` (override with `E2E_DAT
 | bbox validation and antimeridian | `test/unit/bbox.spec.ts`, `test/integration/geography.spec.ts`, `database-integrity.spec.ts` |
 | Geometry limits | `bbox.spec.ts` (vertex cap), `geography.spec.ts` (422 `INVALID_GEOMETRY`, caps, `truncated`) |
 | Sensitive geometry | `geography.spec.ts`: precise input absent from 12 public responses; `hide_regions` refused |
+| Globe pins (D-064) | `geography.spec.ts`: one point inside the smallest place where each species lives; never for `hide_regions` species, drafts, or introduced, vagrant and extinct records; list validation |
 | Import idempotency and `--reconcile` | `test/integration/import.spec.ts` |
 | Credit and licence snapshot retention | `content-ops.spec.ts`, `publication.spec.ts` |
 | SSRF and upload rejection | `test/unit/safe-fetch.spec.ts` (private, loopback and metadata addresses; a host is refused if any of its DNS answers is private; redirects re-checked), `content-ops.spec.ts` (SVG, renamed HTML, fake JPEG, oversize, NC/ND licences) |

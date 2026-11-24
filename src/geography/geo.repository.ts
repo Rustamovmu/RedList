@@ -4,7 +4,7 @@ import type { PoolClient } from 'pg';
 import { DISPLAY_NAME, HEADLINE, ListFilters, PUBLISHED, selectCards, whereClause } from '../catalogue/catalogue-sql';
 import type { DbOrTx, Tx } from '../db/db.module';
 import { Bbox, bboxWidth, envelopes } from './bbox';
-import type { CountryPresenceDto, MapDto, MapRangeDto, MultiPolygonDto, RegionDto } from './dto';
+import type { CountryPresenceDto, MapDto, MapRangeDto, MultiPolygonDto, RegionDto, SpeciesPinDto } from './dto';
 import { geometryProblem, MAX_RANGE_VERTICES } from './geo-schema';
 
 /**
@@ -141,6 +141,40 @@ export class GeoRepository {
       SELECT slug, name, type AS kind, ST_AsGeoJSON(geom, 3)::json AS geometry
       FROM regions WHERE geom IS NOT NULL ORDER BY type, slug`);
     return res.rows;
+  }
+
+  /**
+   * One point per published species, for the pins on the home page globe (DECISIONS D-064).
+   * - The place is a country, sea or ocean where the species is recorded as living: present (extant, probably or
+   *   possibly extant) and native or reintroduced. Firmer records first (extant, native, resident), then the SMALLEST
+   *   such place, so the pin lands as close to where the species lives as region-level data allows.
+   * - The point is inside the place (ST_PointOnSurface): it says "recorded in this place", never "here exactly".
+   * - hide_regions species never get a pin, even when asked for by slug. generalize_country species may: their
+   *   places are already public at whole-country level. Drafts, archived and unknown slugs are simply absent.
+   */
+  async pins(db: DbOrTx, slugs: string[]): Promise<SpeciesPinDto[]> {
+    if (!slugs.length) return [];
+    const res = await db.execute<{ slug: string; place_slug: string; place_name: string; place_type: RegionDto['type']; lat: number; lng: number }>(sql`
+      WITH p AS (${PUBLISHED}),
+      pick AS (
+        SELECT DISTINCT ON (p.slug) p.slug, rg.id AS region_id
+        FROM p
+        JOIN species_regions spr ON spr.revision_id = p.revision_id
+        JOIN regions rg ON rg.id = spr.region_id
+        WHERE p.slug = ANY(${sql.param(slugs)}::text[])
+          AND p.location_sensitivity <> 'hide_regions'
+          AND rg.geom IS NOT NULL
+          AND spr.presence IN ('extant', 'probably_extant', 'possibly_extant')
+          AND spr.origin IN ('native', 'reintroduced')
+        ORDER BY p.slug, (spr.presence = 'extant') DESC, (spr.origin = 'native') DESC, (spr.seasonality = 'resident') DESC,
+                 ST_Area(rg.geom::geography), rg.slug
+      )
+      SELECT pick.slug, rg.slug AS place_slug, rg.name AS place_name, rg.type AS place_type,
+             round(ST_Y(pt.g)::numeric, 3)::float8 AS lat, round(ST_X(pt.g)::numeric, 3)::float8 AS lng
+      FROM pick JOIN regions rg ON rg.id = pick.region_id
+      CROSS JOIN LATERAL (SELECT ST_PointOnSurface(rg.geom) AS g) pt
+      ORDER BY pick.slug`);
+    return res.rows.map((r) => ({ slug: r.slug, place: { slug: r.place_slug, name: r.place_name, type: r.place_type }, lat: r.lat, lng: r.lng }));
   }
 
   async regionBySlug(db: DbOrTx, slug: string): Promise<RegionDto | null> {

@@ -885,3 +885,28 @@ While that was in progress the owner asked to use the OpenStreetMap map (openstr
 - PLAN §4's home page list does not include a gallery; this is an owner-requested addition, like D-037. It uses a 3D tilt on hover and a swing on drag, but no autoplay, globe, counter or video.
 - The e2e fixtures have one photo, and the home cards take it, so the e2e suite does not render the wall. It was checked by hand against the dev catalogue (axe, keyboard, 360 px, reduced motion, same-origin only). More synthetic fixture photos would let e2e cover it (BACKLOG, technical follow-ups).
 - To remove the wall: delete `<SpeciesWall>` and `wallPicks` from `app/page.tsx`. The component and the theme block can stay unused.
+
+## D-064 A globe of threatened species on the home page: two rules set aside (2026-11-25, owner request)
+**Context:** after the photo wall (D-063) the owner asked where the testimonial globe was. The agent had left it out because PLAN §4 says "Avoid 3D globes", and said that using it for animals would also crop photos to circles, against D-039. The owner answered "ok break the rules then". The kit (`~/Documents/component-kits/testimonial-globe`) is built for customer reviews: a quotation, a name, a city, a star rating and counters. It needs `cobe` 2, a WebGL globe library: MIT-licensed (checked 2026-11-25 in the package's LICENSE). It has no dependencies, and its land map is an image embedded in its code, so it loads nothing from another host and fits the CSP (`img-src data:`).
+**Decision:**
+- **Two exceptions, both the owner's call:** a 3D globe on the home page (PLAN §4 now points here), and round crops of catalogue photos in its pins and cards (D-039 still holds everywhere else).
+- **Where:** a full-screen section, "Around the world", after the photo wall (`components/home/SpeciesGlobe.tsx`). The owner did not say whether it should replace the wall; it was added after it, which keeps the wall and is easy to undo.
+- **Pins come from the database, never from invention.** New `GET /api/v1/map/pins?species=a,b,…` (at most 48 slugs; spatial SQL in `GeoRepository.pins`). For each published species it gives one point inside one country, sea or ocean where the species is recorded as living: present (extant, probably or possibly) and native or reintroduced. Firmer records come first (extant, native, resident), then the smallest such place, so the pin lands as close to the species as region-level data allows. The point is `ST_PointOnSurface` of the place, rounded to 0.001°. It marks the place, not the range, and the card says "Recorded in <place>". Species with hidden locations never get a pin, even by slug; `generalize_country` species may, because their countries are already public. Introduced, vagrant and extinct records never place a pin.
+- **Which species:** after the wall, from the same list of up to 48 threatened species, those whose photo is not yet on the page and that have a pin. Each pin keeps 20° of arc from the others (a pin is about 12° wide at the middle of the globe), then 10° if candidates run short; a new animal group is preferred. At most 8, ordered west to east.
+- **The card says what the catalogue says:** status with its scope and year, then "Recorded in <place> (and N more countries and seas)". The name links to the profile. The scientific name and group are under it. There are no star ratings, no quotation and no counters.
+- **Changes to the vendored component** (`components/ui/testimonial-globe.tsx`), each marked in the code:
+  - `quotes={false}`: plain text, no quote mark, no `<blockquote>`;
+  - `counters={false}`: no review, average or country counters;
+  - an optional `href` per item for the name, with 24 px tall links (target size);
+  - names and places wrap instead of being cut off;
+  - while the globe turns on its own, card swaps are not announced (`aria-live="off"`); a card the visitor asks for still is;
+  - lint fixes, without changing behaviour.
+  - Every ring is lime (`--color-chart-1` to `-5`): colour means nothing on the globe.
+- **Motion:** the globe turns slowly, with no autoplay. "Pause motion" stops the rotation and every CSS animation inside the globe (WCAG 2.2.2). With reduced motion it never turns and the button is hidden. The component also pauses off screen and in background tabs.
+- **Loading:** like the wall, the globe starts its WebGL canvas and loads its photos when the section comes within 600 px of the screen.
+**Consequences:**
+- One new public endpoint and one new frontend dependency (`cobe`, pinned exactly to 2.0.1, because the component's pin projection must match cobe's own rotation).
+- A pin shows one place among those where the species lives, chosen by size. A widespread species is pinned on its smallest place, for example the tiger on Bhutan, and the card says how many more places there are. Places that are far apart, such as the parts of Malaysia, can put a pin a few hundred kilometres from the species.
+- Without WebGL the component shows a wireframe globe with the same pins, cards and links.
+- The e2e fixtures do not draw the globe (one fixture photo, used by the home cards), as for the wall (BACKLOG). The pins endpoint has integration tests. The globe was checked by hand against the dev catalogue on a production build.
+- To remove the globe: delete `<SpeciesGlobe>`, `globePicks` and the pins request from `app/page.tsx`, and `cobe` from `package.json`. The endpoint can stay.

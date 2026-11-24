@@ -2,7 +2,7 @@ import { BadRequestException, Controller, Get, Header, NotFoundException, Param,
 import { ApiBadRequestResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Db, InjectDb } from '../db/db.module';
 import { Bbox, BboxError, parseBbox } from './bbox';
-import { BasemapDto, MapDto, MapQuery, RegionPageDto, RegionQuery } from './dto';
+import { BasemapDto, MapDto, MapQuery, PINS_MAX_SPECIES, PinsQuery, RegionPageDto, RegionQuery, SpeciesPinsDto } from './dto';
 import { GeoRepository, MAP_MAX_SPECIES, MAP_MAX_VERTICES } from './geo.repository';
 import { RegionsService } from './regions.service';
 
@@ -49,6 +49,17 @@ export class GeographyController {
       attribution: 'Boundaries: Natural Earth (public domain)',
       features: rows.map((r) => ({ type: 'Feature', properties: { slug: r.slug, name: r.name, kind: r.kind }, geometry: r.geometry })),
     };
+  }
+
+  /**
+   * One pin per requested published species, for the home page globe (DECISIONS D-064): a point inside the smallest
+   * country, sea or ocean where it is recorded as living. Species with hidden locations never get one.
+   */
+  @Get('map/pins')
+  @ApiOkResponse({ type: SpeciesPinsDto })
+  @ApiBadRequestResponse({ description: `species is missing, has a malformed slug, or lists more than ${PINS_MAX_SPECIES}` })
+  async pins(@Query() q: PinsQuery): Promise<SpeciesPinsDto> {
+    return { pins: await this.geo.pins(this.db, q.species) };
   }
 
   /** A country, sea or ocean with the published species recorded there. */

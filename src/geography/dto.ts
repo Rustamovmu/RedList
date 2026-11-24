@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
-import { ArrayMaxSize, IsArray, IsIn, IsInt, IsOptional, IsString, Matches, Max, MaxLength, Min } from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsIn, IsInt, IsOptional, IsString, Matches, Max, MaxLength, Min } from 'class-validator';
 import { FacetDto, SpeciesCardDto } from '../catalogue/dto';
 import { csv } from '../catalogue/list-query.dto';
 import * as s from '../db/schema';
@@ -102,6 +102,37 @@ export class BasemapDto {
   @ApiProperty({ enum: ['FeatureCollection'] }) type!: 'FeatureCollection';
   @ApiProperty({ type: [BasemapFeatureDto] }) features!: BasemapFeatureDto[];
   @ApiProperty() attribution!: string;
+}
+
+// ---------- GET /map/pins ----------
+
+/** Most slugs one request may ask about (the home page asks about its list of threatened species). */
+export const PINS_MAX_SPECIES = 48;
+
+export class PinsQuery {
+  @ApiProperty({ type: String, description: `1 to ${PINS_MAX_SPECIES} species slugs, comma-separated. Duplicates are ignored.` })
+  @Transform(csv) @IsArray() @ArrayMinSize(1) @ArrayMaxSize(PINS_MAX_SPECIES) @Matches(SLUG, { each: true }) @MaxLength(120, { each: true })
+  species!: string[];
+}
+
+export class PinPlaceDto {
+  @ApiProperty({ description: 'Region slug (its page is /regions/<slug>)' }) slug!: string;
+  @ApiProperty() name!: string;
+  @ApiProperty({ enum: s.regionType.enumValues }) type!: Enum<typeof s.regionType>;
+}
+
+/** One place where a species lives, as a point for a pin on the home page globe (DECISIONS D-064). */
+export class SpeciesPinDto {
+  @ApiProperty() slug!: string;
+  @ApiProperty({ type: PinPlaceDto, description: 'The smallest country, sea or ocean where the species is recorded as living (native or reintroduced, present)' })
+  place!: PinPlaceDto;
+  @ApiProperty({ description: 'Latitude of a point inside the place (not inside the species range), rounded to 0.001°' }) lat!: number;
+  @ApiProperty({ description: 'Longitude of the same point, rounded to 0.001°' }) lng!: number;
+}
+
+/** Pins for the requested published species. A species gets none when its locations are hidden or no place qualifies. */
+export class SpeciesPinsDto {
+  @ApiProperty({ type: [SpeciesPinDto] }) pins!: SpeciesPinDto[];
 }
 
 // ---------- GET /regions/:slug ----------
