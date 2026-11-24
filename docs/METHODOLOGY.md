@@ -29,7 +29,7 @@ This is the text behind the public page **`/methodology`** ("How we source facts
 ## Photographs
 - We use only images under CC0, the Public Domain Mark, CC BY or CC BY-SA. We do not use non-commercial or no-derivatives images.
 - We check each licence on the file's source page and against the copyright notice embedded in the file. If the two disagree, we do not use the image.
-- Every photo shows its creator and licence. Images are resized and re-encoded, which removes embedded data such as camera details and GPS position.
+- Each photo's credit and licence are listed under Sources on its profile and on the photo credits page (`/credits`, D-055). Images are resized and re-encoded, which removes embedded data such as camera details and GPS position.
 
 ## Review and corrections
 - Every profile is a reviewed version. The page shows its version, the review date and the reviewer's role, and says when an author published their own edit without independent review.
@@ -37,10 +37,13 @@ This is the text behind the public page **`/methodology`** ("How we source facts
 - Three dates are kept apart: when the source was published, when we read it, and when we reviewed the profile.
 
 ## Where the current catalogue falls short (internal note, not on the page)
-As of 2026-11-21 (COMPLETED_TASKS):
+As of 2026-11-24 (COMPLETED_TASKS, D-047, D-059):
 - **Status:** cited via Wikidata (second-hand), not read from IUCN (D-027).
-- **Population:** some figures come from English Wikipedia (second-hand).
+- **Population:** some figures come from English Wikipedia or web search (second-hand).
 - **Trend:** Unknown everywhere.
-- **Habitats, threats and range maps:** empty, because their licences are pending.
+- **Habitats and threats:** filled in for batches 1 and 2 from web search (batch 1) and one English Wikipedia revision per species (batch 2), all second-hand. They use our own plain-language lists (`db:seed:vocab`), because the IUCN classification schemes' licence is pending.
+- **Range maps:** none. Places are country- and sea-level presence only, labelled as such.
+- **Climate:** empty.
+- **Page header pictures:** five owner-supplied pictures with unknown licences (D-041, D-048, D-050 to D-052). They contradict the page's "Photographs" rules and are launch blockers (OWNER_REVIEW questions 9–13).
 
 The page's rules are all met, because each of these cases is labelled as it is. Before a public launch, a person should replace the second-hand citations with checked primary sources.

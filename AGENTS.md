@@ -19,6 +19,7 @@ npm run db:setup:local      # alternative: Postgres.app (port 5432), creates rol
 npm run db:check            # print the user/database DATABASE_URL connects to
 npm run db:migrate          # apply SQL migrations in drizzle/
 npm run db:seed:regions     # Natural Earth countries + oceans (idempotent)
+npm run db:seed:vocab       # our own habitat and threat lists (w- codes, idempotent); needed before importing catalogue/*.json
 npm run db:seed:fixtures    # SYNTHETIC dev species, published through the real workflow (never in production)
 npm run admin:create        # first admin from ADMIN_EMAIL / ADMIN_NAME / ADMIN_PASSWORD
 npm run e2e:prepare         # wipe + reload the wild_e2e database and storage/media-e2e (used by the frontend's test:e2e)

@@ -34,7 +34,7 @@ flowchart LR
 | `/regions/[slug]` | Country, sea or ocean page with region-aware filters | **done** (M3) |
 | `/support` | Directory of reviewed support links, plus the published review criteria | **done** (M3). Criteria text needs owner review (D-018) |
 | `/about`, `/methodology`, `/sources`, `/privacy`, `/terms` | Information pages. `/sources` lists every source cited by published content. | **done** (2026-11-21). The about page describes a personal portfolio project; set `NEXT_PUBLIC_CONTACT_URL` for a contact link |
-| `/credits` | Photo credits: creator, licence (linked to its deed) and source of every photo on a published profile, by species; linked from the footer | **done** (2026-11-23, D-055) |
+| `/credits` | Photo credits: credit line, licence (linked to its deed) and source of every photo on a published profile, by species; linked from the footer | **done** (2026-11-23, D-055) |
 | `/sitemap.xml`, `/robots.txt` | SEO, published content only | **done** (2026-11-21), plus Open Graph with the licensed photo and schema.org JSON-LD (`Taxon`, `BreadcrumbList`, `WebSite` search) |
 | all pages | Accessibility (axe, keyboard), nonce CSP | **done** (M5): `e2e/release.spec.ts` |
 | not-found, error | Fallback pages | **done** |
@@ -88,7 +88,7 @@ Swagger UI: `/api/docs` (non-production only).
 | `health` | liveness and readiness | **done** |
 | `db` | Drizzle connection and `schema.ts` | **done** |
 | `common` | error shape, request IDs, JSON (bigint as string) | **done** |
-| `cli` | migrate, seed-regions, export-openapi, admin-create, seed-fixtures, e2e-prepare, import, links-check, validate-catalogue, status-check | **done** (M4 added import, links-check and validate-catalogue; R1-L added status-check) |
+| `cli` | migrate, seed-regions, seed-vocab, export-openapi, admin-create, seed-fixtures, e2e-prepare, import, links-check, validate-catalogue, status-check | **done** (M4 added import, links-check and validate-catalogue; seed-vocab came with the batch-1 ecology on 2026-11-22; R1-L added status-check) |
 | `identity` | staff sessions, CSRF + Origin guard, roles, login throttle | **done** (M1) |
 | `editorial` | revisions, editorial zod schema, checklist, publish transaction, audit, revalidation, sources | **done** (M1) |
 | `catalogue` | `PublishedSpeciesRepository` plus the `PUBLISHED` SQL fragment in `catalogue-sql.ts` (the only public read path): profile, list, filters, related, compare | **done** (M1, M2) |

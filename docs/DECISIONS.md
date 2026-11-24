@@ -696,6 +696,12 @@ The PNG and ICO files were rendered once from the SVG with the Playwright that i
 - The editor page is much longer than before. Both e2e axe passes over `/admin/revisions/[id]` still report no serious or critical violations.
 - `e2e/staff-editor.spec.ts` covers the thumbnails, the form round-trip, the tag input, the photo picker, the alt-text guard and the non-blocking identifier.
 
+## D-058 A smaller hero headline on the home page (2026-11-23, owner request)
+*Written up on 2026-11-24 from the COMPLETED_TASKS entry of 2026-11-23, which named this decision but had no section here.*
+**Context:** the owner asked for a smaller home-page headline. At `clamp(2.5rem, 5.4vw, 5rem)` it covered the animals' faces in the hero collage (D-041).
+**Decision:** `h-hero` in `src/app/globals.css` is `clamp(2rem, 4.1vw, 3.875rem)`, with `line-height: 1.06` and `letter-spacing: -0.03em` so the three short lines stay readable at the smaller size. Only the home hero uses `h-hero`; `h-page` and `h-section` are unchanged.
+**Consequences:** measured in headless Chromium, the headline is 59 px at 1440 px and 32 px at 360 px, with no horizontal overflow at either width. Other page headers are not affected.
+
 ## D-059 Four UI bug fixes and the population key fact (2026-11-24, owner request)
 **Context:** a UI review of the dev site, with screenshots at 1440 × 900 and 360 × 740, found four bugs, and the owner asked for them to be fixed together with the profile's population fact:
 - **Explore's "Apply filters" bar** was `sticky bottom-0` on every screen. On a laptop the tall header (D-053) leaves only the top of the filter sidebar in the first screen, so the bar sat over it: "Animal group", an empty box and a lime button.

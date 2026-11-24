@@ -1,5 +1,41 @@
 # Completed tasks
 
+## 2026-11-24: Docs and code review pass (owner request, no milestone)
+
+The owner asked for the docs to be read, the code analysed, and any errors fixed. Read: PLAN, AGENTS, ARCHITECTURE, README, TESTING, DATABASE, DEPLOYMENT, DATA_SOURCES, METHODOLOGY, ADMIN_GUIDE, BACKLOG, the latest DECISIONS and COMPLETED_TASKS entries. Reviewed: identity, editorial (publish, rollback, checklist, content repository), catalogue SQL and repository, geography, media, support directory, safe-fetch, importer, status-check, validate-catalogue, publish-drafts, and the frontend revalidate route and API client.
+
+**Code:** no defect found. The baseline was green before any change (below). No backend code was changed.
+
+**What changed (docs, backend):**
+- **`DEPLOYMENT.md`, a real deployment break.** "First deployment" seeded regions and then imported `catalogue/batch-1.json`, but never ran `seed-vocab`. Batch 1 and 2 use 21 habitat and 18 threat `w-` codes, so the import would stop with "Unknown habitat". Added `node dist/cli/seed-vocab.js` after `seed-regions` (and to the restore runbook's skip list). "Not done" no longer says there is no CI: the workflows exist (D-033) but have not run on GitHub.
+- **`AGENTS.md`, `README.md`:** `npm run db:seed:vocab` added to the command lists and the local setup. README:
+  - the status line said "43 species with checked sources"; it now gives the import files' 83 (3 + 40 + 40) and says many facts are still second-hand (D-047);
+  - the e2e database can be overridden with `E2E_DATABASE_URL`;
+  - the layout lists `seed-vocab`, `status-check` and `publish-drafts.mjs`.
+- **`DECISIONS.md`:** D-058 (smaller home headline) was referenced but had no section, a gap noted on 2026-11-24. Written up from the 2026-11-23 log entry; the CSS values were checked against `globals.css`.
+- **`TESTING.md`:** `staff-editor.spec.ts` added to the e2e table. "Not covered" now says the draft form is driven in the browser up to Submit; submit, publish, rollback and media review are not.
+- **`BACKLOG.md`:** the Protomaps basemap moved out of R4; it was built at the owner's request (D-060).
+- **`DATA_SOURCES.md`:** batch 2's 40 photos added to the photographs row. The habitat/threat row says our own `w-` lists are in use, not the IUCN schemes.
+- **`METHODOLOGY.md`:** the photographs rule follows D-055. The internal "falls short" note was dated 2026-11-21 and said habitats and threats were empty; it now covers habitats, threats, range maps, climate and the five owner-supplied header pictures.
+- **`ARCHITECTURE.md`:** `seed-vocab` in the CLI list; `/credits` shows the credit line, not a separate creator field (`PhotoCreditDto` has none).
+
+**What changed (frontend):** `src/app/methodology/page.tsx`. The public page said "Every photo shows its creator and licence", which stopped being true with D-055 (no credit on pictures). It now says each photo's credit and licence are listed under Sources on its profile and on the photo credits page (linked). "Updated" is 24 November 2026.
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| backend `npm run typecheck`, `npm run lint` (before any change) | pass |
+| backend tests (Docker not running, so a scratch Jest config pointing `.env.test` at `wild_test` on Postgres.app 5432, `--runInBand`; the repo's `.env.test` was not changed) | **254/254 pass**, 16 suites |
+| frontend `npm run typecheck`, `npm run lint`, before and after the edit | pass |
+| frontend `npx playwright test e2e/pages.spec.ts e2e/release.spec.ts e2e/a11y-extra.spec.ts` with `E2E_DATABASE_URL` → Postgres.app `wild_e2e` (its web server runs `npm run build`) | build passes; **23 passed, 3 skipped** (`a11y-extra` is desktop-only) |
+
+No backend code changed, so the backend tests were not run again after the edits.
+
+**Known gaps (not changed, for the owner):**
+- The methodology page's photographs rules ("We use only images under CC0, the Public Domain Mark, CC BY or CC BY-SA") are not yet true for the five header pictures. They are already launch blockers (OWNER_REVIEW 9–13).
+- PLAN §3 still calls the Protomaps basemap "an optional later upgrade". PLAN is the spec, so it was left as written; D-060 records the change.
+- `scripts/publish-drafts.mjs` reads `../.env` and fails without one. It is a dev tool and is not used in production.
+
 ## 2026-11-24: Interactive map on a self-hosted Protomaps basemap (owner request, D-060)
 
 **What changed (frontend):**

@@ -63,6 +63,7 @@ Every test runs at desktop 1280 × 800 and mobile 360 × 740.
 | `content.spec.ts` | M4: profiles, home and Explore with every outbound request aborted; photos and credits |
 | `pages.spec.ts` | information pages, canonical URLs, sitemap, robots, JSON-LD |
 | `a11y-extra.spec.ts` | R1-L (desktop project only; sets its own viewports): no horizontal overflow at 320 px and 640 px on 15 pages; axe structure rules (one main, one h1, heading order, landmarks, bypass); keyboard sign-in to `/admin` with the e2e-only admin, then axe on the five staff pages |
+| `staff-editor.spec.ts` | D-057: the staff lists show the published photo with its credit; the form saves text, a diet tag, the two switches and a photo with alt text and reads them back; a photo without alt text is refused; a missing provider identifier does not block Submit |
 | `release.spec.ts` | M5: **axe** (WCAG 2.0/2.1/2.2 A and AA rules) reports no serious or critical violations on 18 core pages; nonce CSP on every page with no violations and a working map; a **keyboard-only** walkthrough (skip link, nav, search, filter drawer with Escape, checkbox, profile, Add to compare, compare link) with visible focus |
 
 ## Manual checks still worth doing
@@ -73,5 +74,5 @@ Measured, never estimated (PLAN §11). See DATABASE.md "M5 measurements" for p50
 
 ## Not covered
 - **CI on GitHub:** the workflows exist (D-033) but have not run yet; the first run is on the owner's push.
-- **Admin workflows end to end:** the staff pages are checked for accessibility and keyboard sign-in, but editing, publishing and media review are not driven through the browser. They are covered by the API integration tests.
+- **Admin workflows end to end:** the staff pages are checked for accessibility and keyboard sign-in, and the draft form is driven through the browser up to an enabled Submit (`staff-editor.spec.ts`). Submitting, publishing, rollback and media review are not driven through the browser; they are covered by the API integration tests.
 - **User research:** none run; PLAN §11 tasks need 3–5 real testers.

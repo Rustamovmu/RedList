@@ -54,8 +54,11 @@ chmod 600 deploy/.env.prod
 ./deploy/compose.sh ps                                  # every service healthy; migrate "Exited (0)"
 curl -fsS http://127.0.0.1:8080/api/v1/health/ready     # {"status":"ok","postgis":"3.4 …"}
 
-# Reference data and the first admin (the password is never stored in a file):
+# Reference data and the first admin (the password is never stored in a file).
+# seed-vocab loads our own habitat and threat lists (w- codes). The catalogue import files use them, so an
+# import without it fails with "Unknown habitat".
 ./deploy/compose.sh exec api node dist/cli/seed-regions.js
+./deploy/compose.sh exec api node dist/cli/seed-vocab.js
 read -rs ADMIN_PASSWORD && export ADMIN_PASSWORD
 ./deploy/compose.sh exec -e ADMIN_EMAIL=you@example.org -e ADMIN_NAME="Your name" -e ADMIN_PASSWORD api node dist/cli/admin-create.js
 unset ADMIN_PASSWORD
@@ -148,7 +151,7 @@ Schedule it with cron on the host, for example daily at 03:15:
 Use this to recover from data loss, to undo a bad migration, or to move to a new host.
 1. **Choose the backup.** Read its `MANIFEST.txt`. If the copy on the host is gone, copy one back from off-host storage.
 2. **Same code version.** Check out the `git_commit` from the manifest, or a later one: newer code migrates forward after the restore.
-3. **New host only:** do "First deployment" up to `up -d --build --wait` (without `seed-regions` or `admin-create`; the backup contains them).
+3. **New host only:** do "First deployment" up to `up -d --build --wait` (without `seed-regions`, `seed-vocab` or `admin-create`; the backup contains them).
 4. **Restore:**
    ```bash
    scripts/restore.sh /path/to/backups/wildward-20261121T031500Z --yes
@@ -179,5 +182,5 @@ Use this to recover from data loss, to undo a bad migration, or to move to a new
 ## Not done
 - Nothing has been deployed publicly. TLS has not been tested with a real certificate.
 - Media is on a local volume only. There is no S3-compatible storage adapter (BACKLOG).
-- No CI pipeline yet (BACKLOG); every check in COMPLETED_TASKS was run by hand.
+- CI workflows exist (`.github/workflows/ci.yml` in each repo, D-033) but have not run on GitHub yet; every check in COMPLETED_TASKS was run by hand.
 - No external uptime monitoring or alerting; the health checks only restart containers locally.

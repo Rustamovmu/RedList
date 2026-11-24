@@ -16,7 +16,7 @@
 - More taxa and regions, licensed exports
 - Optional cited AI explanations
 - PWA and mobile improvements
-- Vector basemap (Protomaps)
+- (The self-hosted Protomaps vector basemap was built early, at the owner's request: D-060.)
 
 ## Technical follow-ups
 - CSV import format for full species content (R1 imports JSON only, D-023; the one CSV is the hand-checked status sheet, D-032)
