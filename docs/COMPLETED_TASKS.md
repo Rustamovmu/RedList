@@ -1,5 +1,38 @@
 # Completed tasks
 
+## 2026-11-25: A photo wall of threatened species on the home page (owner request, no milestone; D-063)
+
+The owner asked to use the picture-rail gallery kit (`~/Documents/component-kits/picture-rail-gallery`, made in a Claude desktop session; the kits were first copied there from the session's temporary folder) "for animals on the main home page", with its own screen component.
+
+**Backend:**
+- `CardImageDto` gains `width` and `height`, the original image's pixel size. They are read in `CARD_IMAGE` (`catalogue-sql.ts`) and returned by `selectCards` (species lists, map, regions, related) and by the group tile examples in `GET /filters`.
+- `catalogue.spec.ts`: the card photo's width and height equal the stored original's.
+- `openapi.json` re-exported.
+
+**Frontend:**
+- `src/components/ui/picture-rail-gallery.tsx`: the kit's component, copied as-is apart from 24 px carousel-dot buttons (WCAG 2.2 target size) and one lint comment on its `<img>`. No demo route or demo photos (third-party CDN).
+- `src/components/home/SpeciesWall.tsx` (new): the full-screen "Meet the animals" section. Up to 7 threatened species as framed catalogue photos in their own shape. Each frame names the species, its scientific name and IUCN category; its back label gives the group, environments, assessment and places. There is a link to the last species lit and one to all threatened species. The rail is hung when the section is within 600 px of the screen.
+- `src/app/page.tsx`: the threatened list grows to 48. `fitsWall` and `wallPicks` choose the wall after the other photo sections (no repeats, categories in turn, a new group per frame). The section sits after the numbers band.
+- `src/app/globals.css`: shadcn-style colour names mapped onto the palette (`@theme static`), and `dark:` always on.
+- `src/contracts/api.d.ts` regenerated.
+
+**Docs:** DECISIONS D-063; ARCHITECTURE (home row, also corrected: the hero is the owner's collage with no caption; `GET /species` card images); BACKLOG (fixture photos so e2e covers the wall).
+
+**Commands run, with results** (Docker not running: backend tests used the scratchpad Jest config that changes only the port to Postgres.app's 5432; e2e used `E2E_DATABASE_URL` → Postgres.app `wild_e2e`):
+| Command | Result |
+|---|---|
+| backend `npm run typecheck`, `npm run lint` | pass |
+| backend tests, all suites, in band | **269/269 pass**, 17 suites |
+| `npm run openapi:export`, frontend `npm run contracts:generate` | written; `CardImageDto` has `width` and `height` |
+| frontend `npm run typecheck`, `npm run lint` | pass |
+| frontend `npx playwright test` (full suite, includes `npm run build`) | **62 passed, 4 skipped**, as before. The wall is not drawn there: the fixtures' one photo goes to the home cards |
+| Scratch Playwright + axe check of the wall against the dev catalogue (this change's API on :4020, `next dev` on :3020; the owner's own servers untouched) | Desktop 1280 and 360 px: 7 frames, each frame's shape equals its photo's (no crop); axe (WCAG 2.2 AA tags, plus the structure rules) finds nothing on the section, with and without the lifted view open; keyboard: Tab into the rail, arrows, Enter lifts, Escape closes and focus returns to the frame, Tab reaches the profile link; no horizontal overflow at 320, 640, 1280 and 1920 px; reduced motion: nothing lights on its own; no console errors, no off-site requests, no failed images. The first run found 6 px carousel dots (axe `target-size`, 360 px) and photos that did not load in the phone carousel until swiped to; both fixed, then re-checked |
+
+**Known gaps:**
+- The e2e suite does not cover the wall (BACKLOG: more synthetic fixture photos).
+- With today's 48-species list the wall alternates CR and EN; no VU species is in the list, because it is sorted most threatened first.
+- Running `next dev` with another build folder added that folder to the frontend `tsconfig.json` (removed again). It also added Next.js's generated agent-rules block to the frontend `AGENTS.md`, which is left for the owner to keep or drop.
+
 ## 2026-11-24: Security review, then fixes from easiest to hardest (owner request, no milestone; D-061, D-062)
 
 The owner asked to discuss security, authentication and authorization, then to fix the findings "from the easiest to hardest". The review read PLAN §7, §9 and §13, D-010, D-029 and D-030, `src/identity/*`, the guards on every controller, the auth tests, the revalidate route and the staff API client.

@@ -229,6 +229,10 @@ export class CardImageDto {
   @ApiProperty() altText!: string;
   @ApiProperty() credit!: string;
   @ApiProperty() license!: string;
+  @ApiProperty({ description: 'Width of the original image in pixels. With height, gives the photo shape, so a frame can fit it without cropping' })
+  width!: number;
+  @ApiProperty({ description: 'Height of the original image in pixels' })
+  height!: number;
 }
 
 /** A species in a list. Built from the published revision only. */

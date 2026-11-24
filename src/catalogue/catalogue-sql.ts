@@ -43,7 +43,7 @@ export const DISPLAY_NAME = sql`lower(coalesce(cn.name, p.accepted_scientific_na
  */
 export const CARD_IMAGE = sql`
   LEFT JOIN LATERAL (
-    SELECT ma.storage_key, ma.width, rm.alt_text, rm.credit_snapshot, rm.license_snapshot
+    SELECT ma.storage_key, ma.width, ma.height, rm.alt_text, rm.credit_snapshot, rm.license_snapshot
     FROM revision_media rm JOIN media_assets ma ON ma.id = rm.media_id
     WHERE rm.revision_id = p.revision_id AND ma.review_state <> 'rejected' ORDER BY (rm.role = 'primary') DESC, rm.position LIMIT 1
   ) img ON true`;
@@ -119,6 +119,8 @@ type CardRow = {
   image_alt: string | null;
   image_credit: string | null;
   image_license: string | null;
+  image_width: number | null;
+  image_height: number | null;
 };
 
 export async function selectCards(db: DbOrTx, f: ListFilters, orderBy: SQL, limit: number, offset: number): Promise<SpeciesCardDto[]> {
@@ -131,7 +133,8 @@ export async function selectCards(db: DbOrTx, f: ListFilters, orderBy: SQL, limi
            CASE WHEN p.location_sensitivity = 'hide_regions' THEN NULL
                 ELSE (SELECT count(*)::int FROM species_regions sr WHERE sr.revision_id = p.revision_id) END AS region_count,
            p.location_sensitivity,
-           img.storage_key AS image_key, img.alt_text AS image_alt, img.credit_snapshot AS image_credit, img.license_snapshot AS image_license
+           img.storage_key AS image_key, img.alt_text AS image_alt, img.credit_snapshot AS image_credit, img.license_snapshot AS image_license,
+           img.width AS image_width, img.height AS image_height
     FROM p ${COMMON_NAME} ${HEADLINE} ${CARD_IMAGE}
     WHERE ${whereClause(f)}
     ORDER BY ${orderBy}, p.slug
@@ -146,7 +149,9 @@ export async function selectCards(db: DbOrTx, f: ListFilters, orderBy: SQL, limi
     environments: r.environments ?? [],
     regionCount: r.region_count,
     locationWithheld: r.location_sensitivity === 'hide_regions',
-    image: r.image_key ? { storageKey: r.image_key, altText: r.image_alt!, credit: r.image_credit!, license: r.image_license! } : null,
+    image: r.image_key
+      ? { storageKey: r.image_key, altText: r.image_alt!, credit: r.image_credit!, license: r.image_license!, width: r.image_width!, height: r.image_height! }
+      : null,
   }));
 }
 

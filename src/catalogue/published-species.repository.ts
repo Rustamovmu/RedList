@@ -23,6 +23,8 @@ type GroupExampleRow = {
   alt_text: string;
   credit_snapshot: string;
   license_snapshot: string;
+  width: number;
+  height: number;
 };
 
 const region = (r: { slug: string | null; name: string | null; type: RegionLinkDto['type'] | null }): RegionLinkDto | null =>
@@ -250,7 +252,7 @@ export class PublishedSpeciesRepository {
       // counts as none, so a location-sensitive species is never ranked by data it hides.
       q<GroupExampleRow>(sql`
         SELECT DISTINCT ON (p.display_group) p.display_group::text AS value, p.slug, p.accepted_scientific_name, cn.name AS common_name,
-               img.storage_key, img.alt_text, img.credit_snapshot, img.license_snapshot
+               img.storage_key, img.alt_text, img.credit_snapshot, img.license_snapshot, img.width, img.height
         FROM p ${COMMON_NAME} ${CARD_IMAGE}
         WHERE img.storage_key IS NOT NULL
         ORDER BY p.display_group, (img.width >= ${GROUP_PHOTO_MIN_WIDTH}) DESC,
@@ -267,7 +269,7 @@ export class PublishedSpeciesRepository {
             slug: r.slug,
             scientificName: r.accepted_scientific_name,
             commonName: r.common_name,
-            image: { storageKey: r.storage_key, altText: r.alt_text, credit: r.credit_snapshot, license: r.license_snapshot },
+            image: { storageKey: r.storage_key, altText: r.alt_text, credit: r.credit_snapshot, license: r.license_snapshot, width: r.width, height: r.height },
           }
         : null;
     };

@@ -145,6 +145,9 @@ describe('GET /filters', () => {
     const groups = async () => (await http().get('/api/v1/filters').expect(200)).body.groups as Group[];
     const card = (await http().get('/api/v1/species?group=reptile').expect(200)).body.items[0];
     expect(card.image).not.toBeNull();
+    // The original's pixel size travels with the card photo, so the home photo wall can frame it uncropped (D-063).
+    const size = await pool.query(`SELECT width, height FROM media_assets WHERE storage_key = $1`, [card.image.storageKey]);
+    expect([card.image.width, card.image.height]).toEqual([size.rows[0].width, size.rows[0].height]);
 
     const before = await groups();
     expect(before.find((g) => g.value === 'reptile')?.example).toEqual({

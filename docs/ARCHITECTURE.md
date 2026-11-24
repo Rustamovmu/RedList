@@ -26,7 +26,7 @@ flowchart LR
 
 | Route | Purpose (PLAN §4) | Status |
 |---|---|---|
-| `/` | Home: hero, search, browse by group and environment, threatened species, places, "in this catalogue" stats | **done** (M2, M4): the hero shows the first threatened species with an approved photo, with credit |
+| `/` | Home: hero, search, browse by group and environment, threatened species, places, "in this catalogue" stats | **done** (M2, M4): the hero is the owner's collage (D-041), with no caption (D-055). A full-screen photo wall of threatened species after the numbers (`SpeciesWall`, D-063) |
 | `/species` | Explore: search, filters, sort and page held in the URL; mobile filter drawer, chips, reset, empty and error states | **done** (M2) |
 | `/species/[slug]` | Profile: the eight questions, from "What is it?" to "How do we know?" | **done** (M1–M3): eight sections, Add to compare, related species, map with range list and region links, support links, photo (M4); its credit and licence are listed under Sources, not under the photo (D-055) |
 | `/compare?species=a,b,c` | Compare up to 3, with no scores and no mixed units; table on desktop, stacked on mobile | **done** (M2) |
@@ -65,7 +65,7 @@ Navigation: Explore · Map · Compare · About. The support directory is linked 
 |---|---|
 | `GET /health/live`, `GET /health/ready` | **done** |
 | `GET /species/:slug` | **done** (M1) |
-| `GET /species` (q, filters, sort, page, pageSize ≤ 48) | **done** (M2) |
+| `GET /species` (q, filters, sort, page, pageSize ≤ 48) | **done** (M2). Card images carry the original `width` and `height` (D-063) |
 | `GET /filters` (each group carries an `example` photo for its home tile, D-037) | **done** (M2; example 2026-11-22) |
 | `GET /compare?species=a,b,c` (max 3, 400 otherwise) | **done** (M2) |
 | `GET /regions/:slug` | **done** (M3) |

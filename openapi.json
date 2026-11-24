@@ -2791,13 +2791,23 @@
           },
           "license": {
             "type": "string"
+          },
+          "width": {
+            "type": "number",
+            "description": "Width of the original image in pixels. With height, gives the photo shape, so a frame can fit it without cropping"
+          },
+          "height": {
+            "type": "number",
+            "description": "Height of the original image in pixels"
           }
         },
         "required": [
           "storageKey",
           "altText",
           "credit",
-          "license"
+          "license",
+          "width",
+          "height"
         ]
       },
       "MapSpeciesDto": {
