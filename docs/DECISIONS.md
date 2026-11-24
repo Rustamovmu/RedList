@@ -512,7 +512,7 @@ White text on each IUCN badge colour measures 4.9:1 to 21:1, so all pass WCAG AA
 ## D-044 The map page's results list scrolls in its own box on large screens (2026-11-22, owner request)
 **Context:** on `/map` at `lg` and wider, the map column was sticky and the results list ran down the page, one large card per species (45 cards, about 22,600 px in the dev catalogue). To reach the footer, or to get back to the filters, the owner had to scroll past every card.
 **Decision:** from `lg` up, the list (`ul[data-testid="map-results"]`) scrolls inside a box exactly as tall as the map column. The box is positioned absolutely inside its grid cell, so the map column alone sets the row height. The map column is no longer sticky, because the page is now short. The heading and count stay above the box. Overscroll is left at the default, so when the list reaches either end the wheel carries on to the page. The cards are links, so keyboard users can reach the box, and focusing a card scrolls it into view. Below `lg` the layout is unchanged: one flow, with the list under the map.
-**Consequences:** the `/map` page at 1512 × 862 is 1,951 px tall instead of the length of the whole list. The map itself still zooms on the mouse wheel (MapLibre default), so a scroll that starts over the map zooms it instead of moving the page. That is unchanged. Switching to "Ctrl/⌘ + scroll to zoom" (MapLibre `cooperativeGestures`) would be a separate decision.
+**Consequences:** the `/map` page at 1512 × 862 is 1,951 px tall instead of the length of the whole list. The map itself still zooms on the mouse wheel (MapLibre default), so a scroll that starts over the map zooms it instead of moving the page. That is unchanged. Switching to "Ctrl/⌘ + scroll to zoom" (MapLibre `cooperativeGestures`) would be a separate decision. *(Taken in D-060, 2026-11-24: a plain scroll now moves the page.)*
 
 ## D-045 The leaf mark as the browser tab icon (2026-11-22, owner request)
 **Context:** the site had no favicon (`/favicon.ico` returned 404), so browsers showed a generic globe in the tab. The owner pointed at the map page and asked to "put the logo here".
@@ -751,7 +751,7 @@ While that was in progress the owner asked to use the OpenStreetMap map (openstr
 - **The owner chose the dark theme** out of dark, light (as in the example) and black (minimal).
 **Decision:**
 - **Self-hosted basemap.** `npm run basemap:fetch` (frontend) writes everything into `public/basemap/` (git-ignored), where Next.js serves it from our own origin with byte ranges:
-  - `world.pmtiles`: zoom 0–6 of the pinned build `20261123`, about 60 MB, cut with the `pmtiles` CLI;
+  - `world.pmtiles`: zoom 0–6 of the pinned build `20261123`, 45 MB, cut with the `pmtiles` CLI;
   - the Noto Sans glyphs and the dark icons from `protomaps/basemaps-assets` at a pinned commit;
   - a `NOTICE.txt` with the sources and licences.
   The licences are listed in `DATA_SOURCES.md`: ODbL data, BSD-3 software, OFL fonts, MIT-derived icons. The CSP, the privacy page and the offline e2e checks stay true unchanged.
@@ -771,12 +771,47 @@ While that was in progress the owner asked to use the OpenStreetMap map (openstr
   - Hover, selection and links are MapLibre feature states: `promoteId` is `slug` for places and `species` for ranges.
   - The count shading is a `match` expression rebuilt with each data load.
   - The whole style passes `validateStyleMin` from `@maplibre/maplibre-gl-style-spec` with no errors.
-**Not done:**
-- The `pmtiles` CLI could not be run in this session: downloading and running a binary was blocked by the agent's permission rules. The owner runs `npm run basemap:fetch` once, after installing `pmtiles`. Until then the site uses the fallback.
-- So the Protomaps theme itself has not yet been seen on screen. The fonts and icons were fetched and are served (HTTP 200).
+**Basemap fetched (same day):**
+- A direct download of the go-pmtiles binary was blocked by the agent's permission rules. After the owner asked for `brew install pmtiles`, the agent ran it: Homebrew core formula 1.31.2, BSD-3-Clause.
+- `npm run basemap:fetch` then wrote `world.pmtiles`: 45.1 MB, zoom 0–6, 3,399 tile entries, OSM replication 2026-11-23. It took 41 s.
+- On screen:
+  - the browser reads the file in byte ranges, with no request to another origin and no console error;
+  - the map shows "Protomaps © OpenStreetMap";
+  - selection and hover work over it.
+- The dark theme's labels (greys #5c5c5c to #7a7a7a) were muddy over the lime shading. Country names are now `#dcdcdc`, cities `#c8ced6` with a darker halo, and states and oceans `#9aa4b2`. The selection panel and the pointer label are now opaque, so map labels do not show through them.
+- Our 1:110m Natural Earth shapes sit roughly on the detailed coastlines. The difference shows only on close inspection at zoom 4–6.
 **Consequences:**
-- The web image is about 80 MB larger once the basemap is fetched.
+- The web image is about 58 MB larger once the basemap is fetched (45 MB map file, 13 MB of fonts).
 - `DEPLOYMENT.md` runs `npm run basemap:fetch` before building. A deployment that skips it still works, with the plain map.
 - To move to a newer build, change `BUILD` in `scripts/fetch-basemap.mjs` and run it again.
 - To go back to D-004 alone, delete `public/basemap/`.
 - The selection is not kept in the URL; region pages are the shareable view of a place.
+- **Bigger list photos (same day, owner request: "too small to look at").** The map list's row photos (`SpeciesRow`, D-059), 3:2 and still shown whole:
+  | Screen | Before | After |
+  |---|---|---|
+  | Phones | 104 px | 136 px |
+  | Tablets | 120 px | 208 px |
+  | lg | 120 px | 160 px |
+  | xl | 120 px | 200 px |
+  - From xl the list column is 30rem instead of 24rem. Below lg the list is one column instead of two.
+  - On 2× screens the photos load the 640 px variant.
+  - At 1512 px the map is 806 px wide and the list box shows about 4 species at a time.
+- **A wider, taller map, with smaller list text (same day, owner request: "make the map bigger … text of animals smaller … lots of space left on both sides").**
+  - The Map page body uses the new `.wrap-wide`: 32 px side margins instead of `.wrap`'s 56 px padding inside 90rem, capped at 120rem.
+  - The list column is 28rem from xl (was 30rem).
+  - From lg the map fills the window under the sticky nav (`max(32rem, 100svh − nav − 2.5rem)`, was `70vh`). Phones keep 55vh, so one-finger scrolling is not trapped by the map.
+  - List text: names 17 → 15 px, scientific names 14 → 13 px, notes 13 → 12 px, heading 24 → 20 px. The photos keep their size.
+  - At 1512 × 945 the map is 966 × 815 (was 806 × 662).
+  - The page header and the site nav keep `.wrap`, so the logo is further in than the map's left edge.
+- **Antarctica cut, and a 3:2 map (same day, owner request: "cut the antarctica … it is hard to scroll down").** The full-height map left no page to scroll on, and Web Mercator draws Antarctica huge.
+  - `WORLD_VIEW` (`geo.ts`) is every longitude from 84° N to 60° S, fitted without padding.
+  - `viewFor` uses it when there is no bbox, and when the bbox spans every longitude (a zoomed-out view saved in the URL).
+  - From lg the map box is 3:2, the shape of that view. It is at least 28rem tall and at most the window under the nav, and `w-full` stops the minimum height from widening it.
+  - At 1512 × 945 the map is 966 × 643, with 202 px of page below it in the first screen.
+  - The cut is only for the picture. A view that spans every longitude asks the API for the whole world, so the list keeps the emperor penguin (Antarctica): 79 species.
+  - `minZoom` is −2 so a narrow map can zoom out further. On a portrait phone MapLibre still will not show past the poles, so the phone's first view covers about ±141° and lists the species in it (76).
+- **Scrolling moves the page; Ctrl + scroll zooms the map (same day, owner request).** `cooperativeGestures: true` on every map (the Map page and profiles). This replaces the scroll-to-zoom behaviour noted in D-044.
+  - MapLibre 6 zooms on Ctrl + wheel everywhere and on ⌘ + wheel on a Mac, so a trackpad pinch (sent as Ctrl + wheel) still zooms. On a touch screen one finger scrolls the page and two fingers move the map. A tap still selects a place.
+  - Hints: "Use Ctrl + scroll to zoom the map", "Use Ctrl or ⌘ + scroll, or pinch, to zoom the map" on a Mac, and "Use two fingers to move the map" on touch. They are styled in the site's type (`globals.css`). The hover label clears when the hint shows.
+  - The map's wrapper is `isolate`, because the hint's z-index of 99999 otherwise painted over the sticky nav.
+  - The hint under the legend says how to zoom.

@@ -30,7 +30,7 @@ Nothing in this file means a permission was granted unless the status says **app
 - Marine Regions: not downloaded (pending licence review, D-020).
 - Map: MapLibre GL JS 6.19.0 (BSD-3-Clause), bundled. No tile provider, API key or font server: the basemap below is served from our own origin.
 - Basemap (D-060), **approved**, all checked 2026-11-24:
-  - Data: Protomaps basemap, daily build `20261123`, zoom 0–6, about 60 MB, fetched into `RedList-frontend/public/basemap/` by `npm run basemap:fetch` and served from our own origin.
+  - Data: Protomaps basemap, daily build `20261123`, zoom 0–6, 45 MB (plus 13 MB of fonts), fetched into `RedList-frontend/public/basemap/` by `npm run basemap:fetch` and served from our own origin.
     - OpenStreetMap data under the ODbL. Protomaps distributes the builds "as an Open Database License Produced Work (OpenStreetMap attribution required)" ([downloads page](https://docs.protomaps.com/basemaps/downloads)); OSM's terms are at its [copyright page](https://www.openstreetmap.org/copyright).
     - Attribution "Protomaps © OpenStreetMap" (linked to the copyright page) is shown on the map, never collapsed.
     - Protomaps discourages hotlinking its builds; we copy one, as advised.

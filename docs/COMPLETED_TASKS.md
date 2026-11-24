@@ -33,10 +33,85 @@
 | frontend `npm run typecheck`, `npm run lint`, `npm run build` | pass |
 | frontend `npm run test:e2e` with `E2E_DATABASE_URL` → Postgres.app `wild_e2e` on 5432 | **60 passed, 4 skipped** (58 before, plus the new test at desktop and 360 px) |
 
+**Follow-up, same day: bigger photos in the map list (owner request).**
+- `SpeciesRow`: the photos are 136 px on phones (was 104), 208 px on tablets, 160 px at lg and 200 px from xl (was 120).
+- `MapExplorer`: the list column is 30rem from xl, and one column below lg.
+- Measured: 200 × 133 at 1512 px, using the 640 px variant on a 2× screen. No overflow at 360, 768, 1024, 1280 or 1512 px.
+- typecheck, lint and build pass.
+- e2e `geography`, `critical`, `release` and `a11y-extra`: **34 passed, 4 skipped**.
+
+**Follow-up, same day: a bigger map, smaller list text, narrow side margins (owner request).**
+- `globals.css`: new `.wrap-wide`. `map/page.tsx` uses it.
+- `MapExplorer`: list 28rem from xl, gap 2rem, and the map fills the window under the nav from lg. The heading is `text-xl`.
+- `SpeciesRow`: text 15, 13 and 12 px.
+- Measured on the dev site:
+
+  | Width | Map | Side margins |
+  |---|---|---|
+  | 1512 × 945 | 966 × 815 (was 806 × 662) | 32 px (was about 92) |
+  | 1280 × 800 | 734 × 670 | 32 px |
+
+  The map's lower edge is inside the window at both widths. No horizontal overflow and no text overflow at 360, 768, 1024, 1280 or 1512 px.
+- typecheck, lint and build pass.
+- e2e `geography`, `critical`, `release` and `a11y-extra`: **34 passed, 4 skipped**.
+
+**Follow-up, same day: Antarctica cut, a 3:2 map (owner request).**
+- `geo.ts`: `WORLD_VIEW` and `viewFor`.
+- `WorldMap`: `fitView`, and `minZoom` −2.
+- `MapExplorer`: the map box is 3:2 from lg, and a view that spans every longitude asks for the whole world.
+- Measured on the dev site:
+
+  | Width | Map | Species listed |
+  |---|---|---|
+  | 1512 × 945 | 966 × 643, 202 px of page below it | 79 |
+  | 1280 × 800 | 734 × 489 | 79 |
+  | 1024 × 768 | 542 × 446 | 79 |
+  | 768 | 702 × 561 | 79 |
+  | 360 (portrait phone) | 318 × 405 | 76 (the view covers ±141°) |
+
+  No overflow at any of these widths.
+- The first try let `min-height` widen the 3:2 box to 670 px in a 544 px column at 1024 px; `w-full` fixed it.
+- typecheck, lint and build pass.
+- Full e2e: **60 passed, 4 skipped**.
+
+**Follow-up, same day: scrolling moves the page, Ctrl + scroll zooms the map (owner request).**
+- `WorldMap`:
+  - `cooperativeGestures: true`, with our own hint texts;
+  - the hover label clears on `cooperativegestureprevented`;
+  - the wrapper is `isolate`.
+- `globals.css`: the hint is styled in the site's type.
+- `MapExplorer`: the hint under the legend says how to zoom.
+- Playwright on `:3000` at 1512 × 945:
+
+  | Action | Page scroll | Map view |
+  |---|---|---|
+  | Plain wheel over the map | 780 → 1080 | unchanged; hint shown |
+  | Ctrl + wheel | stays at 780 | zoomed in |
+
+  - The hover label clears when the hint shows.
+  - The first try showed the hint's scrim over the sticky nav. With `isolate`, the topmost element at the logo is the nav again.
+  - At 360 px with touch, a tap still selects Tanzania.
+- typecheck, lint and build pass.
+- Full e2e: **60 passed, 4 skipped**.
+
+**Follow-up, same day: the Protomaps basemap fetched and checked.**
+- The owner's `brew install pmtiles` had not completed: `brew info` said "Not installed". The agent ran `brew install pmtiles` (1.31.2, Homebrew core, BSD-3-Clause), then `npm run basemap:fetch`.
+  - Result: `world.pmtiles`, 45.1 MB, zoom 0–6, 3,399 tile entries, OSM data of 2026-11-23, in 41 s. Fonts and icons came to 13 MB.
+- Playwright on `:3000` at 1512 × 945, on the world view, Tanzania, Europe and the African penguin profile:
+  - 38 range requests to `/basemap/world.pmtiles`;
+  - 0 requests to another origin and 0 console errors;
+  - the attribution reads "Boundaries: Natural Earth (public domain) | Protomaps © OpenStreetMap";
+  - selecting Tanzania works over the new basemap.
+- `WorldMap`: the labels are brighter (the theme's greys were muddy over the lime shading).
+- `MapExplorer`/`WorldMap`: the selection panel and the pointer label are opaque.
+- Sizes in the docs, README, `.gitignore` and the fetch script corrected from estimates (60 and 80 MB) to the measured 45 MB plus 13 MB.
+- typecheck, lint and build pass.
+- Full e2e, now served the basemap: **60 passed, 4 skipped**, including the CSP and offline profile checks.
+
 **Known gaps:**
-- `world.pmtiles` still has to be created: `brew install pmtiles`, then `npm run basemap:fetch` in the frontend. Until then the site shows the Natural Earth fallback, and the Protomaps dark theme has not been seen on screen.
-- In fallback mode each map load logs one 404 in the browser console (the `HEAD` for the missing file).
-- Our Natural Earth shapes are 1:110m. Over the detailed Protomaps coastlines they may sit slightly off at zoom 5–6. Check this once the file exists.
+- Our 1:110m Natural Earth shapes sit roughly on the detailed coastlines. Small mismatches are visible at zoom 4–6.
+- The basemap is fixed at build `20261123`. Updating it means changing `BUILD` in `scripts/fetch-basemap.mjs` and fetching again.
+- A machine without `public/basemap/` (for example CI) uses the Natural Earth fallback and logs one 404 per map load.
 
 ## 2026-11-24: Four UI bug fixes and the population key fact (owner request, D-059)
 

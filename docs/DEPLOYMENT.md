@@ -45,7 +45,7 @@ chmod 600 deploy/.env.prod
 # Fill in: SITE_URL, POSTGRES_PASSWORD (openssl rand -hex 24), REVALIDATE_SECRET (openssl rand -hex 32).
 # On a shared VPS, also pick a unique COMPOSE_PROJECT_NAME and a free HTTP_PORT.
 
-# The self-hosted basemap (D-060), about 80 MB, into ../RedList-frontend/public/basemap/ before the web image is built.
+# The self-hosted basemap (D-060), about 58 MB, into ../RedList-frontend/public/basemap/ before the web image is built.
 # Needs Node and the pmtiles command (brew install pmtiles, or https://github.com/protomaps/go-pmtiles/releases).
 # Skipping it is safe: the map then draws plain Natural Earth land.
 (cd ../RedList-frontend && npm run basemap:fetch)

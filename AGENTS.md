@@ -40,7 +40,7 @@ Frontend (`RedList-frontend/`):
 ```
 npm install
 npm run contracts:generate  # types from ../RedList-backent/openapi.json
-npm run basemap:fetch       # self-hosted Protomaps basemap (~80 MB) into public/basemap/; needs the pmtiles CLI (D-060). Optional: without it the map uses Natural Earth
+npm run basemap:fetch       # self-hosted Protomaps basemap (~58 MB) into public/basemap/; needs the pmtiles CLI (D-060). Optional: without it the map uses Natural Earth
 npm run dev                 # web on :3000, proxies /api/v1 to the API
 npm run test:e2e            # Playwright: own stack on :4110/:3110 + wild_e2e, installed Chrome, desktop + 360px; includes axe (public + staff pages), CSP, keyboard and reflow checks
 npm run typecheck && npm run lint && npm run build
