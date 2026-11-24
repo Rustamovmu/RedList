@@ -28,6 +28,14 @@ Nothing in this file means a permission was granted unless the status says **app
 - Wikimedia rate-limits unidentified bots (HTTP 429). Set `FETCH_CONTACT` before larger image imports (D-026).
 - IUCN range maps: not requested. The only range polygons in the database are SYNTHETIC development fixtures (`fictus-marinus`, `fictus-generalis`).
 - Marine Regions: not downloaded (pending licence review, D-020).
-- Map: MapLibre GL JS 6.19.0 (BSD-3-Clause), bundled. No tile provider, API key or font server.
+- Map: MapLibre GL JS 6.19.0 (BSD-3-Clause), bundled. No tile provider, API key or font server: the basemap below is served from our own origin.
+- Basemap (D-060), **approved**, all checked 2026-11-24:
+  - Data: Protomaps basemap, daily build `20261123`, zoom 0–6, about 60 MB, fetched into `RedList-frontend/public/basemap/` by `npm run basemap:fetch` and served from our own origin.
+    - OpenStreetMap data under the ODbL. Protomaps distributes the builds "as an Open Database License Produced Work (OpenStreetMap attribution required)" ([downloads page](https://docs.protomaps.com/basemaps/downloads)); OSM's terms are at its [copyright page](https://www.openstreetmap.org/copyright).
+    - Attribution "Protomaps © OpenStreetMap" (linked to the copyright page) is shown on the map, never collapsed.
+    - Protomaps discourages hotlinking its builds; we copy one, as advised.
+  - Software: `@protomaps/basemaps` 5.7.2 and `pmtiles` 4.5.0 (BSD-3-Clause, npm registry), bundled. `pmtiles` depends on `fflate` (MIT).
+  - Fonts and icons: from `protomaps/basemaps-assets` at commit `028c18f`. Glyphs are Noto Sans (SIL Open Font License; `OFL.txt` is copied alongside). Icons are derived from MIT-licensed `tangrams/icons`, per that repo's README.
+  - The `pmtiles` command (go-pmtiles, BSD-3-Clause) is needed only to cut the zoom 0–6 extract; it is not part of the site.
 - Fonts: Plus Jakarta Sans via `@fontsource-variable/plus-jakarta-sans` 5.3.0 (SIL Open Font License 1.1; licence file in the package), bundled and served from our own origin. No font server (D-038; replaced Anton, Space Mono and Inter from D-034). The wordmark only: Quicksand via `@fontsource-variable/quicksand` 5.3.0 (SIL Open Font License 1.1; licence file in the package), bundled and served from our own origin (D-043).
-- Map tiles: none needed in R1 (see DECISIONS D-004).
+- Map tiles: no tile host. The self-hosted Protomaps file above replaces the plain Natural Earth land (D-004) when it is present; without it the map falls back to D-004 (D-060).

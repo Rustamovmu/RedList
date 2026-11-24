@@ -1,5 +1,99 @@
 # Completed tasks
 
+## 2026-11-24: Interactive map on a self-hosted Protomaps basemap (owner request, D-060)
+
+**What changed (frontend):**
+- `components/map/WorldMap.tsx`:
+  - Draws the self-hosted Protomaps dark theme (`pmtiles://` from `/basemap/world.pmtiles`, with fonts and icons from `/basemap/`) when the file is there, and the Natural Earth land of D-004 when it is not.
+  - With `interactive`: count shading, a hover label (mouse only), click/tap selection reported through `onPick`, and `linkedSpecies` outlines. All of it uses feature state.
+  - Errors after the first frame no longer replace the map.
+- `components/map/MapExplorer.tsx`:
+  - Selection state and a panel in the map's corner: type, name, count, link to the region page, close.
+  - The list narrows to the selection, with "Show all".
+  - List rows outline their places on hover or focus.
+  - A short hint under the legend.
+- `components/map/MapLegend.tsx`: the count steps as swatches (`counts`), and a note that seas and oceans are shaded more lightly.
+- `components/map/colors.ts`: `COUNT_STEPS`, `countStep`, `focus`, `marineFactor`.
+- `lib/labels.ts`: `REGION_TYPE_LABEL`, now shared with region pages.
+- New `scripts/fetch-basemap.mjs` (`npm run basemap:fetch`). `public/basemap` is git-ignored.
+- New dependencies, exact versions: `@protomaps/basemaps` 5.7.2 and `pmtiles` 4.5.0 (BSD-3-Clause), plus `fflate` (MIT).
+- e2e, `geography.spec.ts`: selecting Tanzania narrows the list, links to `/regions/tanzania`, and clearing brings the list back.
+
+**What changed (docs):** D-060, D-004 (note), `DATA_SOURCES.md` (basemap rows, approved), `DEPLOYMENT.md` (fetch step), `ARCHITECTURE.md`, `AGENTS.md` (command).
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| OSM Tile Usage Policy, OSM copyright page, Protomaps docs, npm registry and GitHub licence checks | read 2026-11-24; summarised in D-060 and `DATA_SOURCES.md` |
+| download and run the `pmtiles` CLI (go-pmtiles 1.31.2) | **not run**: blocked by the agent's permission rules. `world.pmtiles` does not exist yet |
+| frontend `npm run basemap:fetch -- --skip-tiles` | fonts (13 MB) and dark icons fetched; `/basemap/fonts/Noto%20Sans%20Regular/0-255.pbf` and `/basemap/sprites/v4/dark.json` return 200 from the dev server |
+| the Protomaps-mode style (77 layers) through `validateStyleMin` | 0 errors |
+| Playwright on the dev site `:3000`, fallback basemap | world view shaded in 4 steps, oceans lighter. Hover over the USA: label "United States of America · 14 species" and an outline. Click: panel, "14 of 27 species in this view are recorded in United States of America", 14 rows. Clear: back to 27. Pointing at African penguin outlines Namibia, South Africa and the South Atlantic Ocean. Tanzania: "8 of 26". At 360 px with touch: tap selects, no hover label, 0 px overflow. No request to another origin |
+| `HEAD`/`Range` on `public/` files from Next.js | `Accept-Ranges: bytes`, 206 for a range request |
+| frontend `npm run typecheck`, `npm run lint`, `npm run build` | pass |
+| frontend `npm run test:e2e` with `E2E_DATABASE_URL` → Postgres.app `wild_e2e` on 5432 | **60 passed, 4 skipped** (58 before, plus the new test at desktop and 360 px) |
+
+**Known gaps:**
+- `world.pmtiles` still has to be created: `brew install pmtiles`, then `npm run basemap:fetch` in the frontend. Until then the site shows the Natural Earth fallback, and the Protomaps dark theme has not been seen on screen.
+- In fallback mode each map load logs one 404 in the browser console (the `HEAD` for the missing file).
+- Our Natural Earth shapes are 1:110m. Over the detailed Protomaps coastlines they may sit slightly off at zoom 5–6. Check this once the file exists.
+
+## 2026-11-24: Four UI bug fixes and the population key fact (owner request, D-059)
+
+A UI review of the running dev site (screenshots of 9 pages at 1440 × 900 and 360 × 740) found these four bugs; the owner asked for them to be fixed together with the profile's population fact.
+
+**What changed (frontend):**
+- **Explore Apply bar:**
+  - `components/explore/FilterDrawer.tsx` sets `data-dirty` once a filter changes, and scrolls the input just used clear of the bar.
+  - `app/species/page.tsx`: the bar has the `filter-apply` class.
+  - `app/globals.css`: on md+ the bar sits after the filters until something changes, then is pinned. Every filter input has a 6rem bottom scroll margin.
+  - The phone drawer is unchanged.
+- **Header:**
+  - `components/SiteHeader.tsx`: a 12 px column gap.
+  - `components/shell/CompareCounter.tsx`: "Comparing" is visually hidden below 380 px (was 360 px); it stays in the accessible name.
+- **Map list:**
+  - New `components/SpeciesRow.tsx`, a compact row: thumbnail shown whole, status, names, note.
+  - `components/map/MapExplorer.tsx` uses it on every screen size, as the owner chose.
+  - Below `lg` the list shows 12 rows and a "Show all N species" button, which moves focus to row 13.
+- **Filters that cannot narrow anything:**
+  - `onlyOneChoice` in `lib/explore-params.ts`, used by `app/species/page.tsx` (the Trend filter goes) and `app/regions/[slug]/page.tsx` (for example Namibia's Origin and Season).
+  - Explore's lead names only the filters on offer.
+- **Population key fact:**
+  - `headlineEstimate` in `lib/labels.ts`.
+  - `app/species/[slug]/page.tsx` shows, for example, "19,800 mature individuals / Wild · Global · 2024", plus "and N more estimate(s)" linking to "How many remain?".
+- **e2e:**
+  - `content.spec.ts`: the population fact (range, wild before captive, qualitative, none).
+  - `critical.spec.ts`: the Apply bar, desktop only.
+  - `pages.spec.ts`: the counter gap.
+  - `geography.spec.ts`: one-choice filters on region pages.
+- **Docs:** D-059.
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| Playwright on the dev site `:3000`, before the change | `/species` 1440 × 900: the bar covers the group list on load. Header at 360 px with 2 species in compare: 0 px between logo and counter. `/map` at 360 px: 37,662 px tall |
+| same, after | `/species`: bar `static` on load; after ticking "Bird" it is `sticky`, the page moves 83 px and the checkbox ends 9 px above the bar. Phone drawer bar still pinned. Header gap: 50, 90, 105, 28 and 52 px at 320, 360, 375, 390 and 414 px, no overflow. `/map` at 360 px: 4,640 px with 12 rows; "Show all 79 species" reveals 79 rows and focuses row 13; 0 px overflow; thumbnails load the 320 px variant. Desktop `/map` unchanged at 2,254 px, button hidden. No Trend filter on `/species`; `/regions/namibia` offers Animal group and Status only, and Origin returns with `?origin=native`. Profiles: African penguin "19,800 mature individuals / Wild · Global · 2024", axolotl "50–1,000 mature individuals / Wild · Global · date not stated" |
+| frontend `npm run typecheck`, `npm run lint`, `npm run build` | pass |
+| frontend `npm run test:e2e` with `E2E_DATABASE_URL` → Postgres.app `wild_e2e` on 5432 | **58 passed, 4 skipped** (53 and 3 before; the new Apply bar test is desktop-only, so it is skipped at 360 px) |
+
+**Known gaps:**
+- On desktop, Apply is not in view until a filter changes. Applying on every tick is a separate improvement the owner has not asked for.
+- Many dev profiles now show "date not stated" under the population figure, because their estimates have no reference year. That is a content gap, not a display one.
+- D-058 (smaller home headline) is referenced in the entry below but has no section in `DECISIONS.md`.
+
+## 2026-11-23: A smaller hero headline on the home page (owner request, D-058)
+
+**What changed (frontend):**
+- `src/app/globals.css`: `h-hero` is `clamp(2rem, 4.1vw, 3.875rem)` instead of `clamp(2.5rem, 5.4vw, 5rem)`, with `line-height: 1.06` and `letter-spacing: -0.03em` to keep three short lines readable at the smaller size. The headline no longer covers the animals' faces in the collage. Only the home hero uses `h-hero`, so `h-page` and `h-section` are unchanged.
+- **Docs:** D-058.
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| frontend `npm run typecheck` | pass |
+| frontend `npm run lint` | pass |
+| Headless Chromium at 1440px and 360px | headline 59.0px and 32.0px, no horizontal overflow at either width |
+
 ## 2026-11-23: Staff form editor, published photos in the admin pages, fewer mandatory fields (owner request, D-057)
 
 **What changed (backend):**

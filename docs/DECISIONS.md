@@ -36,6 +36,7 @@ ADR-style log. Each entry records the context, the decision and its consequences
 **Consequences:**
 - Public domain, no key, works offline.
 - Less visual detail (no rivers or cities). A vector basemap can be added later behind the same map component.
+- Superseded in part by D-060 (2026-11-24): a self-hosted Protomaps basemap is drawn when its file is present; this Natural Earth land stays as the fallback, and the Natural Earth shapes still carry "Country-level presence".
 
 ## D-005 Integrity in the database, not only in code (2026-11-21)
 **Decision:** `drizzle/0002_integrity.sql` enforces the following.
@@ -694,3 +695,88 @@ The PNG and ICO files were rendered once from the SVG with the Playwright that i
 - A species can be published with no GBIF or IUCN id, so a later import cannot match it by identifier and will match it by slug instead.
 - The editor page is much longer than before. Both e2e axe passes over `/admin/revisions/[id]` still report no serious or critical violations.
 - `e2e/staff-editor.spec.ts` covers the thumbnails, the form round-trip, the tag input, the photo picker, the alt-text guard and the non-blocking identifier.
+
+## D-059 Four UI bug fixes and the population key fact (2026-11-24, owner request)
+**Context:** a UI review of the dev site, with screenshots at 1440 × 900 and 360 × 740, found four bugs, and the owner asked for them to be fixed together with the profile's population fact:
+- **Explore's "Apply filters" bar** was `sticky bottom-0` on every screen. On a laptop the tall header (D-053) leaves only the top of the filter sidebar in the first screen, so the bar sat over it: "Animal group", an empty box and a lime button.
+- **The compare counter touched the logo at 360 px.** The header grid had no column gap; the logo ended at x = 178 and "COMPARING 2 OF 3" (164 px wide) started at x = 178.
+- **The Map page was 37,662 px tall on a phone,** because all 79 species were listed under the map as full photo cards.
+- **Filters that cannot narrow anything.** Explore offered "Trend unknown (81)" as the only trend. Region pages had the same problem, for example Namibia's "Origin here: Native (5)" and "Season here: Year-round (5)".
+- **The profile's Population fact said "1 dated estimate"**, while the page had "19,800 mature individuals, 2024".
+**Decision:**
+- **Apply bar.** In the phone drawer it stays pinned to the bottom.
+  - In the md+ sidebar it sits after the last filter until a filter changes. `FilterDrawer` then sets `data-dirty` and the bar is pinned to the bottom of the window. The rule is unlayered CSS in `globals.css` (`.filter-apply`), so it wins over Tailwind's `sticky` utility.
+  - Every filter input has a 6rem bottom scroll margin. On a change, the input just used is scrolled into view (smoothly, or instantly with reduced motion), so the pinned bar never hides it. The margin also keeps a keyboard-focused filter clear of the bar (WCAG 2.4.11).
+  - Applying filters on every tick was not done. It is a separate improvement the owner has not asked for.
+- **Header.** The phone header grid has a 12 px column gap. The "Comparing" word of the counter is visually hidden below 380 px (was 360 px) and stays in the link's accessible name.
+  - Measured: logo 158 px + gap 12 px + full counter 164 px + 40 px of page padding is 374 px. Below that, the counter reads "2 of 3" (72 px).
+- **Map list.** The owner chose compact rows on every screen size.
+  - Each species is one row (`SpeciesRow`): a 3:2 thumbnail shown whole through `WholePhoto` (D-039; the 320 px variant), the status badge, the names and "Shown on the map as: …".
+  - The whole row is the link, like a card. On large screens the scroll box beside the map (D-044) now shows about 8 species at a time instead of 1.5.
+  - Below `lg` the list starts with 12 rows and a "Show all N species" button. The button reveals the rest and moves focus to the first row that was hidden. Hidden rows are `display: none` until then, and nothing is hidden on large screens.
+  - The list stays the full accessible equivalent of the map: every species is one button press away.
+- **Filters that cannot narrow anything.** A filter is left out when all three hold:
+  - it has a single option;
+  - that option matches every species the page covers;
+  - it is not selected.
+  - A selected option always stays, so it can be unticked.
+  - `onlyOneChoice` in `lib/explore-params.ts` holds the rule. Explore compares with the catalogue total from `GET /filters`. Region pages compare with the region's own total: the sum of the group facet counts, which count the whole region whatever is filtered, with one group per species.
+  - When nothing is left to filter, the region page shows no filter panel.
+  - Explore's lead lists only the filters on offer ("filter by group, environment, status, place and habitat").
+- **Population key fact.** It shows one of the listed estimates, with its value and basis on one line and "Wild/Captive · place · year" under it ("date not stated" when the source gives none). With more estimates, a link reads "and N more estimate(s)" and goes to "How many remain?". No estimate still reads "Unknown".
+  - Which estimate (`headlineEstimate` in `lib/labels.ts`): one with a figure, then a qualitative one, then an unknown one; wild before captive; global before regional; then the editor's order.
+  - PLAN §5 still holds: the figure is never shown without its basis, context, place and year, and estimates are never added up or blended.
+**Consequences:**
+- On desktop the Apply button is no longer in view before the visitor changes a filter; pressing Enter in the search box still submits the whole form.
+- `.filter-apply`, `.filter-panel` and `data-dirty` are a small coupling between `FilterDrawer`, `species/page.tsx` and `globals.css`.
+- `SpeciesCard` is unchanged and still used on Explore, the home page, related species and region pages.
+- New e2e tests:
+  - `content.spec.ts`: the population fact for a range, wild-before-captive, qualitative and none.
+  - `critical.spec.ts`: the Apply bar, desktop only.
+  - `pages.spec.ts`: the counter gap.
+  - `geography.spec.ts`: one-choice filters on region pages.
+
+## D-060 An interactive map on a self-hosted Protomaps basemap (2026-11-24, owner request)
+**Context:** the owner asked to "make the map interactive", following the UI review:
+- shade places by the number of species;
+- select a place to see its species;
+- link the list to the map.
+While that was in progress the owner asked to use the OpenStreetMap map (openstreetmap.org), then said the Protomaps example (maps.protomaps.com/examples/basic.html) "looks better".
+- **Checked 2026-11-24.** OSM's own tile servers come with a usage policy: best effort, may be blocked without notice, attribution and Referer rules. The example loads its tiles from `latest.protomaps.com` and its fonts and icons from `protomaps.github.io`; Protomaps discourages hotlinking its builds.
+- **Conflicts with loading either live:**
+  - AGENTS.md: "A published page must never depend on a live third-party API".
+  - The privacy page: "Your browser makes no requests to other companies".
+  - The CSP: `connect-src 'self'`.
+- **The plan already allows this:** PLAN §3 names "a self-hosted Protomaps vector basemap" as the planned upgrade.
+- **The owner chose the dark theme** out of dark, light (as in the example) and black (minimal).
+**Decision:**
+- **Self-hosted basemap.** `npm run basemap:fetch` (frontend) writes everything into `public/basemap/` (git-ignored), where Next.js serves it from our own origin with byte ranges:
+  - `world.pmtiles`: zoom 0–6 of the pinned build `20261123`, about 60 MB, cut with the `pmtiles` CLI;
+  - the Noto Sans glyphs and the dark icons from `protomaps/basemaps-assets` at a pinned commit;
+  - a `NOTICE.txt` with the sources and licences.
+  The licences are listed in `DATA_SOURCES.md`: ODbL data, BSD-3 software, OFL fonts, MIT-derived icons. The CSP, the privacy page and the offline e2e checks stay true unchanged.
+- **Theme.** Protomaps' `dark` theme from `@protomaps/basemaps` 5.7.2. Its land and water take the site's colours (`MAP_COLORS.land`, `MAP_COLORS.water`), so the map sits in the page.
+  - Our layers sit between the base map and its labels, so names stay readable over the shading.
+  - The attribution "Protomaps © OpenStreetMap" plus "Boundaries: Natural Earth" is always expanded (`compact: false`).
+- **Fallback.** `WorldMap` first sends a `HEAD` for the file. When it is missing, or the server cannot serve byte ranges, the map draws the Natural Earth land of D-004 as before.
+  - "Country-level presence" always uses our Natural Earth shapes from `GET /map/basemap`, the shapes `Near me` and region pages use.
+  - Errors after the first frame (a missing tile or label) no longer replace the map with the failure notice. Before the first frame they still do.
+- **Interaction (Map page only):**
+  - **Shading.** Places are shaded in four fixed steps by how many species of this catalogue, matching the filters, are recorded there: 1, 2–3, 4–7 and 8+, at 25 %, 42 %, 60 % and 80 % lime. The steps are fixed so the legend does not change with the filters, and the legend draws the same swatches. Seas and oceans are large boxes, so they are shaded at 40 % of that, with a fainter outline, and the legend says so. The profile map keeps one shade.
+  - **Hover label.** On devices that hover with a fine pointer, a label follows the pointer ("Tanzania · 8 species") and the place gets a thin white outline. On touch screens there is no label.
+  - **Selection.** Clicking or tapping a shaded place selects it: a thicker white outline, and a panel in the map's top left corner with its type, name, species count, a link to its region page and a close button. The list narrows to that place's species: "8 of 26 species in this view are recorded in Tanzania", with a "Show all" button. A published range works the same way, with a link to the profile. Clicking elsewhere, the close button, "Show all", or panning the place out of view clears the selection.
+  - **List to map.** Pointing at or keyboard-focusing a species in the list outlines its places (and range) on the map.
+  - **Accessibility.** The list stays the full equivalent of the map. The count line is a live status, so a selection is announced. The panel's close button is a real button with an accessible name.
+- **Implementation:**
+  - Hover, selection and links are MapLibre feature states: `promoteId` is `slug` for places and `species` for ranges.
+  - The count shading is a `match` expression rebuilt with each data load.
+  - The whole style passes `validateStyleMin` from `@maplibre/maplibre-gl-style-spec` with no errors.
+**Not done:**
+- The `pmtiles` CLI could not be run in this session: downloading and running a binary was blocked by the agent's permission rules. The owner runs `npm run basemap:fetch` once, after installing `pmtiles`. Until then the site uses the fallback.
+- So the Protomaps theme itself has not yet been seen on screen. The fonts and icons were fetched and are served (HTTP 200).
+**Consequences:**
+- The web image is about 80 MB larger once the basemap is fetched.
+- `DEPLOYMENT.md` runs `npm run basemap:fetch` before building. A deployment that skips it still works, with the plain map.
+- To move to a newer build, change `BUILD` in `scripts/fetch-basemap.mjs` and run it again.
+- To go back to D-004 alone, delete `public/basemap/`.
+- The selection is not kept in the URL; region pages are the shareable view of a place.
