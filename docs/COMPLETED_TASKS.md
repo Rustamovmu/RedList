@@ -1,5 +1,31 @@
 # Completed tasks
 
+## 2026-11-26: New logo, a leaf-sprig mark and a serif wordmark (owner request, no milestone; D-070)
+
+The owner sent a logo image and asked to "change the logo to this". Frontend only; no API change.
+
+**Frontend:**
+- `src/components/shell/Mark.tsx`: `Mark` is the new sprig (ring, curved stem, two leaves), traced as SVG. `Wordmark` uses DM Serif Display at weight 400.
+- `src/app/layout.tsx`, `src/app/globals.css`: load `@fontsource/dm-serif-display/latin-400.css`; `--font-logo` points to it. `@fontsource-variable/quicksand` uninstalled; `@fontsource/dm-serif-display` added (OFL-1.1).
+- `src/components/SiteHeader.tsx`, `src/components/SiteFooter.tsx`: wordmark sizes 1.75 rem (1.5 rem below 340 px) and 2.25 rem.
+- `src/app/icon.svg`, `src/app/favicon.ico`, `src/app/apple-icon.png`: the new mark.
+
+**Docs:** DECISIONS D-070.
+
+**Commands run, with results** (owner's `next dev` on :3000 for the hand checks):
+| Command | Result |
+|---|---|
+| frontend `npm run typecheck` | pass |
+| frontend `npm run lint` | pass (0 errors; the 2 existing warnings in `scroll-cards.tsx`) |
+| frontend `npm run build` | pass |
+| Scratch Playwright, Chrome: traced mark beside the image at 260 px; tab icon at 64 and 16 px | shapes match; the icon reads at 16 px |
+| Scratch Playwright on `/about` at 1280, 360 and 320 px, plus the footer at 1280 | wordmark renders in DM Serif Display; no horizontal overflow; the logo row still holds "Sign in" at 320 px |
+| frontend `npx playwright test` (`E2E_DATABASE_URL` → Postgres.app `wild_e2e`) | **77 passed, 5 skipped**, as before |
+
+**Known gaps:**
+- The wordmark font is the closest free match, not necessarily the image's own font.
+- The image's off-white letters are drawn in the site's white.
+
 ## 2026-11-26: Catalogue batch 3, 100 more species with photos, published (owner request, D-069)
 
 **What changed:**

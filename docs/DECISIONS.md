@@ -502,6 +502,7 @@ White text on each IUCN badge colour measures 4.9:1 to 21:1, so all pass WCAG AA
 - Every other frame still follows D-039 (whole photo with a blurred fill).
 
 ## D-043 A rounded wordmark with lime W's (2026-11-22, owner request)
+*Replaced by D-070 (serif wordmark and leaf-sprig mark).*
 **Context:** the logo's name was set in Plus Jakarta Sans ExtraBold, all white. The owner sent an image of the name in a rounded, monoline face with a single-storey "a", the capital "W" and the lowercase "w" in lime and the other letters in white, and asked for "the logo text to this". The image does not name its font.
 **Decision:**
 - The agent rendered the name in seven free rounded faces (Quicksand, Fredoka at normal and condensed width, Comfortaa, Dosis, Baloo 2, Varela Round, M PLUS Rounded 1c) and compared them with the image. Quicksand Bold is closest: round single-storey "a" and "d", even strokes, rounded ends, open spacing. Its "W" is wider than the one in the image. No face tried matched that narrow "W" while keeping round bowls.
@@ -1021,3 +1022,12 @@ While that was in progress the owner asked to use the OpenStreetMap map (openstr
   - plus a few with very short articles.
 - **Published by the agent**, at the owner's request, with `scripts/publish-drafts.mjs --approve-media` as the owner admin. The licences were checked first (see COMPLETED_TASKS).
 **Consequences:** the dev catalogue has 181 published species. As with batches 1 and 2, all facts are second-hand and must be replaced with primary sources before any public launch.
+
+## D-070 A serif wordmark and a leaf-sprig mark (2026-11-26, owner request)
+**Context:** the owner sent a logo image and asked to "change the logo to this". The image shows a lime ring around a sprig (one curved stem, two leaves), then "Wildward" in a heavy, high-contrast serif with both W's in lime and the other letters in off-white, on black. The image does not name its font. It is a JPEG, so using it directly would blur at small sizes and could not take the text colour.
+**Decision:**
+- **Mark:** the sprig is traced by hand as SVG line art in `components/shell/Mark.tsx` (32-unit grid: ring, stroked stem and leaf stalk, two filled leaves) and compared with the image at 260 px. It keeps `currentColor`, so the header and footer still colour it lime. This replaces D-043's leaf-vein mark.
+- **Wordmark font:** the agent rendered the name in 14 free serifs (Source Serif 4, Fraunces, Playfair Display, DM Serif Display, Young Serif, Literata, Newsreader, Roboto Serif, Merriweather, Bitter, Gelasio, Abhaya Libre and others) and compared them with the image. DM Serif Display is closest: high contrast, sharp bracketed serifs, a wide "W" with a thick first stroke, and a tall "l" and "d". It comes from `@fontsource/dm-serif-display` 5.3.0 (SIL Open Font License 1.1). Only the Latin 400 file is loaded, self-hosted, so the CSP keeps `font-src 'self'`. Quicksand (D-043) and its package are removed, because the wordmark was its only user.
+- **Colour and size:** the lime W's and the surrounding text colour stay as in D-043, so the letters are still one text run named "Wildward". A serif looks smaller than Quicksand at the same size, so the wordmark grows: 1.75 rem in the header (1.5 rem below 340 px) and 2.25 rem in the footer.
+- **Tab and touch icons** (D-045): `icon.svg` draws the new mark with heavier strokes on the dark tile. `favicon.ico` (16/32/48) and `apple-icon.png` (180, full-bleed) are rendered from it in headless Chrome.
+**Consequences:** the font file is about the same size as Quicksand's. If the owner knows the image's exact font and it has an allowed licence, swap the package and the `--font-logo` token; nothing else changes. The image's off-white letters are drawn in the site's white.
