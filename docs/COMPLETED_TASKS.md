@@ -1,6 +1,72 @@
 # Completed tasks
 
-## 2026-11-25: The home photo wall becomes a filmstrip of species (owner request, no milestone; D-067)
+## 2026-11-26: Bigger source cards, and four species cards (owner request, no milestone; D-068)
+
+Two follow-ups to the entry below. The owner asked to "make it bigger", taken to mean the cards (600 × 400 px in a lot of empty space), and then to "add more species". Frontend only; no API change.
+
+**Frontend:**
+- `src/components/ui/scroll-cards.tsx`, marked in the code:
+  - the card is as large as the screen allows: up to 26 rem tall on phones; from `md` up 3:2, up to 68.75 rem wide within the screen's width and the height under the navigation;
+  - the type grows with the card (titles up to 128 px, descriptions up to 36 px, caption 14 px from `md`), and titles are centred;
+  - a title over 18 characters is one size smaller;
+  - the image `sizes` now match the card.
+- `src/components/home/SourceCards.tsx`: after the three rules, one card per species. The species' common name is the title. The description is built from catalogue data only: IUCN category, "(regional)" for a regional assessment, the assessment year when there is one, and the group. The caption links to the profile.
+- `src/app/page.tsx`: `sourceSpeciesPicks` takes 4 species (`SOURCE_SPECIES`) last, after every other section. Each needs a photo not yet on the page and a common name, and prefers an animal group the section does not show yet.
+
+**Docs:** D-068 (species cards, size, consequences), ARCHITECTURE (home row).
+
+**Commands run, with results** (hand checks against the owner's `next dev` on :3000 and API on :4010, dev catalogue):
+| Command | Result |
+|---|---|
+| frontend `npm run typecheck`, `npm run lint` | pass (lint: the kit's 2 warnings, 0 errors) |
+| Scratch Playwright + axe, Chrome, at 1512 × 860, 1280 × 720, 1024 × 768, 768 × 1024, 360 × 740 and 320 × 568 | Seven cards: Sourced, Measured, Reviewed, then West Indian Ocean coelacanth, Komodo dragon, Lemur Leaf Frog and Philippine Eagle, each described as e.g. "critically endangered · fish". These four assessments have no date in the dev catalogue, so no year is shown. Every card pins at the same place as the earlier ones at all six sizes. Card sizes: 1038 × 692 (1512 × 860), 828 × 552 (1280 × 720), 900 × 600 (1024 × 768), 704 × 469 (768 × 1024), 328 × 416 (360 px), 288 × 396 (320 px). Titles, text and captions fit in every card at every size, and no title is wider than its card. The first run found "West Indian Ocean coelacanth" running into its caption at 1280, 768 and 360 px, which led to the smaller size for long titles, re-checked. No horizontal overflow; no console errors; no off-site requests; axe finds no violations at 1512, 1280 and 360 px |
+| Scratch keyboard check, Tab and Shift+Tab through all 7 caption links | all 14 steps visible |
+| frontend `npx playwright test` (full suite, includes `npm run build`; `E2E_DATABASE_URL` → Postgres.app `wild_e2e`) | **77 passed, 5 skipped**, as before |
+
+A scratch pinning check at 320 × 568 first reported cards 9 px apart. Measuring showed the wrapper heights were exact (screen less the navigation). Content above the section shifts by 9 px after load at that width, and the script measured the section's position only once. Re-measured at each step, all cards pin together. The earlier entry's 320 px readings (188 and 197 px) had the same cause.
+
+**Known gaps:**
+- The section is now about seven screens tall.
+- The species cards repeat the species' name in the caption link under the title.
+- At 320 px the site header is 127 px tall while `--nav-h` says 108 px (seen while measuring; it does not cover the cards, which sit centred below it). Not changed here.
+- e2e still has no photos for the section (BACKLOG).
+
+## 2026-11-25: "How we source facts" becomes pinned photo cards (owner request, no milestone; D-068)
+
+The owner pasted the component kits' guide, which now lists a fourth kit, `scroll-cards`: full-screen photo cards that stay pinned while the next slides up over them. With it came a screenshot of the home section "How we source facts", and the request to "implement this to this page on the homepage". The kit was only in a Claude desktop scratch folder. It was copied to `~/Documents/component-kits/scroll-cards` together with the guide's newer copy, after a diff showed the guide only adds this kit. Frontend only; no API change.
+
+**Frontend:**
+- `src/components/ui/scroll-cards.tsx`: the kit's file, with the kit prompt's three fixes (`fill`, `sizes`, `max-w-full`) and these Wildward changes, each marked in the code:
+  - `media` and `caption` fields, with `src` now optional;
+  - a 55 % scrim under the text;
+  - `h3` titles;
+  - pinned below the sticky navigation;
+  - a card with keyboard focus comes to the front;
+  - a clipped photo layer and an empty alt on the fallback image.
+  The kit's unused `TOP_VALUES` and `i` stay, because lint reports them as warnings, not errors (the prompt's fourth fix applies only to errors).
+- `src/components/home/SourceCards.tsx` (new): the section. Heading and introduction centred above three cards, one per rule ("Sourced", "Measured", "Reviewed", with the rule text unchanged), then "Read the methodology". Each card shows a catalogue photo whole (WholePhoto, D-039), captioned with its species linked to its profile. A card without a photo keeps the navy panel.
+- `src/app/page.tsx`: the old two-column section and `RULES` are replaced by `<SourceCards>`. The first card keeps the section's bird pick. The other two photos are picked after the globe, preferring a new animal group, so no other section's photos change.
+- `src/app/globals.css`: `--font-tiemposHeadline` (Source Serif 4, a free stand-in for the kit's paid Tiempos Headline) and `--font-manrope`.
+- `package.json`: `@fontsource-variable/source-serif-4` 5.3.1 and `@fontsource-variable/manrope` 5.3.0 (SIL OFL 1.1, checked in each package's LICENSE), self-hosted. No `next/font/google`, no `remotePatterns`, no demo route and no demo photos (CSP, D-039).
+
+**Docs:** DECISIONS D-068, ARCHITECTURE (home row), BACKLOG (fixture photos line).
+
+**Commands run, with results** (hand checks against the owner's own `next dev` on :3000 and API on :4010, which were not restarted; dev catalogue):
+| Command | Result |
+|---|---|
+| `npx eslint` on the kit file as delivered | 0 errors, 2 warnings (unused `TOP_VALUES` and `i`), so fix 4 of the kit's prompt does not apply |
+| frontend `npm run typecheck`, `npm run lint` | pass (lint: the kit's 2 warnings, 0 errors) |
+| Scratch Playwright + axe checks of the section, Chrome, at 1512 × 860, 1280 × 720, 360 × 740 and 320 × 568 | Three cards ("Sourced", "Measured", "Reviewed"). Each pins at the same place below the navigation while the next slides up over it (card tops 274/274/274 px at 1512 × 860), and all three leave together at the end. Titles in Source Serif 4 Variable 900, descriptions in Manrope Variable, both fonts `loaded`. 6/6 images load (condor, North Atlantic right whale, Panamanian golden frog, each with its blurred fill), all same-origin; no off-site requests; no console errors or `next/image` warnings. Cards are 600 × 400 from `md`, 328 × 300 at 360 px and 288 × 300 at 320 px. Title, text and caption fit inside every card, with at least 32 px between text and caption. No horizontal overflow at any size. axe (WCAG 2.2 AA tags plus best practice) finds no violations at 1512, 1280 and 360 px. `color-contrast` is "incomplete" on the 10 text nodes over photos, as axe always reports text over images. The scrim guarantees at least 4.76:1 for white text |
+| Scratch keyboard check (Tab and Shift+Tab through the three caption links) | Before the fix, Shift+Tab focused the whale and condor links underneath the frog card (`elementFromPoint` hit another card). After `has-[:focus-visible]:z-10`, all six steps are visible |
+| frontend `npx playwright test` (full suite, includes `npm run build`; `E2E_DATABASE_URL` → Postgres.app `wild_e2e`) | **77 passed, 5 skipped**, as before. The suite's axe runs on `/` include the section; its cards have no photos there (one fixture photo) |
+
+**Known gaps:**
+- e2e does not see the cards' photos (BACKLOG: more synthetic fixture photos).
+- The section is about three screens tall, with the kit's empty space around the first and last card.
+- Two typefaces besides Plus Jakarta Sans on the home page (D-038 had one family). They are the kit's look, and the decision says how to drop them.
+- Lint shows the kit's two unused-variable warnings.
+- The kit's code has no licence notice, as with the other kits (D-063, D-067).
+- Not checked: Safari and Firefox (`position: sticky`, `svh` and `:has()` are supported by current versions), and a real screen reader.
 
 The owner pasted the component kits' guide, which now includes a third kit, `filmstrip-scrub` (a large preview over a strip of thumbnails, with a spring-loaded playhead). With it came a screenshot of the "Meet the animals" photo wall (D-063) and the request to "implement this instead of the screen section on the homepage". The kit was only in a Claude desktop scratch folder, which is deleted with its session. It was copied to `~/Documents/component-kits/filmstrip-scrub` beside the other two kits, with the guide's newer copy, after a diff showed it only adds the filmstrip. Frontend only; no API change.
 

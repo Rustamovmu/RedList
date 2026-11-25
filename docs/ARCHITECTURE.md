@@ -26,7 +26,7 @@ flowchart LR
 
 | Route | Purpose (PLAN §4) | Status |
 |---|---|---|
-| `/` | Home: hero, search, browse by group and environment, threatened species, places, "in this catalogue" stats | **done** (M2, M4): the hero is the owner's collage (D-041), with no caption (D-055). A full-screen filmstrip of threatened species after the numbers (`SpeciesStrip`, D-067, which replaced the photo wall of D-063), then a globe with one pin per species on a place where it lives (`SpeciesGlobe`, D-064) |
+| `/` | Home: hero, search, browse by group and environment, threatened species, places, "in this catalogue" stats | **done** (M2, M4): the hero is the owner's collage (D-041), with no caption (D-055). A full-screen filmstrip of threatened species after the numbers (`SpeciesStrip`, D-067, which replaced the photo wall of D-063), then a globe with one pin per species on a place where it lives (`SpeciesGlobe`, D-064). "How we source facts" shows its three rules, then four threatened species, as large pinned photo cards (`SourceCards`, D-068) |
 | `/species` | Explore: search, filters, sort and page held in the URL; mobile filter drawer, chips, reset, empty and error states | **done** (M2) |
 | `/species/[slug]` | Profile: the eight questions, from "What is it?" to "How do we know?" | **done** (M1–M3): eight sections, Add to compare, related species, map with range list and region links, support links, photo (M4); its credit and licence are listed under Sources, not under the photo (D-055) |
 | `/compare?species=a,b,c` | Compare up to 3, with no scores and no mixed units; table on desktop, stacked on mobile | **done** (M2) |
