@@ -999,3 +999,25 @@ While that was in progress the owner asked to use the OpenStreetMap map (openstr
 - `npm run lint` shows the kit's two unused-variable warnings, with no errors.
 - e2e has one fixture photo, which goes to the home cards, so in e2e the three rule cards are navy panels without photos and there are no species cards (BACKLOG). The section's headings and links are still in the e2e axe runs on `/`.
 - To go back: restore the section and `RULES` in `app/page.tsx` from git (frontend commit `9aa52b0`), delete `sourceSpeciesPicks`, `SourceCards.tsx`, `scroll-cards.tsx` and the two font tokens, and uninstall the two font packages.
+
+## D-069 Catalogue batch 3: 100 species, and faster Commons downloads (2026-11-26, owner request)
+**Context:** the owner asked to "add 100 more species, download the images faster and publish them yourself". Batch 2's downloads were slow because Wikimedia rate-limits anonymous clients (HTTP 429). The owner declined to send any contact details (repo URL or email) in the User-Agent, which would have raised the limit.
+**Decision:**
+- **Same pipeline as batch 2 (D-047)**, in `catalogue/batch-3.json`: GBIF Backbone for names and classification, Wikidata P141 for the IUCN category (cited second-hand with its edition), one English Wikipedia revision per species for places, habitats, diet, threats and population figures, restated in our own words.
+- **Faster downloads without contact details:**
+  - only Wikimedia's standard thumbnail widths (1280, else 960, else the original), which are cached;
+  - licence metadata read 40 files per API call;
+  - one download at a time, about 2.5 s apart, waiting exactly as long as `Retry-After` says.
+  - A first attempt with 4 parallel downloads triggered long 429 back-offs (about 2 minutes per photo); sequential fetching averaged about 16 s per photo.
+- **Candidates dropped while preparing, with the reason:**
+  - leopard: the article gives no clear country list;
+  - reindeer and king cobra: taxonomy split or species complex in the current article;
+  - aldabra giant tortoise: no IUCN statement on Wikidata;
+  - two tapirs, gaur, pygmy hippo and green and golden bell frog: GBIF accepts a different name;
+  - chinchilla, Greek tortoise and Knysna seahorse: the article covers captivity or has no wild diet or threats;
+  - mountain chicken: its islands are too small for our map;
+  - northern hairy-nosed wombat, southern bluefin tuna, corroboree frog and Franklin's bumblebee: no suitable allow-listed photo;
+  - helmeted water toad, goliath frog and angelshark: the photo does not clearly show the living animal;
+  - plus a few with very short articles.
+- **Published by the agent**, at the owner's request, with `scripts/publish-drafts.mjs --approve-media` as the owner admin. The licences were checked first (see COMPLETED_TASKS).
+**Consequences:** the dev catalogue has 181 published species. As with batches 1 and 2, all facts are second-hand and must be replaced with primary sources before any public launch.

@@ -1,5 +1,47 @@
 # Completed tasks
 
+## 2026-11-26: Catalogue batch 3, 100 more species with photos, published (owner request, D-069)
+
+**What changed:**
+- `catalogue/batch-3.json`: 100 real species, imported as drafts and then published.
+  - **By group:** 47 mammals, 27 birds, 10 fish, 8 reptiles, 4 amphibians, 2 horseshoe crabs, 1 mollusc and 1 coral.
+  - **IUCN categories (via Wikidata):** 32 CR, 30 EN, 30 VU, 8 NT.
+- **Every profile has:**
+  - an overview in our own words and GBIF classification;
+  - the Wikidata-cited IUCN category, diet (all but the green peafowl, whose article has none), and our own habitat and threat codes;
+  - countries and/or seas with a cited note;
+  - a cited population figure (50 species) or an explicit "Unknown" with a note (50).
+- `catalogue/media/`: 100 photos downloaded from Wikimedia Commons (the folder is now 59 MB).
+  - **Licences:** 64 CC BY-SA, 26 CC BY, 8 public domain (PDM), 2 CC0, each with a named creator.
+  - **Checks:** licences were re-read from the Commons API at download time, and the files' embedded copyright fields contradicted none of them.
+  - **Photos looked at:** every photo was checked on contact sheets. Alt texts were rewritten to match. Five picks were replaced or dropped: a skeleton, a landscape, a museum model, an unclear angelshark and a murky pond shot.
+  - **Under 1,000 px wide:** Javan rhinoceros (550 px, a historical London Zoo photo). The great Indian bustard, green peafowl and Oahu tree snail photos are 960 px.
+- **Docs:** D-069, plus the photograph and Wikipedia rows in `DATA_SOURCES.md`.
+- No application code changed. The gathering, download and build scripts were scratch tools, as in batch 2.
+
+**How the facts were checked:** the same method as batch 2. For each species, a script showed the sentence in the cited revision where each country or sea appears. Places mentioned only for fossils, zoos or vagrants were left out. Every descriptive claim was searched for in the text, and claims the source did not support were removed. Examples: "Isle of Youth" for the Cuban crocodile, "smallest bear" for the sun bear and "Black Sea" for the angelshark. Partial country lists say so in the geography note. Dropped candidates and the reasons are listed in D-069.
+
+**Faster downloads:** the owner chose not to send contact details to Wikimedia. The downloader therefore asks only for standard thumbnail widths, reads licence metadata 40 files per call, and fetches one file at a time, honouring `Retry-After`. With 4 parallel downloads, the first pass got about 40 files in 3 hours. The sequential pass fetched the remaining 63 in 16.6 minutes with no failures.
+
+**Commands run, with results:**
+| Command | Result |
+|---|---|
+| GBIF, Wikidata (SPARQL and `wbgetentities`), Wikipedia and Commons APIs, through scratch scripts | 138 candidates gathered, 100 kept |
+| `npm run import -- catalogue/batch-3.json --dry-run` | 1,850 changes, 100 species, no notes |
+| `--apply`, then `--apply` again | 1,850 changes, then **0 changes** |
+| `node scripts/publish-drafts.mjs --dry-run --only-file=catalogue/batch-3.json` (API :4010) | exactly the 100 batch-3 drafts listed |
+| `node scripts/publish-drafts.mjs --approve-media --only-file=catalogue/batch-3.json` | **published 100; images approved 100; failed 0** |
+| `npm run validate:catalogue` | **PASS**: 181 published species, 303 cited numeric claims, 181 licensed and approved images, 16,290 compare pairs with zero mixed units |
+| `GET :4010/api/v1/species` | total 181 |
+| `GET :4010/api/v1/species/{rhinoceros-sondaicus,mola-mola,harpia-harpyja}`, `:3000/species/aquila-heliaca` | 200 |
+
+**Known gaps:**
+- All facts are second-hand (Wikidata, Wikipedia revisions). Replace them with primary sources before any public launch.
+- Trend is Unknown everywhere. Climate, measurements and conservation actions are empty.
+- Maps are country and sea level only. Many lists are partial, and their notes say so. Places too small for the 1:110m map (Singapore, Dominica, French Guiana, the Cayman Islands, South Georgia and others) are not shown.
+- The admin password was typed in chat, so the owner should change it.
+- `npm test`, `typecheck` and `lint` were not run, because no TypeScript changed. The new profiles were checked with curl, not in a browser.
+
 ## 2026-11-26: Bigger source cards, and four species cards (owner request, no milestone; D-068)
 
 Two follow-ups to the entry below. The owner asked to "make it bigger", taken to mean the cards (600 × 400 px in a lot of empty space), and then to "add more species". Frontend only; no API change.
