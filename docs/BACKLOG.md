@@ -25,7 +25,7 @@
 - Upgrade NestJS 11 → 12 in its own task
 - Rename `RedList-backent` → `RedList-backend`
 - CSP without `style-src 'unsafe-inline'`: move the map legend swatches to classes and nonce-tag `next/image` styles (D-029)
-- More synthetic fixture photos, so the e2e suite renders and checks the home photo wall and globe (D-063, D-064). Today the only fixture photo goes to the home cards, so neither is drawn in e2e
+- More synthetic fixture photos, so the e2e suite renders and checks the home photo strip and globe (D-067, D-064). Today the only fixture photo goes to the home cards, so neither is drawn in e2e
 - Load test the API under concurrent requests and re-measure query plans at a few hundred species (DATABASE.md M5)
 - Move the login throttle to PostgreSQL if the API ever runs as more than one process (D-010)
 - Two-factor sign-in for staff (TOTP; PLAN only rules out SMS). Needs the owner's decision first (D-062)

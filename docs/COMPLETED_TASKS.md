@@ -1,5 +1,45 @@
 # Completed tasks
 
+## 2026-11-25: The home photo wall becomes a filmstrip of species (owner request, no milestone; D-067)
+
+The owner pasted the component kits' guide, which now includes a third kit, `filmstrip-scrub` (a large preview over a strip of thumbnails, with a spring-loaded playhead). With it came a screenshot of the "Meet the animals" photo wall (D-063) and the request to "implement this instead of the screen section on the homepage". The kit was only in a Claude desktop scratch folder, which is deleted with its session. It was copied to `~/Documents/component-kits/filmstrip-scrub` beside the other two kits, with the guide's newer copy, after a diff showed it only adds the filmstrip. Frontend only; no API change.
+
+**Frontend:**
+- `src/components/ui/filmstrip-scrub.tsx` and `filmstrip-scrub-utils/motiq.ts`: the kit's files, with these changes, each marked in the code:
+  - lint fixes without behaviour change (`useSyncExternalStore` for `hydrated`; two refs refreshed in layout effects instead of during render);
+  - `timecode={false}` (no made-up timecode on photos);
+  - `settle` (the preview rests on one whole photo once the pointer leaves or a drag ends);
+  - an `<img>` lint comment on each of the two plain `<img>` tags.
+- `src/lib/utils.ts` (new): a dependency-free `cn`.
+- `src/components/home/SpeciesStrip.tsx` (new): the full-screen "Meet the animals" section.
+  - 10 threatened species, each photo shown whole through `WholePhoto` (D-039) in the preview and in the thumbnails.
+  - A panel names the current species: status badge, group, environments, places, "Open profile". Its height is fixed by stacking every species' details in one grid cell.
+  - It steps to the next species every 4 s and turns back at the ends. It waits while pointed at, keyboard-focused, off screen or in a hidden tab.
+  - "Pause motion" (WCAG 2.2.2), hidden with reduced motion. Lime playhead and outline.
+- `src/app/page.tsx`: `stripPicks` (the wall's picking rules, 10 species, any photo shape) replaces `fitsWall`/`wallPicks`; `<SpeciesStrip>` replaces `<SpeciesWall>`.
+- Deleted: `src/components/home/SpeciesWall.tsx`, `src/components/ui/picture-rail-gallery.tsx` (in git history and in `~/Documents/component-kits`).
+- Comments updated in `globals.css` (the theme block now serves the globe) and `SpeciesGlobe.tsx`.
+
+**Docs:** DECISIONS D-067, and a "replaced by D-067" line on D-063; ARCHITECTURE (home row); BACKLOG (fixture photos for the strip).
+
+**Commands run, with results** (e2e with `E2E_DATABASE_URL` → Postgres.app `wild_e2e`; hand checks against the owner's own `next dev` on :3000 and API on :4010, which were not restarted):
+| Command | Result |
+|---|---|
+| `npx eslint` on the kit files as delivered | 3 errors (`react-hooks/set-state-in-effect`, `react-hooks/refs` ×2) and 2 `<img>` warnings, as the kit's prompt predicted. Fixed as listed above, then clean |
+| frontend `npm run typecheck`, `npm run lint` | pass |
+| frontend `npx playwright test` (full suite, includes `npm run build`) | **77 passed, 5 skipped**, as before. The strip is not drawn there (one fixture photo) |
+| Scratch Playwright + axe checks of the section on `next dev`, dev catalogue, Chrome | 10 frames. Playhead `rgb(217, 254, 143)` (lime). 40/40 images load, all same-origin; no console errors. axe (WCAG 2.2 AA tags plus best practice) finds nothing on the section at 1512 and 360 px, at rest and with the slider focused. Steps 0 → 1 after 4 s and turns back at the end. Holds for 9 s while pointed at, while paused and while off screen; resumes after "Resume motion". One Tab from the heading reaches the slider (`:focus-visible`), the arrows step one frame, Home and End jump, and it holds while focused. Hovering at 3.24 blends frames 3 and 4 (0.24), and leaving settles on frame 3. Mouse drag from 10 % to 90 % ends on frame 8. Touch drag works, and a vertical swipe on the strip scrolls the page 301 px. Reduced motion: `data-motion="static"`, no stepping, button hidden, the arrow jumps at once. No horizontal overflow from 320 to 1920 px; the whole strip is in view from 1280 × 720 up and on tablets. The panel height is constant across the 10 species at 320, 360, 768 and 1512 px |
+| Production build (`NEXT_DIST_DIR=.next-scratch`, API on :4010) with `next start` on :3020 | CSP header sent, 10 frames, steps after 4 s, 40/40 images, no console errors, no off-site requests. The first attempt reused the e2e build, whose `/api/v1` rewrite points at the e2e API port, so the photos returned 500; that build was not used for the result. The scratch build added its folder to `tsconfig.json`; restored with `git checkout`, and the folder was deleted. Server stopped |
+
+The first hand check found two layout problems, both fixed and re-checked. At 768 px the stacked strip was only 327 px wide (`justify-center` now applies from `lg` up). At 1280 × 720 the strip ended 37 px below the screen (its minimum width is now 28 rem). The first panel had a guessed minimum height that some species' details exceeded; it was replaced by the stacked grid cell.
+
+**Known gaps:**
+- e2e does not cover the strip (BACKLOG: more synthetic fixture photos).
+- During a jump of several frames (End, or holding an arrow key), the slider's value climbs through each frame the playhead passes (the kit's design). Single steps report once.
+- On a 360 px phone the thumbnails are about 26 px wide and show their whole photos small (D-039).
+- The kit's code has no licence notice (as with the picture rail, D-063).
+- Not checked: Safari and Firefox (the kit uses `color-mix()` and `backdrop-filter`, supported by current versions), and a real screen reader.
+
 ## 2026-11-25: Visitor accounts and one sign-in form for everyone (owner request, no milestone; D-066)
 
 The owner reported that `/admin` sent them home although they had signed in as admin. The dev database showed why: their newest admin session was last used at 06:53 UTC on 24 November, almost 15 hours earlier, past the 12-hour idle limit. The D-065 guard therefore sent the browser home, as designed, and nothing on the site led to `/admin/sign-in`. The owner then asked for a sign-in or sign-up page for everyone: admins go to the admin page, and a regular person stays on the site. Public accounts are R2 in PLAN, and the privacy page promised "no accounts". The agent explained that, plus the lack of email (no verification, no reset). The owner chose "Public accounts now".
